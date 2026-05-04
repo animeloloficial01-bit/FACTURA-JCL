@@ -3,266 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jose Landscaping Care - Sistema Oficial</title>
+    <title>Jose Landscaping Care</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
-        body { font-family: 'Inter', sans-serif; }
         .view { display: none; }
         .view.active { display: block; }
         @media print { .no-print { display: none !important; } }
-        .factura-container { width: 210mm; min-height: 297mm; padding: 20mm; margin: auto; background: white; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900">
+<body class="bg-gray-100">
 
     <div class="flex min-h-screen">
-        <aside class="w-72 bg-[#1a3a1a] text-white p-8 no-print fixed h-full shadow-2xl z-50">
-            <div class="mb-10 text-center">
-                <img src="logo.png" alt="JLC Logo" class="w-32 h-32 mx-auto mb-4 rounded-full bg-white p-1 object-contain shadow-lg">
-                <h2 class="text-xl font-black tracking-tighter text-[#76b852] uppercase leading-tight">JOSE <br><span class="text-white">LANDSCAPING</span></h2>
-            </div>
-            <nav class="space-y-4">
-                <button onclick="nuevaFactura()" class="flex items-center gap-3 w-full text-left p-3 hover:bg-[#2d5a2d] rounded-xl transition font-semibold"><span>📄</span> Crear Factura</button>
-                <button onclick="showView('v-historial')" class="flex items-center gap-3 w-full text-left p-3 hover:bg-[#2d5a2d] rounded-xl transition font-semibold"><span>📊</span> Ventas Totales</button>
-                <button onclick="showView('v-deudores')" class="flex items-center gap-3 w-full text-left p-3 hover:bg-red-900/40 text-red-200 rounded-xl transition font-semibold"><span>🚩</span> Por Cobrar</button>
-                <button onclick="showView('v-clientes')" class="flex items-center gap-3 w-full text-left p-3 hover:bg-[#2d5a2d] rounded-xl transition font-semibold"><span>👥</span> Mis Clientes</button>
+        <aside class="w-64 bg-green-900 text-white p-6 no-print fixed h-full">
+            <img src="logo.png" class="w-24 h-24 mx-auto mb-4 rounded-full bg-white object-contain">
+            <h1 class="text-center font-bold mb-8 uppercase text-sm">Jose Landscaping Care</h1>
+            <nav class="space-y-2">
+                <button onclick="irA('v-factura')" class="w-full text-left p-3 hover:bg-green-700 rounded">📄 Nueva Factura</button>
+                <button onclick="irA('v-clientes')" class="w-full text-left p-3 hover:bg-green-700 rounded">👥 Clientes</button>
+                <button onclick="irA('v-historial')" class="w-full text-left p-3 hover:bg-green-700 rounded">📊 Historial</button>
             </nav>
         </aside>
 
-        <main class="flex-1 ml-72 p-12">
+        <main class="flex-1 ml-64 p-10">
+            
             <div id="v-factura" class="view active">
-                <div class="factura-container shadow-2xl rounded-sm border border-slate-200" id="documento">
-                    <div class="flex justify-between items-start mb-12">
-                        <div class="flex gap-6 items-center">
-                            <img src="logo.png" class="w-28 h-28 object-contain">
-                            <div>
-                                <h1 class="text-3xl font-black text-[#2d5a2d] uppercase">JOSE</h1>
-                                <h2 class="text-xl font-light text-slate-500 uppercase tracking-widest">Landscaping Care</h2>
-                            </div>
+                <div id="area-impresion" class="bg-white p-10 shadow-lg max-w-[800px] mx-auto border-t-8 border-green-600">
+                    <div class="flex justify-between items-start mb-8">
+                        <div>
+                            <img src="logo.png" class="w-20 h-20 mb-2">
+                            <h2 class="text-2xl font-bold text-green-800">JOSE LANDSCAPING CARE</h2>
+                            <p class="text-xs text-gray-500 uppercase">Cuidado Profesional de Jardines</p>
                         </div>
                         <div class="text-right">
-                            <h1 class="text-6xl font-black text-slate-100 mb-2">INVOICE</h1>
-                            <input type="text" id="folio" class="text-right text-xl font-bold text-emerald-700 outline-none w-48 bg-transparent" placeholder="Folio">
-                            <br><input type="date" id="fecha-doc" class="text-right outline-none font-semibold text-slate-700 bg-transparent mt-2">
+                            <h2 class="text-4xl font-black text-gray-200">INVOICE</h2>
+                            <input type="text" id="folio" class="text-right border-b outline-none font-bold text-green-700" placeholder="Folio">
+                            <br><input type="date" id="fecha" class="text-right border-b outline-none text-sm mt-2">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-12 mb-10 bg-slate-50 p-8 rounded-b-3xl">
+                    <div class="bg-gray-50 p-4 rounded mb-6 flex justify-between">
                         <div>
-                            <p class="text-[10px] font-extrabold text-emerald-700 uppercase mb-4">Facturar a:</p>
-                            <select id="select-cliente" class="w-full mb-4 no-print border p-2 rounded-lg" onchange="cargarClienteEnDoc()">
-                                <option value="">-- Seleccionar Cliente --</option>
-                            </select>
-                            <div class="space-y-1">
-                                <p id="doc-c-nombre" class="font-black text-slate-800 text-lg uppercase font-bold">Cliente</p>
-                                <p id="doc-c-email" class="text-sm text-slate-500 italic">Email</p>
-                                <p id="doc-c-dir" class="text-xs text-slate-400 uppercase">Dirección</p>
-                            </div>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase">Cliente:</p>
+                            <select id="sel-cliente" class="no-print border p-1 rounded text-sm mb-2" onchange="seleccionarCliente()"></select>
+                            <p id="doc-nombre" class="font-bold text-lg">- Seleccione Cliente -</p>
+                            <p id="doc-dir" class="text-sm text-gray-500 uppercase">Dirección de servicio</p>
                         </div>
-                        <div>
-                            <p class="text-[10px] font-extrabold text-slate-400 uppercase mb-4 tracking-widest">Opciones:</p>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" id="check-pagado" class="w-5 h-5 accent-emerald-600" onchange="recalcular()">
-                                <span class="text-xs font-black text-emerald-600 uppercase">Sí, Liquidado</span>
+                        <div class="text-right">
+                            <label class="text-xs font-bold text-green-600 uppercase">
+                                <input type="checkbox" id="pagado"> ¿Ya está pagado?
                             </label>
                         </div>
                     </div>
 
-                    <table class="w-full mb-10">
-                        <thead><tr class="bg-[#1a3a1a] text-white">
-                            <th class="p-4 text-left text-[10px] uppercase">Descripción</th>
-                            <th class="w-20 p-4 text-center text-[10px] uppercase">Cant.</th>
-                            <th class="w-32 p-4 text-right text-[10px] uppercase">Precio</th>
-                            <th class="w-32 p-4 text-right text-[10px] uppercase font-bold">Total</th>
+                    <table class="w-full mb-6">
+                        <thead><tr class="bg-green-800 text-white text-xs uppercase">
+                            <th class="p-2 text-left">Descripción</th>
+                            <th class="p-2 w-20 text-center">Cant.</th>
+                            <th class="p-2 w-32 text-right">Precio</th>
+                            <th class="p-2 w-32 text-right">Total</th>
                         </tr></thead>
-                        <tbody id="items-factura" class="divide-y divide-slate-100 border"></tbody>
+                        <tbody id="filas" class="border"></tbody>
                     </table>
 
-                    <div class="grid grid-cols-2 gap-8 items-end">
-                        <div class="bg-[#1a3a1a] text-white p-8 rounded-3xl">
-                            <div class="flex justify-between text-emerald-400 text-xs mb-2"><span>Subtotal</span><span id="sub-res">$0.00</span></div>
-                            <div class="flex justify-between items-center border-t border-emerald-800 pt-4">
-                                <span class="font-black">TOTAL</span>
-                                <span id="total-res" class="text-4xl font-black text-[#76b852]">$0.00</span>
-                            </div>
-                        </div>
+                    <div class="text-right">
+                        <p class="text-xs text-gray-500">Subtotal: <span id="sub">$0.00</span></p>
+                        <p class="text-2xl font-bold text-green-700">TOTAL: <span id="tot">$0.00</span></p>
                     </div>
                 </div>
-                <div class="max-w-4xl mx-auto mt-10 flex gap-4 no-print">
-                    <button onclick="agregarFila()" class="bg-white border-2 border-[#1a3a1a] p-4 rounded-2xl font-black uppercase text-[10px]">＋ Añadir</button>
-                    <button onclick="guardarYGenerar(true)" class="bg-[#2d5a2d] text-white p-4 rounded-2xl font-black flex-1 uppercase text-[10px]">Guardar PDF</button>
+                <div class="max-w-[800px] mx-auto mt-6 flex gap-4 no-print">
+                    <button onclick="nuevaFila()" class="bg-white border border-green-800 px-4 py-2 rounded font-bold text-xs uppercase">＋ Añadir Concepto</button>
+                    <button onclick="guardar()" class="bg-green-700 text-white px-6 py-2 rounded font-bold flex-1 uppercase text-xs">Guardar y Descargar PDF</button>
+                </div>
+            </div>
+
+            <div id="v-clientes" class="view">
+                <div class="bg-white p-8 rounded shadow max-w-2xl">
+                    <h2 class="text-xl font-bold mb-4 uppercase">Registrar Nuevo Cliente</h2>
+                    <div class="grid grid-cols-1 gap-4">
+                        <input type="text" id="n-cli" placeholder="Nombre completo" class="p-3 border rounded">
+                        <input type="text" id="d-cli" placeholder="Dirección" class="p-3 border rounded">
+                        <button onclick="crearCliente()" class="bg-green-800 text-white p-3 rounded font-bold uppercase">Guardar en Agenda</button>
+                    </div>
+                    <div id="lista-cli" class="mt-8 space-y-2"></div>
                 </div>
             </div>
 
             <div id="v-historial" class="view">
-                <h2 class="text-3xl font-black mb-10 uppercase italic">Ventas</h2>
-                <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
-                    <table class="w-full text-left">
-                        <thead class="bg-slate-50 text-[10px] font-black uppercase text-slate-400 border-b">
-                            <tr><th class="p-6">Folio</th><th class="p-6">Cliente</th><th class="p-6 text-right">Monto</th><th class="p-6 text-center">Acciones</th></tr>
+                <h2 class="text-xl font-bold mb-4 uppercase">Historial de Ventas</h2>
+                <div class="bg-white rounded shadow overflow-hidden">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-100 uppercase text-xs font-bold">
+                            <tr><th class="p-4">Folio</th><th class="p-4">Cliente</th><th class="p-4 text-right">Monto</th><th class="p-4">Estado</th></tr>
                         </thead>
-                        <tbody id="tabla-historial" class="divide-y divide-slate-100"></tbody>
+                        <tbody id="tabla-h" class="divide-y"></tbody>
                     </table>
                 </div>
             </div>
 
-            <div id="v-deudores" class="view">
-                <h2 class="text-3xl font-black mb-8 uppercase italic">Por Cobrar</h2>
-                <div id="contenedor-deudores" class="space-y-4"></div>
-                <div id="mensaje-limpio" class="hidden text-center py-20 bg-white rounded-3xl border">Sin deudas</div>
-            </div>
-
-            <div id="v-clientes" class="view">
-                <div class="bg-white p-10 rounded-3xl shadow-xl border">
-                    <h2 class="text-2xl font-black mb-8 uppercase">Clientes</h2>
-                    <div class="grid grid-cols-2 gap-4 mb-10">
-                        <input type="text" id="cl-nombre" placeholder="Nombre" class="p-4 border rounded-2xl">
-                        <input type="email" id="cl-email" placeholder="Email" class="p-4 border rounded-2xl">
-                        <input type="text" id="cl-tel" placeholder="Tel" class="p-4 border rounded-2xl">
-                        <input type="text" id="cl-dir" placeholder="Dirección" class="p-4 border rounded-2xl">
-                        <button onclick="registrarCliente()" class="bg-[#1a3a1a] text-white p-5 rounded-2xl font-black col-span-2 uppercase text-xs">Guardar Cliente</button>
-                    </div>
-                    <div id="lista-clientes" class="grid grid-cols-2 gap-4"></div>
-                </div>
-            </div>
         </main>
     </div>
 
     <script>
-        let clientes = JSON.parse(localStorage.getItem('jlc_db_clients')) || [];
-        let facturas = JSON.parse(localStorage.getItem('jlc_db_invoices')) || [];
-        let indexEdicion = -1;
+        // Datos iniciales
+        let clientes = JSON.parse(localStorage.getItem('jlc_clientes')) || [];
+        let facturas = JSON.parse(localStorage.getItem('jlc_facturas')) || [];
 
-        function showView(id) {
+        // Función para cambiar de vista
+        function irA(id) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            if(id === 'v-clientes') renderClientes();
-            if(id === 'v-historial') renderHistorial();
-            if(id === 'v-deudores') renderDeudores();
+            if(id === 'v-clientes') listarClientes();
+            if(id === 'v-historial') listarHistorial();
             actualizarSelect();
         }
 
-        function agregarFila(desc="", cant=1, precio=0) {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="p-4"><input type="text" value="${desc}" class="w-full bg-transparent outline-none font-bold text-slate-700"></td>
-                <td class="p-4 text-center"><input type="number" value="${cant}" class="w-full text-center bg-transparent outline-none" oninput="recalcular()"></td>
-                <td class="p-4 text-right"><input type="number" value="${precio}" class="w-full text-right bg-transparent outline-none" oninput="recalcular()"></td>
-                <td class="p-4 text-right font-black text-slate-900">$0.00</td>`;
-            document.getElementById('items-factura').appendChild(tr);
-            recalcular();
-        }
-
-        function recalcular() {
-            let subtotal = 0;
-            document.querySelectorAll('#items-factura tr').forEach(row => {
-                const c = parseFloat(row.cells.children.value) || 0;
-                const p = parseFloat(row.cells.children.value) || 0;
-                const t = c * p;
-                row.cells.innerText = `$${t.toFixed(2)}`;
-                subtotal += t;
-            });
-            const total = subtotal * 1.16;
-            document.getElementById('sub-res').innerText = `$${subtotal.toFixed(2)}`;
-            document.getElementById('total-res').innerText = `$${total.toFixed(2)}`;
-        }
-
-        function registrarCliente() {
-            const cli = { 
-                nombre: document.getElementById('cl-nombre').value, 
-                email: document.getElementById('cl-email').value, 
-                tel: document.getElementById('cl-tel').value, 
-                dir: document.getElementById('cl-dir').value 
-            };
-            if(!cli.nombre) return alert("Pon el nombre");
-            clientes.push(cli);
-            localStorage.setItem('jlc_db_clients', JSON.stringify(clientes));
-            alert("Guardado");
-            renderClientes();
+        // Clientes
+        function crearCliente() {
+            const nom = document.getElementById('n-cli').value;
+            const dir = document.getElementById('d-cli').value;
+            if(!nom) return alert("El nombre es obligatorio");
+            
+            clientes.push({ nombre: nom, direccion: dir });
+            localStorage.setItem('jlc_clientes', JSON.stringify(clientes));
+            
+            document.getElementById('n-cli').value = "";
+            document.getElementById('d-cli').value = "";
+            alert("Cliente guardado con éxito");
+            listarClientes();
             actualizarSelect();
         }
 
-        function renderClientes() {
-            document.getElementById('lista-clientes').innerHTML = clientes.map(c => `
-                <div class="p-4 bg-white border rounded-2xl font-black text-xs uppercase flex justify-between">
-                    <span>${c.nombre}</span><span class="text-emerald-600">🌿</span>
+        function listarClientes() {
+            document.getElementById('lista-cli').innerHTML = clientes.map(c => `
+                <div class="p-3 bg-gray-50 border-l-4 border-green-600 font-bold uppercase text-xs flex justify-between">
+                    <span>${c.nombre}</span> <span class="text-gray-400 italic">${c.direccion}</span>
                 </div>`).join('');
         }
 
         function actualizarSelect() {
-            document.getElementById('select-cliente').innerHTML = '<option value="">-- Buscar Cliente --</option>' + 
+            const sel = document.getElementById('sel-cliente');
+            if(!sel) return;
+            sel.innerHTML = '<option value="">-- Seleccionar --</option>' + 
                 clientes.map((c, i) => `<option value="${i}">${c.nombre}</option>`).join('');
         }
 
-        function cargarClienteEnDoc() {
-            const idx = document.getElementById('select-cliente').value;
-            if(idx === "") return;
-            const c = clientes[idx];
-            document.getElementById('doc-c-nombre').innerText = c.nombre;
-            document.getElementById('doc-c-email').innerText = c.email;
-            document.getElementById('doc-c-dir').innerText = c.dir;
+        function seleccionarCliente() {
+            const i = document.getElementById('sel-cliente').value;
+            if(i === "") return;
+            document.getElementById('doc-nombre').innerText = clientes[i].nombre;
+            document.getElementById('doc-dir').innerText = clientes[i].direccion;
         }
 
-        function renderHistorial() {
-            document.getElementById('tabla-historial').innerHTML = facturas.slice().reverse().map(f => `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="p-6 font-black text-xs uppercase">${f.folio}</td>
-                    <td class="p-6 font-bold uppercase text-xs text-slate-700">${f.cliente}</td>
-                    <td class="p-6 text-right font-black text-slate-900">${f.total}</td>
-                    <td class="p-6 text-center">
-                        <button onclick="cargarEditar(${facturas.indexOf(f)})" class="text-blue-500 font-bold text-[10px]">VER</button>
+        // Factura
+        function nuevaFila() {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="p-2"><input type="text" class="w-full outline-none font-bold text-gray-700" placeholder="Servicio..."></td>
+                <td class="p-2"><input type="number" value="1" class="w-full text-center outline-none" oninput="calc()"></td>
+                <td class="p-2"><input type="number" value="0" class="w-full text-right outline-none" oninput="calc()"></td>
+                <td class="p-2 text-right font-bold">$0.00</td>
+            `;
+            document.getElementById('filas').appendChild(tr);
+        }
+
+        function calc() {
+            let sub = 0;
+            document.querySelectorAll('#filas tr').forEach(r => {
+                const c = r.cells.children.value;
+                const p = r.cells.children.value;
+                const t = c * p;
+                r.cells.innerText = "$" + t.toFixed(2);
+                sub += t;
+            });
+            document.getElementById('sub').innerText = "$" + sub.toFixed(2);
+            document.getElementById('tot').innerText = "$" + (sub * 1.16).toFixed(2);
+        }
+
+        function guardar() {
+            const tot = document.getElementById('tot').innerText;
+            if(tot === "$0.00") return alert("Añada un servicio primero");
+
+            const f = {
+                folio: document.getElementById('folio').value || "JLC-00",
+                cliente: document.getElementById('doc-nombre').innerText,
+                total: tot,
+                pagada: document.getElementById('pagado').checked
+            };
+
+            facturas.push(f);
+            localStorage.setItem('jlc_facturas', JSON.stringify(facturas));
+
+            // Descargar PDF
+            const element = document.getElementById('area-impresion');
+            html2pdf().from(element).set({
+                margin: 10,
+                filename: f.folio + '.pdf',
+                html2canvas: { scale: 2 }
+            }).save();
+
+            alert("Factura guardada y PDF generado");
+            irA('v-historial');
+        }
+
+        function listarHistorial() {
+            document.getElementById('tabla-h').innerHTML = facturas.slice().reverse().map(f => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-4 font-bold uppercase">${f.folio}</td>
+                    <td class="p-4 uppercase">${f.cliente}</td>
+                    <td class="p-4 text-right font-bold text-green-700">${f.total}</td>
+                    <td class="p-4">
+                        <span class="text-[10px] font-bold p-1 rounded ${f.pagada ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} uppercase">
+                            ${f.pagada ? 'Pagado' : 'Pendiente'}
+                        </span>
                     </td>
                 </tr>`).join('');
         }
 
-        function renderDeudores() {
-            const cont = document.getElementById('contenedor-deudores');
-            let deudores = {};
-            facturas.filter(f => !f.pagada).forEach(f => {
-                if(!deudores[f.cliente]) deudores[f.cliente] = { nombre: f.cliente, total: 0 };
-                deudores[f.cliente].total += f.monto_raw;
-            });
-            const lista = Object.values(deudores);
-            document.getElementById('mensaje-limpio').className = lista.length ? 'hidden' : 'block text-center py-20 bg-white rounded-3xl border';
-            cont.innerHTML = lista.map(d => `
-                <div class="flex justify-between items-center p-8 bg-white rounded-3xl shadow-lg border border-slate-100">
-                    <div>
-                        <h4 class="font-black text-slate-800 uppercase text-xl">${d.nombre}</h4>
-                        <p class="text-4xl font-black text-red-600 mt-2">$${d.total.toFixed(2)}</p>
-                    </div>
-                </div>`).join('');
-        }
-
-        function guardarYGenerar(descargar) {
-            const data = {
-                id: Date.now(),
-                folio: document.getElementById('folio').value,
-                fecha: document.getElementById('fecha-doc').value,
-                cliente: document.getElementById('doc-c-nombre').innerText,
-                total: document.getElementById('total-res').innerText,
-                monto_raw: parseFloat(document.getElementById('total-res').innerText.replace('$','')),
-                pagada: document.getElementById('check-pagado').checked,
-                items: Array.from(document.querySelectorAll('#items-factura tr')).map(r => ({
-                    d: r.cells.children.value, c: r.cells.children.value, p: r.cells.children.value
-                }))
-            };
-            facturas.push(data);
-            localStorage.setItem('jlc_db_invoices', JSON.stringify(facturas));
-            if(descargar) html2pdf().from(document.getElementById('documento')).set({ margin: 0, filename: `JLC_${data.folio}.pdf`, html2canvas: { scale: 3 } }).save();
-            showView('v-historial');
-        }
-
-        function nuevaFactura() {
-            document.getElementById('items-factura').innerHTML = "";
-            document.getElementById('folio').value = "JLC-" + (facturas.length + 1);
-            document.getElementById('fecha-doc').valueAsDate = new Date();
-            agregarFila();
-            showView('v-factura');
-        }
-
-        nuevaFactura();
+        // Iniciar página
+        document.getElementById('fecha').valueAsDate = new Date();
+        nuevaFila();
+        actualizarSelect();
     </script>
 </body>
 </html>
