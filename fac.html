@@ -290,6 +290,17 @@
                     <td class="p-6 text-right font-black text-slate-900">${f.total}</td>
                     <td class="p-6 text-center">
                         <span class="px-4 py-1 rounded-full text-[9px] font-black uppercase ${f.pagada ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">
+                  function renderHistorial() {
+            let p = 0, d = 0;
+            document.getElementById('tabla-historial').innerHTML = facturas.slice().reverse().map(f => {
+                f.pagada ? p += f.monto_raw : d += f.monto_raw;
+                return `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-6 font-black text-xs uppercase">${f.folio}<br><span class="font-normal text-slate-400 text-[9px]">${f.fecha}</span></td>
+                    <td class="p-6 font-bold uppercase text-xs text-slate-700">${f.cliente}</td>
+                    <td class="p-6 text-right font-black text-slate-900">${f.total}</td>
+                    <td class="p-6 text-center">
+                        <span class="px-4 py-1 rounded-full text-[9px] font-black uppercase ${f.pagada ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">
                             ${f.pagada ? 'Completado' : 'Pendiente'}
                         </span>
                     </td>
