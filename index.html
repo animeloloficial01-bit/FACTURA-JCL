@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jose Landscaping Care - Sistema Profesional</title>
+    <title>Jose Landscaping Care - Ultimate System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
@@ -13,127 +13,146 @@
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
-<body class="bg-slate-100 font-sans">
+<body class="bg-slate-100 font-sans text-slate-900">
 
     <div class="flex min-h-screen">
         <aside class="w-64 bg-[#1a3a1a] text-white p-6 no-print fixed h-full shadow-2xl">
             <div class="text-center mb-8">
-                <img src="logo.png" class="w-24 h-24 mx-auto mb-3 rounded-full bg-white object-contain border-2 border-green-500">
+                <img src="logo.png" class="w-24 h-24 mx-auto mb-3 rounded-full bg-white object-contain border-2 border-green-500 shadow-lg">
                 <h1 class="text-[10px] font-black uppercase tracking-[0.2em] text-green-400">Jose Landscaping</h1>
             </div>
             <nav class="space-y-2">
-                <button onclick="irA('v-factura')" class="w-full text-left p-3 hover:bg-green-800 rounded-xl transition font-bold text-sm">📄 Nueva Factura</button>
-                <button onclick="irA('v-clientes')" class="w-full text-left p-3 hover:bg-green-800 rounded-xl transition font-bold text-sm">👥 Mis Clientes</button>
-                <button onclick="irA('v-historial')" class="w-full text-left p-3 hover:bg-green-800 rounded-xl transition font-bold text-sm">📊 Historial Ventas</button>
+                <button onclick="irA('v-factura')" class="w-full text-left p-3 hover:bg-green-800 rounded-xl transition font-bold text-sm flex items-center gap-3"><span>📄</span> New Invoice</button>
+                <button onclick="irA('v-clientes')" class="w-full text-left p-3 hover:bg-green-800 rounded-xl transition font-bold text-sm flex items-center gap-3"><span>👥</span> Customers</button>
+                <button onclick="irA('v-historial')" class="w-full text-left p-3 hover:bg-green-800 rounded-xl transition font-bold text-sm flex items-center gap-3"><span>📊</span> Sales & Debts</button>
             </nav>
         </aside>
 
         <main class="flex-1 ml-64 p-10">
             
             <div id="v-factura" class="view active">
-                <div id="ticket" class="bg-white p-10 shadow-2xl max-w-[850px] mx-auto border-t-[10px] border-[#1a3a1a] rounded-b-xl">
-                    <div class="flex justify-between items-start mb-8">
-                        <div class="flex items-center gap-4">
-                            <img src="logo.png" class="w-20 h-20 object-contain">
+                <div id="ticket" class="bg-white p-10 shadow-2xl max-w-[850px] mx-auto border-t-[12px] border-[#1a3a1a] rounded-b-2xl">
+                    <div class="flex justify-between items-start mb-10">
+                        <div class="flex items-center gap-5">
+                            <img src="logo.png" class="w-24 h-24 object-contain">
                             <div>
-                                <h2 class="text-2xl font-black text-slate-800 uppercase leading-none">JOSE</h2>
-                                <p class="text-[10px] font-bold text-green-600 uppercase tracking-widest">Landscaping Care</p>
+                                <h2 class="text-3xl font-black text-slate-800 uppercase leading-none">JOSE</h2>
+                                <p class="text-xs font-bold text-green-600 uppercase tracking-[0.3em]">Landscaping Care</p>
                             </div>
                         </div>
                         <div class="text-right">
-                            <h2 class="text-4xl font-black text-slate-100 uppercase italic">Invoice</h2>
-                            <input type="text" id="folio" class="text-right border-b font-bold text-green-700 outline-none w-32 bg-transparent" placeholder="FOLIO">
-                            <br><input type="date" id="fecha" class="text-right border-b outline-none text-xs text-slate-500 mt-2 bg-transparent">
+                            <h2 class="text-5xl font-black text-slate-100 uppercase italic leading-none mb-2">Invoice</h2>
+                            <div class="flex flex-col items-end gap-1">
+                                <div class="text-[10px] font-black text-slate-400 uppercase">Invoice Number</div>
+                                <input type="text" id="folio" class="text-right border-b-2 border-slate-100 font-black text-green-700 outline-none w-32 text-xl bg-transparent focus:border-green-500" placeholder="001">
+                                <input type="date" id="fecha" class="text-right outline-none text-xs text-slate-500 mt-2 bg-transparent font-bold">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="bg-slate-50 p-6 rounded-2xl mb-8 border border-slate-100 grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-8 mb-10 bg-slate-50 p-8 rounded-3xl border border-slate-100">
                         <div>
-                            <p class="text-[9px] font-black text-slate-400 uppercase mb-2">Facturar a:</p>
-                            <select id="sel-cliente" class="no-print border p-2 rounded-lg text-xs w-full mb-3" onchange="seleccionarCliente()"></select>
-                            <h3 id="doc-nombre" class="font-black text-lg text-slate-800 uppercase leading-none">SELECCIONE CLIENTE</h3>
-                            <p id="doc-email" class="text-xs text-blue-600 font-bold mt-1"></p>
-                            <p id="doc-tel" class="text-xs font-bold text-slate-600 mt-1"></p>
-                            <p id="doc-dir" class="text-[10px] text-slate-400 uppercase mt-1"></p>
+                            <p class="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Bill To:</p>
+                            <select id="sel-cliente" class="no-print border-2 p-2 rounded-xl text-xs w-full mb-4 bg-white font-bold" onchange="seleccionarCliente()"></select>
+                            <h3 id="doc-nombre" class="font-black text-xl text-slate-800 uppercase leading-tight">Select a Customer</h3>
+                            <div class="mt-2 space-y-1">
+                                <p id="doc-email" class="text-xs text-blue-600 font-bold"></p>
+                                <p id="doc-tel" class="text-xs font-bold text-slate-600"></p>
+                                <p id="doc-dir" class="text-[10px] text-slate-400 uppercase font-medium"></p>
+                            </div>
                         </div>
-                        <div class="text-right flex flex-col justify-between items-end">
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-black text-slate-400 uppercase block">Método de Pago:</label>
-                                <select id="metodo-pago" class="border p-1 rounded text-xs font-bold outline-none">
-                                    <option value="Efectivo">💵 Efectivo</option>
-                                    <option value="Cheque">✍️ Cheque</option>
-                                    <option value="Tarjeta">💳 Tarjeta</option>
+                        <div class="flex flex-col justify-between items-end">
+                            <div class="text-right">
+                                <p class="text-[10px] font-black text-slate-400 uppercase mb-2">Payment Details:</p>
+                                <select id="metodo-pago" class="border-2 p-2 rounded-xl text-xs font-black outline-none bg-white">
+                                    <option value="Cash">💵 Cash</option>
+                                    <option value="Check">✍️ Check</option>
+                                    <option value="Card">💳 Card</option>
                                 </select>
                             </div>
-                            <div class="flex gap-4 mt-4 no-print">
-                                <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border shadow-sm">
+                            <div class="flex gap-3 no-print">
+                                <label class="flex items-center gap-2 cursor-pointer bg-white px-3 py-2 rounded-xl border-2 shadow-sm hover:border-green-500 transition">
                                     <input type="checkbox" id="aplicar-iva" class="w-4 h-4 accent-green-600" onchange="calcularTodo()">
-                                    <span class="text-[9px] font-black uppercase text-slate-500">Cobrar Impuesto (16%)</span>
+                                    <span class="text-[10px] font-black uppercase text-slate-600">Add Tax (16%)</span>
                                 </label>
-                                <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border shadow-sm">
+                                <label class="flex items-center gap-2 cursor-pointer bg-white px-3 py-2 rounded-xl border-2 shadow-sm hover:border-green-500 transition">
                                     <input type="checkbox" id="pagado" class="w-4 h-4 accent-green-600">
-                                    <span class="text-[9px] font-black uppercase text-slate-500">Pagado</span>
+                                    <span class="text-[10px] font-black uppercase text-slate-600">Paid</span>
                                 </label>
                             </div>
                         </div>
                     </div>
 
-                    <table class="w-full mb-8">
-                        <thead class="bg-[#1a3a1a] text-white text-[10px] uppercase">
-                            <tr>
-                                <th class="p-3 text-left rounded-l-lg">Descripción</th>
-                                <th class="p-3 w-16 text-center">Cant</th>
-                                <th class="p-3 w-24 text-right">Precio</th>
-                                <th class="p-3 w-28 text-right rounded-r-lg">Total</th>
+                    <table class="w-full mb-10">
+                        <thead>
+                            <tr class="bg-[#1a3a1a] text-white text-[10px] uppercase tracking-widest font-black">
+                                <th class="p-4 text-left rounded-l-2xl">Service Description</th>
+                                <th class="p-4 w-20 text-center">Qty</th>
+                                <th class="p-4 w-28 text-right">Price</th>
+                                <th class="p-4 w-32 text-right rounded-r-2xl">Total</th>
                             </tr>
                         </thead>
-                        <tbody id="filas" class="divide-y"></tbody>
+                        <tbody id="filas" class="divide-y divide-slate-100 border-b"></tbody>
                     </table>
 
                     <div class="flex justify-end">
-                        <div class="w-64 space-y-2">
-                            <div class="flex justify-between text-xs font-bold text-slate-500 px-2">
+                        <div class="w-72 space-y-2">
+                            <div class="flex justify-between text-xs font-bold text-slate-400 px-4">
                                 <span>Subtotal:</span>
                                 <span id="sub">$0.00</span>
                             </div>
-                            <div id="box-iva" class="flex justify-between text-xs font-bold text-red-400 px-2 hidden">
-                                <span>Impuesto (16%):</span>
+                            <div id="box-iva" class="flex justify-between text-xs font-bold text-red-500 px-4 hidden">
+                                <span>Tax (16%):</span>
                                 <span id="val-iva">$0.00</span>
                             </div>
-                            <div class="flex justify-between text-2xl font-black bg-[#1a3a1a] text-green-400 p-5 rounded-2xl shadow-xl">
-                                <span>TOTAL:</span>
+                            <div class="flex justify-between text-3xl font-black bg-[#1a3a1a] text-green-400 p-6 rounded-3xl shadow-xl border-4 border-green-900/20">
+                                <span class="text-sm self-center text-white font-bold">TOTAL</span>
                                 <span id="tot">$0.00</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="max-w-[850px] mx-auto mt-8 flex gap-4 no-print">
-                    <button onclick="nuevaFila()" class="bg-white border-2 border-slate-200 px-6 py-3 rounded-xl font-black text-[10px] uppercase hover:border-green-500 transition">＋ Añadir Servicio</button>
-                    <button onclick="guardarFactura()" class="bg-green-600 text-white px-8 py-3 rounded-xl font-black flex-1 uppercase text-[10px] shadow-lg hover:bg-green-700 transition">Guardar y Descargar PDF</button>
+                <div class="max-w-[850px] mx-auto mt-10 flex gap-4 no-print">
+                    <button onclick="nuevaFila()" class="bg-white border-2 border-[#1a3a1a] text-[#1a3a1a] px-8 py-4 rounded-2xl font-black text-xs uppercase hover:bg-slate-50 transition shadow-lg">＋ Add Service Line</button>
+                    <button onclick="guardarFactura()" class="bg-green-600 text-white px-10 py-4 rounded-2xl font-black flex-1 uppercase text-xs shadow-2xl hover:bg-green-700 transition transform hover:scale-[1.02]">Save & Download Invoice</button>
                 </div>
             </div>
 
             <div id="v-clientes" class="view">
-                <div class="max-w-xl bg-white p-10 rounded-3xl shadow-xl">
-                    <h2 class="text-2xl font-black uppercase mb-6 text-slate-800 border-b-4 border-green-500 inline-block">Nuevo Cliente</h2>
+                <div class="max-w-xl bg-white p-10 rounded-[2.5rem] shadow-2xl border border-slate-100">
+                    <h2 class="text-3xl font-black uppercase mb-8 text-slate-800 border-b-8 border-green-500 inline-block">New Customer</h2>
                     <div class="space-y-4">
-                        <input type="text" id="n-cli" placeholder="Nombre completo" class="w-full p-4 border rounded-xl font-bold bg-slate-50 outline-none focus:ring-2 focus:ring-green-500">
-                        <input type="email" id="e-cli" placeholder="Correo Electrónico" class="w-full p-4 border rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-green-500">
-                        <input type="text" id="t-cli" placeholder="Teléfono" class="w-full p-4 border rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-green-500">
-                        <input type="text" id="d-cli" placeholder="Dirección" class="w-full p-4 border rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-green-500">
-                        <button onclick="crearCliente()" class="w-full bg-[#1a3a1a] text-white p-4 rounded-xl font-black uppercase text-sm shadow-lg hover:bg-black transition">Guardar Cliente</button>
+                        <input type="text" id="n-cli" placeholder="Customer Name" class="w-full p-4 border-2 rounded-2xl font-bold bg-slate-50 outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition">
+                        <input type="email" id="e-cli" placeholder="Email (Optional)" class="w-full p-4 border-2 rounded-2xl bg-slate-50 outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition">
+                        <input type="text" id="t-cli" placeholder="Phone Number" class="w-full p-4 border-2 rounded-2xl bg-slate-50 outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition">
+                        <input type="text" id="d-cli" placeholder="Address" class="w-full p-4 border-2 rounded-2xl bg-slate-50 outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition">
+                        <button onclick="crearCliente()" class="w-full bg-[#1a3a1a] text-white p-5 rounded-2xl font-black uppercase text-sm shadow-xl hover:bg-black transition">Add to Contacts</button>
                     </div>
-                    <div id="lista-cli" class="mt-10 space-y-2"></div>
+                    <div id="lista-cli" class="mt-12 space-y-3"></div>
                 </div>
             </div>
 
             <div id="v-historial" class="view">
-                <h2 class="text-2xl font-black uppercase mb-6 text-slate-800">Ventas Realizadas</h2>
-                <div class="bg-white rounded-2xl shadow-xl overflow-hidden border">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-50 font-black text-slate-400 uppercase text-[9px]">
-                            <tr><th class="p-5">Folio</th><th class="p-5">Cliente</th><th class="p-5 text-right">Total</th><th class="p-5 text-center">Pago</th><th class="p-5 text-center">Estado</th></tr>
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+                    <h2 class="text-3xl font-black uppercase text-slate-800 italic">Sales Tracking</h2>
+                    <div class="flex gap-2 bg-white p-2 rounded-2xl shadow-xl border-2 no-print">
+                        <button onclick="listarHistorial('all')" class="px-5 py-2 text-[10px] font-black uppercase rounded-xl hover:bg-slate-100">All</button>
+                        <button onclick="listarHistorial('paid')" class="px-5 py-2 text-[10px] font-black uppercase rounded-xl bg-green-50 text-green-700">Paid Only</button>
+                        <button onclick="listarHistorial('unpaid')" class="px-5 py-2 text-[10px] font-black uppercase rounded-xl bg-red-50 text-red-700">Unpaid (Debts)</button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-slate-100">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 font-black text-slate-400 uppercase text-[10px] tracking-widest border-b">
+                            <tr>
+                                <th class="p-6">Invoice #</th>
+                                <th class="p-6">Customer</th>
+                                <th class="p-6 text-right">Amount</th>
+                                <th class="p-6 text-center">Method</th>
+                                <th class="p-6 text-center">Status</th>
+                                <th class="p-6 text-right">Actions</th>
+                            </tr>
                         </thead>
                         <tbody id="tabla-h" class="divide-y divide-slate-100"></tbody>
                     </table>
@@ -143,18 +162,18 @@
     </div>
 
     <script>
-        let clientes = JSON.parse(localStorage.getItem('jlc_v3_cli')) || [];
-        let facturas = JSON.parse(localStorage.getItem('jlc_v3_fac')) || [];
+        let clientes = JSON.parse(localStorage.getItem('jlc_v5_cli')) || [];
+        let facturas = JSON.parse(localStorage.getItem('jlc_v5_fac')) || [];
 
         function irA(id) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             if(id === 'v-clientes') listarClientes();
-            if(id === 'v-historial') listarHistorial();
+            if(id === 'v-historial') listarHistorial('all');
             actualizarSelect();
         }
 
-        // --- CALCULO ---
+        // --- CALCULATION ENGINE ---
         function calcularTodo() {
             let subtotal = 0;
             document.querySelectorAll('#filas tr').forEach(row => {
@@ -164,129 +183,117 @@
                 row.querySelector('.total-fila').innerText = "$" + t.toFixed(2);
                 subtotal += t;
             });
-
             document.getElementById('sub').innerText = "$" + subtotal.toFixed(2);
-
             const conIva = document.getElementById('aplicar-iva').checked;
-            let iva = 0;
-            
-            if(conIva) {
-                iva = subtotal * 0.16;
-                document.getElementById('box-iva').classList.remove('hidden');
-            } else {
-                document.getElementById('box-iva').classList.add('hidden');
-            }
-
+            let iva = conIva ? subtotal * 0.16 : 0;
+            if(conIva) document.getElementById('box-iva').classList.remove('hidden');
+            else document.getElementById('box-iva').classList.add('hidden');
             document.getElementById('val-iva').innerText = "$" + iva.toFixed(2);
             document.getElementById('tot').innerText = "$" + (subtotal + iva).toFixed(2);
         }
 
         function nuevaFila() {
             const tr = document.createElement('tr');
-            tr.className = "hover:bg-slate-50";
+            tr.className = "hover:bg-slate-50 transition";
             tr.innerHTML = `
-                <td class="p-3"><input type="text" class="w-full outline-none font-bold text-slate-700 bg-transparent uppercase text-xs" placeholder="SERVICIO..."></td>
-                <td class="p-3"><input type="number" value="1" class="cant w-full text-center outline-none bg-transparent" oninput="calcularTodo()"></td>
-                <td class="p-3"><input type="number" value="0" class="prec w-full text-right outline-none bg-transparent font-bold text-green-700" oninput="calcularTodo()"></td>
-                <td class="total-fila p-3 text-right font-black text-slate-900">$0.00</td>
+                <td class="p-4"><input type="text" class="w-full outline-none font-bold text-slate-700 bg-transparent uppercase text-xs" placeholder="Describe service..."></td>
+                <td class="p-4"><input type="number" value="1" class="cant w-full text-center outline-none bg-transparent font-black" oninput="calcularTodo()"></td>
+                <td class="p-4"><input type="number" value="0" class="prec w-full text-right outline-none bg-transparent font-black text-green-700" oninput="calcularTodo()"></td>
+                <td class="total-fila p-4 text-right font-black text-slate-900 text-xs">$0.00</td>
             `;
             document.getElementById('filas').appendChild(tr);
             calcularTodo();
         }
 
-        // --- CLIENTES ---
+        // --- CUSTOMERS ---
         function crearCliente() {
-            const n = document.getElementById('n-cli').value;
-            const e = document.getElementById('e-cli').value;
-            const t = document.getElementById('t-cli').value;
-            const d = document.getElementById('d-cli').value;
-            if(!n) return alert("Nombre obligatorio");
+            const n = document.getElementById('n-cli').value, e = document.getElementById('e-cli').value, t = document.getElementById('t-cli').value, d = document.getElementById('d-cli').value;
+            if(!n) return alert("Customer Name is required");
             clientes.push({ n, e, t, d });
-            localStorage.setItem('jlc_v3_cli', JSON.stringify(clientes));
-            alert("¡Cliente guardado!");
-            document.getElementById('n-cli').value = "";
-            document.getElementById('e-cli').value = "";
-            document.getElementById('t-cli').value = "";
-            document.getElementById('d-cli').value = "";
-            listarClientes();
-            actualizarSelect();
+            localStorage.setItem('jlc_v5_cli', JSON.stringify(clientes));
+            document.getElementById('n-cli').value = ""; document.getElementById('e-cli').value = ""; document.getElementById('t-cli').value = ""; document.getElementById('d-cli').value = "";
+            listarClientes(); actualizarSelect();
+            alert("New customer added!");
         }
 
         function listarClientes() {
             document.getElementById('lista-cli').innerHTML = clientes.map(c => `
-                <div class="p-4 bg-white border rounded-xl flex justify-between items-center shadow-sm">
-                    <div>
-                        <p class="font-black text-slate-800 text-xs uppercase">${c.n}</p>
-                        <p class="text-[9px] text-blue-500 font-bold">${c.e || 'Sin correo'}</p>
-                    </div>
-                    <span class="text-green-500">🌿</span>
+                <div class="p-5 bg-white border-2 border-slate-100 rounded-2xl flex justify-between items-center shadow-sm">
+                    <div><p class="font-black text-slate-800 text-xs uppercase">${c.n}</p><p class="text-[9px] text-blue-500 font-bold">${c.e || 'No email saved'}</p></div>
+                    <span class="text-2xl">🌿</span>
                 </div>`).join('');
         }
 
         function actualizarSelect() {
-            const s = document.getElementById('sel-cliente');
-            if(!s) return;
-            s.innerHTML = '<option value="">-- SELECCIONAR CLIENTE --</option>' + 
-                clientes.map((c, i) => `<option value="${i}">${c.n}</option>`).join('');
+            const s = document.getElementById('sel-cliente'); if(!s) return;
+            s.innerHTML = '<option value="">-- CHOOSE CUSTOMER --</option>' + clientes.map((c, i) => `<option value="${i}">${c.n}</option>`).join('');
         }
 
         function seleccionarCliente() {
-            const i = document.getElementById('sel-cliente').value;
-            if(i==="") return;
+            const i = document.getElementById('sel-cliente').value; if(i==="") return;
             document.getElementById('doc-nombre').innerText = clientes[i].n;
             document.getElementById('doc-email').innerText = clientes[i].e ? "📧 " + clientes[i].e : "";
             document.getElementById('doc-tel').innerText = clientes[i].t ? "📞 " + clientes[i].t : "";
             document.getElementById('doc-dir').innerText = clientes[i].d ? "📍 " + clientes[i].d : "";
         }
 
-        // --- GUARDAR ---
+        // --- INVOICE & PDF ---
         function guardarFactura() {
             calcularTodo();
             const total = document.getElementById('tot').innerText;
-            if(total === "$0.00") return alert("Factura vacía");
-
+            if(total === "$0.00") return alert("Add at least one service price");
             const f = {
-                folio: document.getElementById('folio').value || "S/F",
+                id: Date.now(),
+                folio: document.getElementById('folio').value || "SN",
                 cliente: document.getElementById('doc-nombre').innerText,
                 total: total,
                 metodo: document.getElementById('metodo-pago').value,
                 estado: document.getElementById('pagado').checked,
                 fecha: document.getElementById('fecha').value
             };
-
             facturas.push(f);
-            localStorage.setItem('jlc_v3_fac', JSON.stringify(facturas));
-
-            const element = document.getElementById('ticket');
-            html2pdf().from(element).set({
-                margin: 5,
-                filename: f.folio + '.pdf',
-                html2canvas: { scale: 3 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            }).save().then(() => {
-                alert("Guardado e impreso");
-                irA('v-historial');
-            });
+            localStorage.setItem('jlc_v5_fac', JSON.stringify(facturas));
+            html2pdf().from(document.getElementById('ticket')).set({
+                margin: 5, filename: 'Invoice_' + f.folio + '.pdf', html2canvas: { scale: 3 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            }).save().then(() => { alert("Invoice saved successfully!"); irA('v-historial'); });
         }
 
-        function listarHistorial() {
-            document.getElementById('tabla-h').innerHTML = facturas.slice().reverse().map(f => `
-                <tr class="hover:bg-slate-50 text-[10px] font-bold uppercase">
-                    <td class="p-5 text-slate-800">${f.folio}</td>
-                    <td class="p-5 text-slate-500">${f.cliente}</td>
-                    <td class="p-5 text-right text-green-700">${f.total}</td>
-                    <td class="p-5 text-center text-blue-500">${f.metodo}</td>
-                    <td class="p-5 text-center">
+        // --- HISTORY & DEBT CONTROL ---
+        function markAsPaid(id) {
+            const idx = facturas.findIndex(f => f.id === id);
+            if(idx !== -1) {
+                facturas[idx].estado = true;
+                localStorage.setItem('jlc_v5_fac', JSON.stringify(facturas));
+                listarHistorial('unpaid');
+                alert("Payment updated!");
+            }
+        }
+
+        function listarHistorial(filtro) {
+            let data = facturas;
+            if(filtro === 'paid') data = facturas.filter(f => f.estado);
+            if(filtro === 'unpaid') data = facturas.filter(f => !f.estado);
+
+            document.getElementById('tabla-h').innerHTML = data.slice().reverse().map(f => `
+                <tr class="hover:bg-slate-50 text-[10px] font-black uppercase transition">
+                    <td class="p-6 text-slate-800">#${f.folio} <br><span class="text-[8px] text-slate-400 font-normal">${f.fecha}</span></td>
+                    <td class="p-6 text-slate-600">${f.cliente}</td>
+                    <td class="p-6 text-right text-green-700 text-sm">${f.total}</td>
+                    <td class="p-6 text-center text-blue-500">${f.metodo}</td>
+                    <td class="p-6 text-center">
                         <span class="px-3 py-1 rounded-full ${f.estado ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
-                            ${f.estado ? 'PAGADO' : 'PENDIENTE'}
+                            ${f.estado ? 'PAID' : 'UNPAID'}
                         </span>
+                    </td>
+                    <td class="p-6 text-right">
+                        ${!f.estado ? `<button onclick="markAsPaid(${f.id})" class="bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-green-700 shadow-md">Mark as Paid</button>` : '✅'}
                     </td>
                 </tr>`).join('');
         }
 
+        // Initializer
         document.getElementById('fecha').valueAsDate = new Date();
-        nuevaFila();
-        actualizarSelect();
+        nuevaFila(); actualizarSelect();
     </script>
 </body>
 </html>
