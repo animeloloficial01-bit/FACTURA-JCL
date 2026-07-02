@@ -57,7 +57,6 @@
             </div>
         </div>
     </div>
-
     <div id="app-content" class="flex min-h-screen hidden">
         
         <aside class="w-64 bg-[#0f290f] text-white p-6 no-print fixed h-full shadow-2xl z-50 flex flex-col justify-between">
@@ -91,7 +90,10 @@
                 </button>
             </div>
         </aside>
-                    <div id="v-factura" class="view active">
+
+        <main class="flex-1 ml-64 p-8 print-padding">
+            
+            <div id="v-factura" class="view active">
                 <div id="ticket" class="bg-white p-12 shadow-2xl max-w-[850px] mx-auto border-t-[14px] border-[#0f290f] rounded-b-[2rem]">
                     
                     <div class="flex justify-between items-start mb-12">
@@ -116,7 +118,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="bg-slate-50 p-6 rounded-2xl mb-8 border border-slate-200/60 grid grid-cols-2 gap-8">
                         <div>
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">Customer Parameters:</p>
@@ -182,8 +183,9 @@
                     <button onclick="nuevaFila()" class="bg-white border-2 border-slate-200 px-6 py-4 rounded-xl font-black text-xs uppercase hover:bg-slate-50 transition-all shadow-sm">＋ Add Concept Row</button>
                     <button onclick="guardarFactura()" class="bg-green-700 text-white px-8 py-4 rounded-xl font-black flex-1 uppercase text-xs tracking-wider shadow-lg hover:bg-green-800 transition-all text-center">Save Record & Export PDF Document</button>
                 </div>
-                    </div>
-                    <div id="v-clientes" class="view">
+            </div>
+
+            <div id="v-clientes" class="view">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-200 h-fit space-y-6">
                         <div>
@@ -261,8 +263,7 @@
                             <button onclick="resetProgramarForm()" class="bg-slate-200 text-slate-600 p-3.5 rounded-xl font-black uppercase text-xs tracking-wider hover:bg-slate-300 transition-all">Clear</button>
                         </div>
                     </div>
-
-                    <div class="lg:col-span-2 space-y-4">
+<div class="lg:col-span-2 space-y-4">
                         <div class="bg-white p-5 rounded-3xl shadow-sm border flex justify-between items-center mb-2">
                             <div>
                                 <h3 class="font-black text-slate-800 text-sm uppercase">Quick Dashboard Engine ⚡</h3>
@@ -273,7 +274,8 @@
                     </div>
                 </div>
             </div>
-                    <div id="v-notas" class="view">
+
+            <div id="v-notas" class="view">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-200 h-fit space-y-4">
                         <div>
@@ -352,7 +354,8 @@
                             </table>
                         </div>
                     </div>
-                                        <div id="bloque-historial-pagados" class="bg-white rounded-3xl shadow-xl overflow-hidden border border-green-200 hidden">
+
+                    <div id="bloque-historial-pagados" class="bg-white rounded-3xl shadow-xl overflow-hidden border border-green-200 hidden">
                         <div class="p-5 bg-green-50 text-green-900 font-black uppercase border-b text-xs flex justify-between items-center">
                             <span>💳 Sub-Account: Settled Payments (Paid)</span>
                             <span id="subtotal-pagado" class="bg-green-600 text-white px-3 py-1 rounded-xl font-black text-[11px]">$0.00</span>
@@ -403,7 +406,7 @@
     <div id="render-pdf-clon" class="absolute top-[-5000px] left-[-5000px] w-[800px] bg-white p-12" style="font-family: sans-serif;"></div>
 
     <script>
-        // CONFIGURACIÓN DE TU BASE DE DATOS REAL DE FIREBASE
+                // CONFIGURACIÓN DE TU BASE DE DATOS REAL DE FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyBKPqlndtjyYJduNZBagPIex15jv3AIdt4",
             authDomain: "jose-landscaping-care.firebaseapp.com",
@@ -450,7 +453,7 @@
             if(e.key === 'Enter') autenticar();
         });
 
-        // Conexión asíncrona real a Firebase al entrar al panel
+        // SOLUCIÓN AL ERROR DE CARGA: Conexión asíncrona real a Firebase al entrar al panel
         function conectarEscuchasNube() {
             db.ref('clientes').on('value', snapshot => {
                 cacheClientes = snapshot.val() || {};
@@ -475,7 +478,8 @@
                 if(document.getElementById('v-programar').classList.contains('active')) listarProgramaciones();
             });
         }
-               function irA(id) {
+
+        function irA(id) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             
@@ -527,8 +531,7 @@
             `;
             document.getElementById('filas').appendChild(tr);
             calcularTodo();
-        }
-
+                                                              }
         function agregarCamposDireccion(tipo = "Work Site", valor = "") {
             const contenedor = document.getElementById('contenedor-direcciones-form');
             const div = document.createElement('div');
@@ -582,14 +585,9 @@
             document.getElementById('titulo-cliente').innerText = "Add New Customer";
             document.getElementById('btn-save-cli').innerText = "Save Profile";
             agregarCamposDireccion("Work Site");
-                }
-                                                       
-                    
-        
-        
+        }
 
-        <main class="flex-1 ml-64 p-8 print-padding">
-                    function editarCliente(id) {
+        function editarCliente(id) {
             const c = cacheClientes[id];
             if(!c) return;
             
@@ -620,6 +618,7 @@
         function listarClientes() {
             const contenedor = document.getElementById('lista-cli');
             contenedor.innerHTML = "";
+            
             let html = "";
             for (let id in cacheClientes) {
                 const c = cacheClientes[id];
@@ -630,7 +629,7 @@
                     listadoDireccionesHTML = c.direcciones.map(d => `
                         <div class="flex items-center justify-between text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-200/60 shadow-inner">
                             <span class="text-slate-600"><b class="text-green-800 text-[10px] font-black tracking-wide bg-green-100/80 px-2 py-0.5 rounded-md mr-1">[${d.tipo.toUpperCase()}]</b> ${d.valor}</span>
-                            <a href="https://maps.google.com/?q=${encodeURIComponent(d.valor)}" target="_blank" class="text-[10px] bg-white border border-slate-200 text-blue-600 p-1.5 px-3 rounded-lg font-black tracking-wide shadow-sm hover:bg-blue-50 transition-all">📍 MAPS</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.valor)}" target="_blank" class="text-[10px] bg-white border border-slate-200 text-blue-600 p-1.5 px-3 rounded-lg font-black tracking-wide shadow-sm hover:bg-blue-50 transition-all">📍 MAPS</a>
                         </div>
                     `).join('');
                 } else {
@@ -658,7 +657,9 @@
             }
             contenedor.innerHTML = html || '<div class="bg-white text-center p-12 rounded-3xl border border-dashed text-slate-400 font-black uppercase text-xs">No entries found on Database.</div>';
         }
-
+           // ========================================== -->
+        // MODULO RECURRENTE: AUTOMACIONES Y REINSCRIBIR
+        // ========================================== -->
         function actualizarSelectorClientesProgramar() {
             const s = document.getElementById('prog-sel-cliente');
             if(!s) return;
@@ -690,7 +691,8 @@
                 db.ref('programaciones').push(progData).then(() => { alert("Automatización guardada con éxito."); resetProgramarForm(); });
             }
         }
-                function resetProgramarForm() {
+
+        function resetProgramarForm() {
             document.getElementById('prog-id').value = "";
             document.getElementById('prog-sel-cliente').value = "";
             document.getElementById('prog-costo').value = "";
@@ -721,10 +723,12 @@
             const p = cacheProgramaciones[id];
             if(!p) return;
 
+            // Cambia a la vista de factura y carga los datos automáticamente
             irA('v-factura');
             document.getElementById('sel-cliente').value = p.clienteId;
             seleccionarCliente();
             
+            // Forzar las filas según la programación
             document.getElementById('filas').innerHTML = "";
             nuevaFila(p.desc, p.costo);
             alert(`Datos de ${p.clienteNombre} cargados en el folio actual. Revisa y presiona Exportar PDF.`);
@@ -755,8 +759,10 @@
                 </div>`;
             }
             contenedor.innerHTML = html || '<div class="bg-white text-center p-12 rounded-3xl border border-dashed text-slate-400 font-black uppercase text-xs">No active recurring automations.</div>';
-        }
-
+                }
+        // ========================================== -->
+        // MODULOS TRADICIONALES ADICIONALES
+        // ========================================== -->
         function guardarNota() {
             const id = document.getElementById('nota-id').value;
             const t = document.getElementById('nota-titulo').value.trim();
@@ -826,8 +832,9 @@
             let opciones = '<option value="">-- SELECT CREDIT ACCOUNT / CLIENT --</option>';
             for(let id in cacheClientes){ opciones += `<option value="${id}">${cacheClientes[id].n.toUpperCase()}</option>`; }
             s.innerHTML = opciones;
-                }
-                function seleccionarCliente() {
+        }
+
+        function seleccionarCliente() {
             const id = document.getElementById('sel-cliente').value;
             const selDir = document.getElementById('sel-direccion');
             document.getElementById('filas').innerHTML = "";
@@ -891,6 +898,7 @@
             };
 
             db.ref('facturas').push(facturaData).then(() => {
+                // Renderizado directo
                 reimprimirFacturaPDF_Raw(facturaData);
                 alert("Factura guardada y PDF generado.");
                 document.getElementById('folio').value = "";
@@ -944,8 +952,8 @@
             let facturasProcesables = [];
             for(let id in cacheFacturas) { facturasProcesables.push({ id, ...cacheFacturas[id] }); }
             facturasProcesables.reverse();
-                    
-                        facturasProcesables.forEach(f => {
+
+            facturasProcesables.forEach(f => {
                 if (clienteSeleccionado !== "all" && f.cliente.toUpperCase() !== clienteSeleccionado) return;
                 
                 if (mesSeleccionado) {
@@ -1024,7 +1032,6 @@
 
             actualizarGraficoEstadistico(totalPagadoAcumulado, totalPendienteAcumulado);
         }
-
         function actualizarGraficoEstadistico(pagado, pendiente) {
             const ctx = document.getElementById('graficoFinanzas').getContext('2d');
             if (miGrafico) { miGrafico.destroy(); }
@@ -1057,6 +1064,9 @@
         function pagarFactura(id) { db.ref('facturas/' + id).update({ estado: true }).then(() => { ejecutarFiltrosHistorial(); }); }
         function eliminarFactura(id) { if(confirm("¿Eliminar registro de factura?")) { db.ref('facturas/' + id).remove().then(() => { ejecutarFiltrosHistorial(); }); } }
 
+        // ========================================== -->
+        // SOLUCIÓN AL DISEÑO Y ALINEACIÓN DE LOS PDFS
+        // ========================================== -->
         function reimprimirFacturaPDF(id) {
             const f = cacheFacturas[id];
             if (!f) return alert("Error al localizar la información de la factura.");
@@ -1090,8 +1100,8 @@
             if(f.conIva) {
                 subtotalCalculado = totalEfectivo / 1.16;
                 ivaCalculado = subtotalCalculado * 0.16;
-            }
-
+                                                                       }
+                    // CORRECCIÓN TÉCNICA: Se reemplazó el inválido grid-cols de Tailwind por Flexbox nativo para evitar saltos de línea rústicos
             renderClon.innerHTML = `
                 <div style="padding: 20px; border-top: 14px solid #0f290f; background: #fff;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
