@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jose Landscaping Care - Enterprise Cloud System v3</title>
+    <title>Jose Landscaping Care - Enterprise Cloud System v3.1</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -36,7 +34,7 @@
     <div id="v-login" class="fixed inset-0 bg-[#0f290f] flex items-center justify-center z-[100] p-4">
         <div class="bg-white p-10 rounded-[3rem] shadow-2xl max-w-md w-full text-center border-t-[12px] border-green-600">
             <div class="w-28 h-28 mx-auto mb-4 rounded-full bg-slate-50 flex items-center justify-center border-2 border-green-500 shadow-lg overflow-hidden">
-                <img src="logo.png" alt="Logo" class="w-full h-full object-contain p-2">
+                <img src="logo.png" alt="Logo" class="w-full h-full object-contain p-2" onerror="this.src='https://via.placeholder.com/150?text=Jose+LC'">
             </div>
             <h2 class="text-3xl font-black text-slate-800 tracking-tight uppercase leading-none">JOSE</h2>
             <p class="text-xs font-bold text-green-600 uppercase tracking-widest mb-8">Landscaping Care</p>
@@ -60,13 +58,12 @@
         </div>
     </div>
 
-
     <div id="app-content" class="flex min-h-screen hidden">
         
         <aside class="w-64 bg-[#0f290f] text-white p-6 no-print fixed h-full shadow-2xl z-50 flex flex-col justify-between">
             <div>
                 <div class="text-center mb-8 border-b border-green-900/50 pb-6">
-                    <img src="logo.png" class="w-20 h-20 mx-auto mb-3 rounded-full bg-white object-contain border-2 border-green-500 shadow-md">
+                    <img src="logo.png" class="w-20 h-20 mx-auto mb-3 rounded-full bg-white object-contain border-2 border-green-500 shadow-md" onerror="this.src='https://via.placeholder.com/150?text=Logo'">
                     <h1 class="text-[11px] font-black uppercase tracking-widest text-green-400">Jose Landscaping</h1>
                 </div>
                 
@@ -77,6 +74,9 @@
                     <button id="btn-v-clientes" onclick="irA('v-clientes')" class="w-full text-left p-3.5 hover:bg-green-800 rounded-xl transition font-black text-xs tracking-wider flex items-center gap-3 border border-transparent">
                         👥 CUSTOMERS
                     </button>
+                    <button id="btn-v-programar" onclick="irA('v-programar')" class="w-full text-left p-3.5 hover:bg-green-800 rounded-xl transition font-black text-xs tracking-wider flex items-center gap-3 border border-transparent text-yellow-400">
+                        📅 AUTOMATION
+                    </button>
                     <button id="btn-v-notas" onclick="irA('v-notas')" class="w-full text-left p-3.5 hover:bg-green-800 rounded-xl transition font-black text-xs tracking-wider flex items-center gap-3 border border-transparent">
                         📝 NOTES & REMINDERS
                     </button>
@@ -85,21 +85,18 @@
                     </button>
                 </nav>
             </div>
-          <div class="border-t border-green-900/50 pt-4">
+            <div class="border-t border-green-900/50 pt-4">
                 <button onclick="cerrarSesion()" class="w-full text-center p-3 bg-red-950/60 hover:bg-red-700 text-red-200 border border-red-500/30 rounded-xl transition font-black text-[10px] uppercase tracking-widest">
                     Log Out 🚪
                 </button>
             </div>
         </aside>
-
-        <main class="flex-1 ml-64 p-8 print-padding">
-            
-            <div id="v-factura" class="view active">
+                    <div id="v-factura" class="view active">
                 <div id="ticket" class="bg-white p-12 shadow-2xl max-w-[850px] mx-auto border-t-[14px] border-[#0f290f] rounded-b-[2rem]">
                     
                     <div class="flex justify-between items-start mb-12">
                         <div class="flex items-center gap-5">
-                            <img src="logo.png" class="w-24 h-24 object-contain">
+                            <img src="logo.png" class="w-24 h-24 object-contain" onerror="this.src='https://via.placeholder.com/150?text=Logo'">
                             <div>
                                 <h2 class="text-4xl font-black text-slate-800 tracking-tighter leading-none">JOSE</h2>
                                 <p class="text-xs font-bold text-green-600 uppercase tracking-widest mt-1">Landscaping Care</p>
@@ -167,8 +164,7 @@
                                 <th class="p-4 w-12 no-print rounded-r-xl text-center"></th>
                             </tr>
                         </thead>
-                        <tbody id="filas" class="divide-y divide-slate-200 text-xs font-bold">
-                            </tbody>
+                        <tbody id="filas" class="divide-y divide-slate-200 text-xs font-bold"></tbody>
                     </table>
                     <div class="flex justify-end border-t pt-6 border-slate-100">
                         <div class="w-72 space-y-2 text-right">
@@ -186,12 +182,9 @@
                     <button onclick="nuevaFila()" class="bg-white border-2 border-slate-200 px-6 py-4 rounded-xl font-black text-xs uppercase hover:bg-slate-50 transition-all shadow-sm">＋ Add Concept Row</button>
                     <button onclick="guardarFactura()" class="bg-green-700 text-white px-8 py-4 rounded-xl font-black flex-1 uppercase text-xs tracking-wider shadow-lg hover:bg-green-800 transition-all text-center">Save Record & Export PDF Document</button>
                 </div>
-            </div>
-
-
-            <div id="v-clientes" class="view">
+                    </div>
+                    <div id="v-clientes" class="view">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    
                     <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-200 h-fit space-y-6">
                         <div>
                             <h2 id="titulo-cliente" class="text-2xl font-black uppercase text-slate-800 tracking-tight">Add New Customer</h2>
@@ -228,10 +221,60 @@
                 </div>
             </div>
 
-
-            <div id="v-notas" class="view">
+            <div id="v-programar" class="view">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    
+                    <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-200 h-fit space-y-6">
+                        <div>
+                            <h2 id="titulo-prog" class="text-2xl font-black uppercase text-slate-800 tracking-tight text-green-800">Schedule Invoice</h2>
+                            <p class="text-xs text-slate-400 font-medium">Automate recursive monthly billing workflows.</p>
+                            <input type="hidden" id="prog-id" value="">
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Target Client Profile</label>
+                                <select id="prog-sel-cliente" class="border-2 p-3 rounded-xl text-xs w-full font-bold bg-white shadow-sm outline-none focus:border-green-600"></select>
+                            </div>
+
+                            <div>
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Recurrence Frequency</label>
+                                <select id="prog-frecuencia" class="border-2 p-3 rounded-xl text-xs w-full font-black bg-white shadow-sm outline-none focus:border-green-600">
+                                    <option value="Monthly">📅 Monthly (Every Month)</option>
+                                    <option value="Biweekly">⏳ Biweekly (Every 14 Days)</option>
+                                    <option value="Weekly">🍂 Weekly (Every 7 Days)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Billing Amount ($)</label>
+                                <input type="number" id="prog-costo" placeholder="0.00" step="0.01" class="w-full p-3.5 border border-slate-200 rounded-xl bg-slate-50 font-black text-green-700 outline-none text-xs focus:border-green-600 focus:bg-white transition-all">
+                            </div>
+
+                            <div>
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Service Description Label</label>
+                                <input type="text" id="prog-desc" value="STANDARD MONTHLY LANDSCAPING SERVICE PACKAGE" class="w-full p-3.5 border border-slate-200 rounded-xl font-bold bg-slate-50 outline-none text-xs focus:border-green-600 focus:bg-white transition-all uppercase">
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2 border-t pt-4">
+                            <button onclick="guardarProgramacion()" id="btn-save-prog" class="flex-1 bg-green-700 text-white p-3.5 rounded-xl font-black uppercase text-xs tracking-wider shadow-md hover:bg-green-800 transition-all">Activate Automation</button>
+                            <button onclick="resetProgramarForm()" class="bg-slate-200 text-slate-600 p-3.5 rounded-xl font-black uppercase text-xs tracking-wider hover:bg-slate-300 transition-all">Clear</button>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 space-y-4">
+                        <div class="bg-white p-5 rounded-3xl shadow-sm border flex justify-between items-center mb-2">
+                            <div>
+                                <h3 class="font-black text-slate-800 text-sm uppercase">Quick Dashboard Engine ⚡</h3>
+                                <p class="text-[11px] text-slate-400 font-bold">Generate outstanding planned items instantly with 1-Click.</p>
+                            </div>
+                        </div>
+                        <div id="lista-programaciones" class="space-y-4"></div>
+                    </div>
+                </div>
+            </div>
+                    <div id="v-notas" class="view">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-200 h-fit space-y-4">
                         <div>
                             <h2 id="titulo-nota" class="text-2xl font-black uppercase text-slate-800 tracking-tight">Add Reminder / Note</h2>
@@ -256,24 +299,18 @@
                 </div>
             </div>
 
-
             <div id="v-historial" class="view">
-                
                 <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8 no-print">
-                    
                     <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-4">
                         <h3 class="text-sm font-black uppercase tracking-wider text-slate-400">Search & Filter Console</h3>
-                        
                         <div>
                             <label class="text-[10px] font-black text-slate-500 block mb-1 uppercase">Filter by Account / Client:</label>
                             <select id="historial-filtro-cliente" onchange="ejecutarFiltrosHistorial()" class="w-full p-3 border rounded-xl font-bold text-xs bg-slate-50 outline-none focus:border-green-600"></select>
                         </div>
-
                         <div>
                             <label class="text-[10px] font-black text-slate-500 block mb-1 uppercase">Filter by Billing Month:</label>
                             <input type="month" id="historial-filtro-mes" onchange="ejecutarFiltrosHistorial()" class="w-full p-3 border rounded-xl font-bold text-xs bg-slate-50 outline-none focus:border-green-600">
                         </div>
-
                         <button onclick="limpiarFiltrosHistorial()" class="w-full text-center p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-[10px] uppercase tracking-widest rounded-xl transition-all">
                             Reset Filters 🔄
                         </button>
@@ -292,8 +329,8 @@
                         </div>
                     </div>
                 </div> 
-               <div id="contenedor-tablas-historial" class="space-y-8">
-                    
+
+                <div id="contenedor-tablas-historial" class="space-y-8">
                     <div id="bloque-historial-general" class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
                         <div class="p-5 bg-slate-50 font-black text-slate-700 uppercase border-b text-xs flex justify-between items-center">
                             <span>Main Sales Stream</span>
@@ -315,8 +352,7 @@
                             </table>
                         </div>
                     </div>
-
-                    <div id="bloque-historial-pagados" class="bg-white rounded-3xl shadow-xl overflow-hidden border border-green-200 hidden">
+                                        <div id="bloque-historial-pagados" class="bg-white rounded-3xl shadow-xl overflow-hidden border border-green-200 hidden">
                         <div class="p-5 bg-green-50 text-green-900 font-black uppercase border-b text-xs flex justify-between items-center">
                             <span>💳 Sub-Account: Settled Payments (Paid)</span>
                             <span id="subtotal-pagado" class="bg-green-600 text-white px-3 py-1 rounded-xl font-black text-[11px]">$0.00</span>
@@ -359,7 +395,6 @@
                             </table>
                         </div>
                     </div>
-
                 </div>
             </div>
         </main>
@@ -368,6 +403,7 @@
     <div id="render-pdf-clon" class="absolute top-[-5000px] left-[-5000px] w-[800px] bg-white p-12" style="font-family: sans-serif;"></div>
 
     <script>
+        // CONFIGURACIÓN DE TU BASE DE DATOS REAL DE FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyBKPqlndtjyYJduNZBagPIex15jv3AIdt4",
             authDomain: "jose-landscaping-care.firebaseapp.com",
@@ -384,6 +420,7 @@
         let cacheClientes = {};
         let cacheFacturas = {};
         let cacheNotas = {};
+        let cacheProgramaciones = {};
         let miGrafico = null;
 
         const CONFIG_SEGURIDAD = { user: "admin", pass: "jose1234" };
@@ -413,10 +450,12 @@
             if(e.key === 'Enter') autenticar();
         });
 
+        // Conexión asíncrona real a Firebase al entrar al panel
         function conectarEscuchasNube() {
             db.ref('clientes').on('value', snapshot => {
                 cacheClientes = snapshot.val() || {};
                 actualizarSelectorClientesFactura();
+                actualizarSelectorClientesProgramar();
                 actualizarFiltrosConsolaHistorial();
                 if(document.getElementById('v-clientes').classList.contains('active')) listarClientes();
             });
@@ -430,9 +469,13 @@
                 cacheNotas = snapshot.val() || {};
                 if(document.getElementById('v-notas').classList.contains('active')) listarNotas();
             });
-        }
 
-        function irA(id) {
+            db.ref('programaciones').on('value', snapshot => {
+                cacheProgramaciones = snapshot.val() || {};
+                if(document.getElementById('v-programar').classList.contains('active')) listarProgramaciones();
+            });
+        }
+               function irA(id) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             
@@ -442,6 +485,7 @@
             if(id === 'v-clientes') { resetClienteForm(); listarClientes(); }
             if(id === 'v-historial') { ejecutarFiltrosHistorial(); }
             if(id === 'v-notas') { resetNotaForm(); listarNotas(); }
+            if(id === 'v-programar') { resetProgramarForm(); listarProgramaciones(); }
             actualizarSelectorClientesFactura();
         }
 
@@ -467,8 +511,9 @@
             
             document.getElementById('val-iva').innerText = "$" + iva.toFixed(2);
             document.getElementById('tot').innerText = "$" + (subtotal + iva).toFixed(2);
-        } 
-         function nuevaFila(desc = "", prec = 0) {
+        }
+
+        function nuevaFila(desc = "", prec = 0) {
             const tr = document.createElement('tr');
             tr.className = "hover:bg-slate-50 group border-b transition-all";
             tr.innerHTML = `
@@ -537,9 +582,14 @@
             document.getElementById('titulo-cliente').innerText = "Add New Customer";
             document.getElementById('btn-save-cli').innerText = "Save Profile";
             agregarCamposDireccion("Work Site");
-        }
+                }
+                                                       
+                    
+        
+        
 
-        function editarCliente(id) {
+        <main class="flex-1 ml-64 p-8 print-padding">
+                    function editarCliente(id) {
             const c = cacheClientes[id];
             if(!c) return;
             
@@ -570,7 +620,6 @@
         function listarClientes() {
             const contenedor = document.getElementById('lista-cli');
             contenedor.innerHTML = "";
-            
             let html = "";
             for (let id in cacheClientes) {
                 const c = cacheClientes[id];
@@ -608,8 +657,107 @@
                     </div>`;
             }
             contenedor.innerHTML = html || '<div class="bg-white text-center p-12 rounded-3xl border border-dashed text-slate-400 font-black uppercase text-xs">No entries found on Database.</div>';
-                }
-       function guardarNota() {
+        }
+
+        function actualizarSelectorClientesProgramar() {
+            const s = document.getElementById('prog-sel-cliente');
+            if(!s) return;
+            let opciones = '<option value="">-- SELECT CUSTOMER PROFILE --</option>';
+            for(let id in cacheClientes){ opciones += `<option value="${id}">${cacheClientes[id].n.toUpperCase()}</option>`; }
+            s.innerHTML = opciones;
+        }
+
+        function guardarProgramacion() {
+            const id = document.getElementById('prog-id').value;
+            const clienteId = document.getElementById('prog-sel-cliente').value;
+            const frecuencia = document.getElementById('prog-frecuencia').value;
+            const costo = parseFloat(document.getElementById('prog-costo').value) || 0;
+            const desc = document.getElementById('prog-desc').value.trim();
+
+            if(!clienteId || costo <= 0 || !desc) return alert("Por favor complete todos los parámetros de automatización.");
+
+            const progData = {
+                clienteId: clienteId,
+                clienteNombre: cacheClientes[clienteId].n,
+                frecuencia: frecuencia,
+                costo: costo,
+                desc: desc
+            };
+
+            if(id) {
+                db.ref('programaciones/' + id).set(progData).then(() => { alert("Automatización modificada."); resetProgramarForm(); });
+            } else {
+                db.ref('programaciones').push(progData).then(() => { alert("Automatización guardada con éxito."); resetProgramarForm(); });
+            }
+        }
+                function resetProgramarForm() {
+            document.getElementById('prog-id').value = "";
+            document.getElementById('prog-sel-cliente').value = "";
+            document.getElementById('prog-costo').value = "";
+            document.getElementById('prog-desc').value = "STANDARD MONTHLY LANDSCAPING SERVICE PACKAGE";
+            document.getElementById('titulo-prog').innerText = "Schedule Invoice";
+            document.getElementById('btn-save-prog').innerText = "Activate Automation";
+        }
+
+        function editarProgramacion(id) {
+            const p = cacheProgramaciones[id];
+            if(!p) return;
+            document.getElementById('prog-id').value = id;
+            document.getElementById('prog-sel-cliente').value = p.clienteId;
+            document.getElementById('prog-frecuencia').value = p.frecuencia;
+            document.getElementById('prog-costo').value = p.costo;
+            document.getElementById('prog-desc').value = p.desc;
+            document.getElementById('titulo-prog').innerText = "Edit Automation";
+            document.getElementById('btn-save-prog').innerText = "Update Automation";
+        }
+
+        function eliminarProgramacion(id) {
+            if(confirm("¿Desea desvincular y eliminar permanentemente este flujo automático?")) {
+                db.ref('programaciones/' + id).remove();
+            }
+        }
+
+        function generarFacturaDesdeAutomatizacion(id) {
+            const p = cacheProgramaciones[id];
+            if(!p) return;
+
+            irA('v-factura');
+            document.getElementById('sel-cliente').value = p.clienteId;
+            seleccionarCliente();
+            
+            document.getElementById('filas').innerHTML = "";
+            nuevaFila(p.desc, p.costo);
+            alert(`Datos de ${p.clienteNombre} cargados en el folio actual. Revisa y presiona Exportar PDF.`);
+        }
+
+        function listarProgramaciones() {
+            const contenedor = document.getElementById('lista-programaciones');
+            contenedor.innerHTML = "";
+            let html = "";
+            for(let id in cacheProgramaciones) {
+                const p = cacheProgramaciones[id];
+                html += `
+                <div class="bg-white border-l-8 border-green-600 p-5 rounded-r-3xl shadow-sm flex items-center justify-between transition-all hover:shadow-md">
+                    <div>
+                        <span class="text-[9px] font-black text-white bg-green-700 px-2 py-0.5 rounded-md uppercase tracking-wider">${p.frecuencia}</span>
+                        <h4 class="font-black text-slate-800 uppercase text-lg tracking-tight mt-1 leading-none">${p.clienteNombre}</h4>
+                        <p class="text-xs text-slate-500 font-bold mt-1 uppercase italic">${p.desc}</p>
+                        <p class="text-sm font-black text-green-700 mt-1">Estipulado: $${parseFloat(p.costo).toFixed(2)}</p>
+                    </div>
+                    <div class="flex flex-col gap-2 text-right">
+                        <button onclick="generarFacturaDesdeAutomatizacion('${id}')" class="bg-green-600 hover:bg-green-700 text-white font-black text-[10px] p-2 px-4 rounded-xl uppercase tracking-wider shadow-sm">⚡ Draft Invoice</button>
+                        <div class="flex gap-2 justify-end text-xs">
+                            <button onclick="editarProgramacion('${id}')" class="text-blue-600 font-bold hover:underline">Edit</button>
+                            <span class="text-slate-300">|</span>
+                            <button onclick="eliminarProgramacion('${id}')" class="text-red-600 font-bold hover:underline">Delete</button>
+                        </div>
+                    </div>
+                </div>`;
+            }
+            contenedor.innerHTML = html || '<div class="bg-white text-center p-12 rounded-3xl border border-dashed text-slate-400 font-black uppercase text-xs">No active recurring automations.</div>';
+        }
+
+        function guardarNota() {
             const id = document.getElementById('nota-id').value;
             const t = document.getElementById('nota-titulo').value.trim();
             const c = document.getElementById('nota-contenido').value.trim();
@@ -678,9 +826,8 @@
             let opciones = '<option value="">-- SELECT CREDIT ACCOUNT / CLIENT --</option>';
             for(let id in cacheClientes){ opciones += `<option value="${id}">${cacheClientes[id].n.toUpperCase()}</option>`; }
             s.innerHTML = opciones;
-        }
-
-        function seleccionarCliente() {
+                }
+                function seleccionarCliente() {
             const id = document.getElementById('sel-cliente').value;
             const selDir = document.getElementById('sel-direccion');
             document.getElementById('filas').innerHTML = "";
@@ -721,7 +868,6 @@
             const total = document.getElementById('tot').innerText;
             if(total === "$0.00") return alert("La factura no puede guardarse con valor de $0.00");
 
-            // Guardar conceptos en estructura interna para reconstrucción exacta del PDF posterior
             let conceptosCompletos = [];
             document.querySelectorAll('#filas tr').forEach(row => {
                 conceptosCompletos.push({
@@ -745,31 +891,20 @@
             };
 
             db.ref('facturas').push(facturaData).then(() => {
-                html2pdf().from(document.getElementById('ticket')).set({
-                    margin: 4, 
-                    filename: 'Invoice_' + facturaData.folio + '_' + facturaData.cliente + '.pdf', 
-                    html2canvas: { scale: 3, useCORS: true }, 
-                    jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
-                }).save().then(() => {
-                    alert("Factura guardada y PDF generado.");
-                    // Limpieza automática
-                    document.getElementById('folio').value = "";
-                    document.getElementById('sel-cliente').value = "";
-                    seleccionarCliente();
-                    irA('v-historial');
-                });
+                reimprimirFacturaPDF_Raw(facturaData);
+                alert("Factura guardada y PDF generado.");
+                document.getElementById('folio').value = "";
+                document.getElementById('sel-cliente').value = "";
+                seleccionarCliente();
+                irA('v-historial');
             });
-                }
-        // ========================================== -->
-        // MODULO INTEGRADO v3: FILTROS, GRAFICOS Y PDFS
-        // ========================================== -->
+        }
+
         function actualizarFiltrosConsolaHistorial() {
             const selectFiltro = document.getElementById('historial-filtro-cliente');
             if(!selectFiltro) return;
             let opciones = '<option value="all">-- SHOW ALL CUSTOMERS --</option>';
-            for(let id in cacheClientes){
-                opciones += `<option value="${cacheClientes[id].n.toUpperCase()}">${cacheClientes[id].n.toUpperCase()}</option>`;
-            }
+            for(let id in cacheClientes){ opciones += `<option value="${cacheClientes[id].n.toUpperCase()}">${cacheClientes[id].n.toUpperCase()}</option>`; }
             selectFiltro.innerHTML = opciones;
         }
 
@@ -781,7 +916,7 @@
 
         function ejecutarFiltrosHistorial() {
             const clienteSeleccionado = document.getElementById('historial-filtro-cliente').value;
-            const mesSeleccionado = document.getElementById('historial-filtro-mes').value; // Formato YYYY-MM
+            const mesSeleccionado = document.getElementById('historial-filtro-mes').value;
             
             const tbodyGeneral = document.getElementById('tabla-h');
             const tbodyPagados = document.getElementById('tabla-h-pagados');
@@ -796,7 +931,6 @@
             let totalPendienteAcumulado = 0;
             let contadorInvoices = 0;
 
-            // Mostrar/Ocultar bloques según el tipo de filtro activo
             if (clienteSeleccionado !== "all") {
                 document.getElementById('bloque-historial-general').classList.add('hidden');
                 document.getElementById('bloque-historial-pagados').classList.remove('hidden');
@@ -807,16 +941,13 @@
                 document.getElementById('bloque-historial-pendientes').classList.add('hidden');
             }
 
-            // Procesamiento de datos en reversa (más reciente primero)
             let facturasProcesables = [];
             for(let id in cacheFacturas) { facturasProcesables.push({ id, ...cacheFacturas[id] }); }
             facturasProcesables.reverse();
-
-            facturasProcesables.forEach(f => {
-                // Validación del filtro de cliente
+                    
+                        facturasProcesables.forEach(f => {
                 if (clienteSeleccionado !== "all" && f.cliente.toUpperCase() !== clienteSeleccionado) return;
                 
-                // Validación del filtro de mes (f.fechaFactura tiene formato YYYY-MM-DD)
                 if (mesSeleccionado) {
                     const mesFactura = f.fechaFactura ? f.fechaFactura.substring(0, 7) : "";
                     if (mesFactura !== mesSeleccionado) return;
@@ -826,13 +957,8 @@
                 totalInyectado += montoNumerico;
                 contadorInvoices++;
 
-                if (f.estado) {
-                    totalPagadoAcumulado += montoNumerico;
-                } else {
-                    totalPendienteAcumulado += montoNumerico;
-                }
+                if (f.estado) { totalPagadoAcumulado += montoNumerico; } else { totalPendienteAcumulado += montoNumerico; }
 
-                // Renderizado Tabla General
                 const saldoPendiente = f.estado ? "$0.00" : f.montoTotal;
                 const filaHTML = `
                 <tr class="hover:bg-slate-50 transition-all border-b">
@@ -864,7 +990,6 @@
                 </tr>`;
                 tbodyGeneral.innerHTML += filaHTML;
 
-                // Renderizado en Sub-Tablas para clientes individuales
                 if(f.estado) {
                     tbodyPagados.innerHTML += `
                     <tr class="hover:bg-slate-50 text-xs border-b">
@@ -892,21 +1017,17 @@
                 }
             });
 
-            // Actualizar etiquetas globales e inyecciones numéricas
             document.getElementById('gran-total').innerText = "$" + totalInyectado.toFixed(2);
             document.getElementById('contador-general').innerText = contadorInvoices + " invoices matches";
             document.getElementById('subtotal-pagado').innerText = "Settled: $" + totalPagadoAcumulado.toFixed(2);
             document.getElementById('subtotal-pendiente').innerText = "Debt: $" + totalPendienteAcumulado.toFixed(2);
 
-            // Re-dibujar Gráfica Financiera
             actualizarGraficoEstadistico(totalPagadoAcumulado, totalPendienteAcumulado);
         }
 
         function actualizarGraficoEstadistico(pagado, pendiente) {
             const ctx = document.getElementById('graficoFinanzas').getContext('2d');
-            
             if (miGrafico) { miGrafico.destroy(); }
-
             miGrafico = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -933,26 +1054,19 @@
             });
         }
 
-        function pagarFactura(id) {
-            db.ref('facturas/' + id).update({ estado: true }).then(() => { ejecutarFiltrosHistorial(); });
-        }
+        function pagarFactura(id) { db.ref('facturas/' + id).update({ estado: true }).then(() => { ejecutarFiltrosHistorial(); }); }
+        function eliminarFactura(id) { if(confirm("¿Eliminar registro de factura?")) { db.ref('facturas/' + id).remove().then(() => { ejecutarFiltrosHistorial(); }); } }
 
-        function eliminarFactura(id) {
-            if(confirm("¿Eliminar registro de factura?")) {
-                db.ref('facturas/' + id).remove().then(() => { ejecutarFiltrosHistorial(); });
-            }
-        }
-         // ========================================== -->
-        // RECONSTRUCTOR DE FACTURAS PARA RE-DESCARGA PDF
-        // ========================================== -->
         function reimprimirFacturaPDF(id) {
             const f = cacheFacturas[id];
             if (!f) return alert("Error al localizar la información de la factura.");
+            reimprimirFacturaPDF_Raw(f);
+        }
 
+        function reimprimirFacturaPDF_Raw(f) {
             const renderClon = document.getElementById('render-pdf-clon');
-            renderClon.innerHTML = ""; // Limpieza
+            renderClon.innerHTML = "";
 
-            // Re-construcción de las filas de conceptos
             let filasHTML = "";
             if(f.conceptos && f.conceptos.length > 0) {
                 f.conceptos.forEach(c => {
@@ -970,7 +1084,6 @@
                 filasHTML = `<tr style="border-bottom: 1px solid #e2e8f0;"><td colspan="4" style="padding: 12px; text-align: center; color: #94a3b8;">Standard Service Line</td></tr>`;
             }
 
-            // Cálculo matemático inverso para subtotal e IVA de respaldo
             const totalEfectivo = parseFloat(f.montoTotal.replace('$', '')) || 0;
             let subtotalCalculado = totalEfectivo;
             let ivaCalculado = 0;
@@ -979,12 +1092,11 @@
                 ivaCalculado = subtotalCalculado * 0.16;
             }
 
-            // Inyección de estructura HTML idéntica al recibo original
             renderClon.innerHTML = `
                 <div style="padding: 20px; border-top: 14px solid #0f290f; background: #fff;">
-                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 30px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
                         <div style="display: flex; align-items: center; gap: 15px;">
-                            <img src="logo.png" style="width: 90px; height: 90px; object-fit: contain;">
+                            <img src="logo.png" style="width: 90px; height: 90px; object-fit: contain;" onerror="this.src='https://via.placeholder.com/150?text=Logo'">
                             <div>
                                 <h2 style="font-size: 32px; font-weight: 900; color: #1e293b; margin: 0; line-height: 1;">JOSE</h2>
                                 <p style="font-size: 12px; font-weight: bold; color: #16a34a; text-transform: uppercase; letter-spacing: 2px; margin: 4px 0 0 0;">Landscaping Care</p>
@@ -997,15 +1109,15 @@
                         </div>
                     </div>
 
-                    <div style="background: #f8fafc; padding: 20px; border-radius: 16px; margin-bottom: 35px; display: grid; grid-cols: 2; border: 1px solid #e2e8f0;">
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 16px; margin-bottom: 35px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0;">
                         <div>
                             <p style="font-size: 10px; font-weight: 900; color: #94a3b8; text-transform: uppercase; margin: 0 0 5px 0;">Customer Profile:</p>
                             <h3 style="font-size: 20px; font-weight: 900; color: #1e293b; text-transform: uppercase; margin: 0;">${f.cliente}</h3>
                             <p style="font-size: 12px; font-weight: bold; color: #15803d; margin: 4px 0 0 0;">${f.direccionServicio.startsWith('📍') ? f.direccionServicio : '📍 ' + f.direccionServicio}</p>
                         </div>
-                        <div style="text-align: right; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end;">
-                            <p style="font-size: 11px; font-weight: 900; color: #475569; margin: 0;">Method: <b>${f.metodo || 'Cash'}</b></p>
-                            <span style="padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 900; text-transform: uppercase; ${f.estado ? 'background: #dcfce7; color: #166534;' : 'background: #fee2e2; color: #991b1b;'}">${f.estado ? 'Paid' : 'Unpaid'}</span>
+                        <div style="text-align: right;">
+                            <p style="font-size: 13px; font-weight: 900; color: #475569; margin: 0 0 8px 0;">Method: <b style="color: #0f290f;">${f.metodo || 'Cash'}</b></p>
+                            <span style="padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 900; text-transform: uppercase; ${f.estado ? 'background: #dcfce7; color: #166534;' : 'background: #fee2e2; color: #991b1b;'}">${f.estado ? 'Paid' : 'Unpaid'}</span>
                         </div>
                     </div>
 
@@ -1033,23 +1145,22 @@
                     </div>
                 </div>`;
             
-            // Ejecutar exportación de PDF limpio usando html2pdf
             setTimeout(() => {
                 html2pdf().from(renderClon).set({
                     margin: 4, 
-                    filename: 'Invoice_' + f.folio + '_' + f.cliente + '_Copy.pdf', 
+                    filename: 'Invoice_' + f.folio + '_' + f.cliente + '.pdf', 
                     html2canvas: { scale: 3, useCORS: true }, 
                     jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
                 }).save();
             }, 400);
         }
 
-        // Inicialización de arranque
+        // Init System setup
         document.getElementById('fecha').valueAsDate = new Date();
         resetClienteForm();
         resetNotaForm();
+        resetProgramarForm();
         nuevaFila();
     </script>
 </body>
 </html>
-            
