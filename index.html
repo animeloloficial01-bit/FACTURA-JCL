@@ -3,1174 +3,1070 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jose Landscaping Care - Enterprise Cloud System v3.1</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <title>Jose Landscaping Care - Management System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Vue.js 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .view { display: none; }
-        .view.active { display: block; }
-        
-        @media print { 
-            .no-print { display: none !important; } 
-            .print-padding { padding: 0 !important; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .tab-active { border-bottom: 3px solid #16a34a; color: #16a34a; font-weight: 600; }
+        @media print {
+            body * { visibility: hidden; }
+            #invoice-print-area, #invoice-print-area * { visibility: visible; }
+            #invoice-print-area { position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print { display: none !important; }
         }
-        
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
-        }
-        input[type=number] { -moz-appearance: textfield; }
     </style>
 </head>
-<body class="bg-slate-100 font-sans text-slate-900 antialiased">
+<body class="bg-slate-50 text-slate-800 antialiased">
 
-    <div id="v-login" class="fixed inset-0 bg-[#0f290f] flex items-center justify-center z-[100] p-4">
-        <div class="bg-white p-10 rounded-[3rem] shadow-2xl max-w-md w-full text-center border-t-[12px] border-green-600">
-            <div class="w-28 h-28 mx-auto mb-4 rounded-full bg-slate-50 flex items-center justify-center border-2 border-green-500 shadow-lg overflow-hidden">
-                <img src="logo.png" alt="Logo" class="w-full h-full object-contain p-2" onerror="this.src='https://via.placeholder.com/150?text=Jose+LC'">
-            </div>
-            <h2 class="text-3xl font-black text-slate-800 tracking-tight uppercase leading-none">JOSE</h2>
-            <p class="text-xs font-bold text-green-600 uppercase tracking-widest mb-8">Landscaping Care</p>
-            
-            <div class="space-y-4 text-left">
-                <div>
-                    <label class="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-1">Admin Username</label>
-                    <input type="text" id="login-user" placeholder="Enter username" class="w-full p-3.5 border-2 border-slate-200 rounded-xl bg-slate-50 font-bold text-sm outline-none focus:border-green-600 focus:bg-white transition-all">
+    <div id="app" v-cloak>
+        <!-- LOGIN SCREEN -->
+        <div v-if="!isAuthenticated" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-800 to-slate-900 px-4">
+            <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md transform transition-all">
+                <div class="text-center mb-6">
+                    <img src="logo.png" alt="Logo" class="mx-auto h-20 w-auto object-contain mb-2" onerror="this.src='https://placehold.co/150x150?text=Jose+Landscaping'">
+                    <h2 class="text-2xl font-bold text-slate-800">JOSE</h2>
+                    <p class="text-green-600 font-medium tracking-wide text-xs uppercase">Landscaping Care</p>
                 </div>
-                <div>
-                    <label class="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-1">Password</label>
-                    <input type="password" id="login-pass" placeholder="••••••••" class="w-full p-3.5 border-2 border-slate-200 rounded-xl bg-slate-50 font-bold text-sm outline-none focus:border-green-600 focus:bg-white transition-all">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Username</label>
+                        <input type="text" v-model="loginUser" @keyup.enter="handleLogin" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-slate-50 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Password</label>
+                        <input type="password" v-model="loginPass" @keyup.enter="handleLogin" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-slate-50 text-sm">
+                    </div>
+                    <button @click="handleLogin" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 rounded-lg transition-colors shadow-lg shadow-green-600/20 text-sm mt-2 flex items-center justify-center gap-2">
+                        Access System <i class="fa-solid fa-lock text-xs"></i>
+                    </button>
+                    <p v-if="loginError" class="text-red-500 text-xs font-medium text-center mt-2">❌ Invalid Credentials. Try Again.</p>
                 </div>
-                <button onclick="autenticar()" class="w-full bg-green-600 hover:bg-green-700 text-white font-black uppercase text-xs tracking-widest p-4 rounded-xl shadow-xl transition-all transform hover:scale-[1.01] mt-6">
-                    Access System 🔒
-                </button>
-                <p id="login-error" class="text-red-500 text-xs font-black uppercase text-center hidden mt-3 tracking-wide animate-pulse">
-                    ❌ Invalid Credentials. Try Again.
-                </p>
             </div>
         </div>
-    </div>
-    <div id="app-content" class="flex min-h-screen hidden">
-        
-        <aside class="w-64 bg-[#0f290f] text-white p-6 no-print fixed h-full shadow-2xl z-50 flex flex-col justify-between">
-            <div>
-                <div class="text-center mb-8 border-b border-green-900/50 pb-6">
-                    <img src="logo.png" class="w-20 h-20 mx-auto mb-3 rounded-full bg-white object-contain border-2 border-green-500 shadow-md" onerror="this.src='https://via.placeholder.com/150?text=Logo'">
-                    <h1 class="text-[11px] font-black uppercase tracking-widest text-green-400">Jose Landscaping</h1>
-                </div>
-                
-                <nav class="space-y-2">
-                    <button id="btn-v-factura" onclick="irA('v-factura')" class="w-full text-left p-3.5 bg-green-900/50 hover:bg-green-800 rounded-xl transition font-black text-xs tracking-wider flex items-center gap-3 border border-transparent">
-                        📄 NEW INVOICE
-                    </button>
-                    <button id="btn-v-clientes" onclick="irA('v-clientes')" class="w-full text-left p-3.5 hover:bg-green-800 rounded-xl transition font-black text-xs tracking-wider flex items-center gap-3 border border-transparent">
-                        👥 CUSTOMERS
-                    </button>
-                    <button id="btn-v-programar" onclick="irA('v-programar')" class="w-full text-left p-3.5 hover:bg-green-800 rounded-xl transition font-black text-xs tracking-wider flex items-center gap-3 border border-transparent text-yellow-400">
-                        📅 AUTOMATION
-                    </button>
-                    <button id="btn-v-notas" onclick="irA('v-notas')" class="w-full text-left p-3.5 hover:bg-green-800 rounded-xl transition font-black text-xs tracking-wider flex items-center gap-3 border border-transparent">
-                        📝 NOTES & REMINDERS
-                    </button>
-                    <button id="btn-v-historial" onclick="irA('v-historial')" class="w-full text-left p-3.5 hover:bg-green-800 rounded-xl transition font-black text-xs tracking-wider flex items-center gap-3 border border-transparent">
-                        📊 SALES HISTORY
-                    </button>
-                </nav>
-            </div>
-            <div class="border-t border-green-900/50 pt-4">
-                <button onclick="cerrarSesion()" class="w-full text-center p-3 bg-red-950/60 hover:bg-red-700 text-red-200 border border-red-500/30 rounded-xl transition font-black text-[10px] uppercase tracking-widest">
-                    Log Out 🚪
-                </button>
-            </div>
-        </aside>
 
-        <main class="flex-1 ml-64 p-8 print-padding">
-            
-            <div id="v-factura" class="view active">
-                <div id="ticket" class="bg-white p-12 shadow-2xl max-w-[850px] mx-auto border-t-[14px] border-[#0f290f] rounded-b-[2rem]">
-                    
-                    <div class="flex justify-between items-start mb-12">
-                        <div class="flex items-center gap-5">
-                            <img src="logo.png" class="w-24 h-24 object-contain" onerror="this.src='https://via.placeholder.com/150?text=Logo'">
-                            <div>
-                                <h2 class="text-4xl font-black text-slate-800 tracking-tighter leading-none">JOSE</h2>
-                                <p class="text-xs font-bold text-green-600 uppercase tracking-widest mt-1">Landscaping Care</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <h2 class="text-6xl font-black text-slate-100 uppercase italic leading-none mb-4 tracking-tighter">Invoice</h2>
-                            <div class="flex flex-col items-end gap-2">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-black text-slate-400">FOLIO:</span>
-                                    <input type="text" id="folio" class="text-right border-b-2 border-slate-200 focus:border-green-600 font-black text-green-700 outline-none w-28 text-xl bg-transparent transition-all" placeholder="#001">
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[10px] font-black text-slate-400">DATE:</span>
-                                    <input type="date" id="fecha" class="text-right outline-none text-xs text-slate-600 bg-transparent font-bold">
-                                </div>
-                            </div>
+        <!-- MAIN APP INTERFACE -->
+        <div v-else class="min-h-screen flex flex-col md:flex-row">
+            <!-- SIDEBAR -->
+            <aside class="w-full md:w-64 bg-slate-900 text-slate-300 flex-shrink-0 flex flex-col justify-between no-print shadow-xl">
+                <div>
+                    <div class="p-5 bg-slate-950 flex items-center gap-3 border-b border-slate-800">
+                        <img src="logo.png" class="h-10 w-auto" onerror="this.src='https://placehold.co/100?text=JL'">
+                        <div>
+                            <h1 class="text-white font-bold text-sm leading-tight">Jose Landscaping</h1>
+                            <span class="text-xs text-green-400 font-medium">Control Panel v2.0</span>
                         </div>
                     </div>
-                    <div class="bg-slate-50 p-6 rounded-2xl mb-8 border border-slate-200/60 grid grid-cols-2 gap-8">
-                        <div>
-                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">Customer Parameters:</p>
-                            <select id="sel-cliente" class="no-print border-2 p-2.5 rounded-xl text-xs w-full mb-4 font-bold bg-white shadow-sm outline-none focus:border-green-600" onchange="seleccionarCliente()"></select>
-                            
-                            <h3 id="doc-nombre" class="font-black text-xl text-slate-800 uppercase tracking-tight">Select Customer</h3>
-                            <p id="doc-tel" class="text-xs font-bold text-green-700 mt-1"></p>
-                            
-                            <div class="mt-4 no-print border-t pt-3 border-slate-200">
-                                <label class="text-[9px] font-black text-slate-400 tracking-wider block mb-1">SELECT DESIGNATED WORKSPACE / BILLING PLACE:</label>
-                                <select id="sel-direccion" class="border p-2 rounded-lg text-xs w-full font-bold bg-white outline-none focus:border-green-600" onchange="cambiarDireccionFactura()">
-                                    <option value="">-- Choose Location --</option>
-                                </select>
-                            </div>
-                            <p id="doc-dir-display" class="text-xs text-slate-500 font-bold mt-3 uppercase border-l-4 border-green-600 pl-2 bg-white p-2 rounded border shadow-sm italic">No address selected</p>
-                        </div>
-                        
-                        <div class="text-right flex flex-col justify-between items-end">
-                            <div class="space-y-2">
-                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Payment Method:</p>
-                                <select id="metodo-pago" class="border-2 p-2.5 rounded-xl text-xs font-black outline-none bg-white shadow-sm focus:border-green-600">
-                                    <option value="Cash">💵 Cash</option>
-                                    <option value="Check">✍️ Check</option>
-                                    <option value="Card">💳 Card</option>
-                                </select>
-                            </div>
-                            <div class="flex gap-3 no-print">
-                                <label class="flex items-center gap-2 cursor-pointer bg-white p-3 rounded-xl border-2 text-[10px] font-black uppercase shadow-sm select-none">
-                                    <input type="checkbox" id="aplicar-iva" class="w-4 h-4 accent-green-600" onchange="calcularTodo()"> Tax (16%)
-                                </label>
-                                <label class="flex items-center gap-2 cursor-pointer bg-white p-3 rounded-xl border-2 text-[10px] font-black uppercase shadow-sm select-none">
-                                    <input type="checkbox" id="pagado" class="w-4 h-4 accent-green-600"> Paid
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <table class="w-full mb-8">
-                        <thead>
-                            <tr class="bg-[#0f290f] text-white text-[10px] uppercase tracking-widest font-black">
-                                <th class="p-4 text-left rounded-l-xl">Description of Services Rendered</th>
-                                <th class="p-4 w-20 text-center">Qty</th>
-                                <th class="p-4 w-28 text-right">Unit Price</th>
-                                <th class="p-4 w-28 text-right">Total</th>
-                                <th class="p-4 w-12 no-print rounded-r-xl text-center"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="filas" class="divide-y divide-slate-200 text-xs font-bold"></tbody>
-                    </table>
-                    <div class="flex justify-end border-t pt-6 border-slate-100">
-                        <div class="w-72 space-y-2 text-right">
-                            <p class="text-xs text-slate-400 font-bold">Subtotal: <span id="sub" class="text-slate-800 text-sm ml-2">$0.00</span></p>
-                            <p id="box-iva" class="text-xs text-red-500 font-bold hidden">Tax (16%): <span id="val-iva" class="text-sm ml-2">$0.00</span></p>
-                            <div class="bg-[#0f290f] text-green-400 p-5 rounded-2xl shadow-xl mt-3 border border-green-800">
-                                <p class="text-[10px] text-white font-bold tracking-widest mb-1 uppercase">Total Due Amount</p>
-                                <p id="tot" class="text-3xl font-black tracking-tight">$0.00</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="max-w-[850px] mx-auto mt-8 flex gap-4 no-print">
-                    <button onclick="nuevaFila()" class="bg-white border-2 border-slate-200 px-6 py-4 rounded-xl font-black text-xs uppercase hover:bg-slate-50 transition-all shadow-sm">＋ Add Concept Row</button>
-                    <button onclick="guardarFactura()" class="bg-green-700 text-white px-8 py-4 rounded-xl font-black flex-1 uppercase text-xs tracking-wider shadow-lg hover:bg-green-800 transition-all text-center">Save Record & Export PDF Document</button>
-                </div>
-            </div>
-
-            <div id="v-clientes" class="view">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-200 h-fit space-y-6">
-                        <div>
-                            <h2 id="titulo-cliente" class="text-2xl font-black uppercase text-slate-800 tracking-tight">Add New Customer</h2>
-                            <p class="text-xs text-slate-400 font-medium">All inputs sync in real-time.</p>
-                            <input type="hidden" id="edit-id" value="">
-                        </div>
-                        
-                        <div class="space-y-3">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider">General Information</label>
-                            <input type="text" id="n-cli" placeholder="Customer Full Name" class="w-full p-3.5 border border-slate-200 rounded-xl font-bold bg-slate-50 outline-none text-xs focus:border-green-600 focus:bg-white transition-all uppercase">
-                            <input type="text" id="t-cli" placeholder="Phone Number (e.g. 213-000-0000)" class="w-full p-3.5 border border-slate-200 rounded-xl bg-slate-50 font-bold outline-none text-xs focus:border-green-600 focus:bg-white transition-all">
-                            
-                            <div>
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Base Service Cost ($)</label>
-                                <input type="number" id="costo-cli" placeholder="0.00" step="0.01" class="w-full p-3.5 border border-slate-200 rounded-xl bg-slate-50 font-black text-green-700 outline-none text-xs focus:border-green-600 focus:bg-white transition-all">
-                            </div>
-                        </div>
-
-                        <div class="border-t pt-4 space-y-3">
-                            <div class="flex justify-between items-center">
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Addresses Sub-Directory</label>
-                                <button onclick="agregarCamposDireccion()" class="text-green-600 hover:text-green-800 font-black text-xs bg-green-50 px-2.5 py-1 rounded-lg transition-all">＋ Add Location</button>
-                            </div>
-                            <div id="contenedor-direcciones-form" class="space-y-2.5 max-h-72 overflow-y-auto pr-1"></div>
-                        </div>
-
-                        <div class="flex gap-2 border-t pt-4">
-                            <button onclick="guardarCliente()" id="btn-save-cli" class="flex-1 bg-[#0f290f] text-white p-3.5 rounded-xl font-black uppercase text-xs tracking-wider shadow-md hover:bg-green-900 transition-all">Save Profile</button>
-                            <button onclick="resetClienteForm()" class="bg-slate-200 text-slate-600 p-3.5 rounded-xl font-black uppercase text-xs tracking-wider hover:bg-slate-300 transition-all">Cancel</button>
-                        </div>
-                    </div>
-
-                    <div class="lg:col-span-2 space-y-4" id="lista-cli"></div>
-                </div>
-            </div>
-
-            <div id="v-programar" class="view">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-200 h-fit space-y-6">
-                        <div>
-                            <h2 id="titulo-prog" class="text-2xl font-black uppercase text-slate-800 tracking-tight text-green-800">Schedule Invoice</h2>
-                            <p class="text-xs text-slate-400 font-medium">Automate recursive monthly billing workflows.</p>
-                            <input type="hidden" id="prog-id" value="">
-                        </div>
-
-                        <div class="space-y-4">
-                            <div>
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Target Client Profile</label>
-                                <select id="prog-sel-cliente" class="border-2 p-3 rounded-xl text-xs w-full font-bold bg-white shadow-sm outline-none focus:border-green-600"></select>
-                            </div>
-
-                            <div>
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Recurrence Frequency</label>
-                                <select id="prog-frecuencia" class="border-2 p-3 rounded-xl text-xs w-full font-black bg-white shadow-sm outline-none focus:border-green-600">
-                                    <option value="Monthly">📅 Monthly (Every Month)</option>
-                                    <option value="Biweekly">⏳ Biweekly (Every 14 Days)</option>
-                                    <option value="Weekly">🍂 Weekly (Every 7 Days)</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Billing Amount ($)</label>
-                                <input type="number" id="prog-costo" placeholder="0.00" step="0.01" class="w-full p-3.5 border border-slate-200 rounded-xl bg-slate-50 font-black text-green-700 outline-none text-xs focus:border-green-600 focus:bg-white transition-all">
-                            </div>
-
-                            <div>
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Service Description Label</label>
-                                <input type="text" id="prog-desc" value="STANDARD MONTHLY LANDSCAPING SERVICE PACKAGE" class="w-full p-3.5 border border-slate-200 rounded-xl font-bold bg-slate-50 outline-none text-xs focus:border-green-600 focus:bg-white transition-all uppercase">
-                            </div>
-                        </div>
-
-                        <div class="flex gap-2 border-t pt-4">
-                            <button onclick="guardarProgramacion()" id="btn-save-prog" class="flex-1 bg-green-700 text-white p-3.5 rounded-xl font-black uppercase text-xs tracking-wider shadow-md hover:bg-green-800 transition-all">Activate Automation</button>
-                            <button onclick="resetProgramarForm()" class="bg-slate-200 text-slate-600 p-3.5 rounded-xl font-black uppercase text-xs tracking-wider hover:bg-slate-300 transition-all">Clear</button>
-                        </div>
-                    </div>
-<div class="lg:col-span-2 space-y-4">
-                        <div class="bg-white p-5 rounded-3xl shadow-sm border flex justify-between items-center mb-2">
-                            <div>
-                                <h3 class="font-black text-slate-800 text-sm uppercase">Quick Dashboard Engine ⚡</h3>
-                                <p class="text-[11px] text-slate-400 font-bold">Generate outstanding planned items instantly with 1-Click.</p>
-                            </div>
-                        </div>
-                        <div id="lista-programaciones" class="space-y-4"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="v-notas" class="view">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-200 h-fit space-y-4">
-                        <div>
-                            <h2 id="titulo-nota" class="text-2xl font-black uppercase text-slate-800 tracking-tight">Add Reminder / Note</h2>
-                            <p class="text-xs text-slate-400 font-medium">Keep track of pending jobs or notices.</p>
-                            <input type="hidden" id="nota-id" value="">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Topic / Title</label>
-                            <input type="text" id="nota-titulo" placeholder="e.g. Tools purchase, Fertilizer day" class="w-full p-3.5 border border-slate-200 rounded-xl font-bold bg-slate-50 outline-none text-xs focus:border-green-600 focus:bg-white transition-all uppercase">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Details / Description</label>
-                            <textarea id="nota-contenido" rows="5" placeholder="Write specific task details here..." class="w-full p-3.5 border border-slate-200 rounded-xl font-bold bg-slate-50 outline-none text-xs focus:border-green-600 focus:bg-white transition-all"></textarea>
-                        </div>
-                        <div class="flex gap-2 border-t pt-4">
-                            <button onclick="guardarNota()" id="btn-save-nota" class="flex-1 bg-green-700 text-white p-3.5 rounded-xl font-black uppercase text-xs tracking-wider shadow-md hover:bg-green-800 transition-all">Save Note</button>
-                            <button onclick="resetNotaForm()" class="bg-slate-200 text-slate-600 p-3.5 rounded-xl font-black uppercase text-xs tracking-wider hover:bg-slate-300 transition-all">Clear</button>
-                        </div>
-                    </div>
-
-                    <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4" id="lista-notas"></div>
-                </div>
-            </div>
-
-            <div id="v-historial" class="view">
-                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8 no-print">
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-4">
-                        <h3 class="text-sm font-black uppercase tracking-wider text-slate-400">Search & Filter Console</h3>
-                        <div>
-                            <label class="text-[10px] font-black text-slate-500 block mb-1 uppercase">Filter by Account / Client:</label>
-                            <select id="historial-filtro-cliente" onchange="ejecutarFiltrosHistorial()" class="w-full p-3 border rounded-xl font-bold text-xs bg-slate-50 outline-none focus:border-green-600"></select>
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-black text-slate-500 block mb-1 uppercase">Filter by Billing Month:</label>
-                            <input type="month" id="historial-filtro-mes" onchange="ejecutarFiltrosHistorial()" class="w-full p-3 border rounded-xl font-bold text-xs bg-slate-50 outline-none focus:border-green-600">
-                        </div>
-                        <button onclick="limpiarFiltrosHistorial()" class="w-full text-center p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-[10px] uppercase tracking-widest rounded-xl transition-all">
-                            Reset Filters 🔄
+                    <nav class="p-4 space-y-1">
+                        <button @click="currentTab = 'invoice'" :class="['w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left', currentTab === 'invoice' ? 'bg-green-600 text-white font-semibold' : 'hover:bg-slate-800 text-slate-400 hover:text-white']">
+                            <i class="fa-solid fa-file-invoice text-base"></i> Billing Console
                         </button>
-                    </div>
+                        <button @click="currentTab = 'customers'" :class="['w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left', currentTab === 'customers' ? 'bg-green-600 text-white font-semibold' : 'hover:bg-slate-800 text-slate-400 hover:text-white']">
+                            <i class="fa-solid fa-users text-base"></i> Customers Setup
+                        </button>
+                        <button @click="currentTab = 'automation'" :class="['w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left', currentTab === 'automation' ? 'bg-green-600 text-white font-semibold' : 'hover:bg-slate-800 text-slate-400 hover:text-white']">
+                            <i class="fa-solid fa-bolt text-base"></i> Automations & Calendar
+                        </button>
+                        <button @click="currentTab = 'reminders'" :class="['w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left', currentTab === 'reminders' ? 'bg-green-600 text-white font-semibold' : 'hover:bg-slate-800 text-slate-400 hover:text-white']">
+                            <i class="fa-solid fa-thumbtack text-base"></i> Notes & Tasks
+                        </button>
+                        <button @click="currentTab = 'history'" :class="['w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left', currentTab === 'history' ? 'bg-green-600 text-white font-semibold' : 'hover:bg-slate-800 text-slate-400 hover:text-white']">
+                            <i class="fa-solid fa-history text-base"></i> Smart Ledger & History
+                        </button>
+                    </nav>
+                </div>
+                <div class="p-4 border-t border-slate-800">
+                    <button @click="logout" class="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-red-900 text-slate-300 hover:text-white text-xs font-semibold py-2 rounded-lg transition-colors">
+                        Sign Out <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </aside>
 
-                    <div class="xl:col-span-2 bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col justify-between">
-                        <div class="flex justify-between items-center mb-2">
-                            <h3 class="text-sm font-black uppercase tracking-wider text-slate-400">Financial Metrics Overview</h3>
-                            <div class="text-right">
-                                <span class="text-[10px] text-slate-400 font-bold uppercase block">Total Volume Selected</span>
-                                <span id="gran-total" class="text-green-700 font-black text-xl">$0.00</span>
-                            </div>
-                        </div>
-                        <div class="h-40 relative">
-                            <canvas id="graficoFinanzas"></canvas>
-                        </div>
-                    </div>
-                </div> 
+            <!-- MAIN MAIN WORKING CONTAINER -->
+            <main class="flex-1 bg-slate-50 p-4 md:p-8 overflow-y-auto">
 
-                <div id="contenedor-tablas-historial" class="space-y-8">
-                    <div id="bloque-historial-general" class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
-                        <div class="p-5 bg-slate-50 font-black text-slate-700 uppercase border-b text-xs flex justify-between items-center">
-                            <span>Main Sales Stream</span>
-                            <span id="contador-general" class="bg-slate-200 px-2.5 py-0.5 rounded-full text-[10px]">0 invoices</span>
+                <!-- ALERT NOTIFICATIONS AREA FOR UNPAID BALANCES -->
+                <div v-if="overdueInvoices.length > 0" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 no-print shadow-sm">
+                    <div class="flex gap-3 items-start">
+                        <div class="bg-red-100 p-2 rounded-lg text-red-600">
+                            <i class="fa-solid fa-triangle-exclamation text-lg"></i>
                         </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-xs">
-                                <thead class="bg-slate-100/60 font-black text-slate-400 uppercase text-[10px] tracking-wider border-b">
-                                    <tr>
-                                        <th class="p-4">Timeline Dates</th>
-                                        <th class="p-4">Folio & Client Name</th>
-                                        <th class="p-4">Location of Service</th>
-                                        <th class="p-4 text-right">Amount Due</th>
-                                        <th class="p-4 text-center">Status</th>
-                                        <th class="p-4 text-right">System Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tabla-h" class="divide-y divide-slate-100 font-bold text-slate-700"></tbody>
-                            </table>
+                        <div>
+                            <h4 class="text-sm font-bold text-red-800">Overdue Debt Alerts ({{ overdueInvoices.length }} Invoices Pending)</h4>
+                            <p class="text-xs text-red-600 mt-0.5">The following customers have outstanding bills past due. Click to message them directly.</p>
                         </div>
                     </div>
-
-                    <div id="bloque-historial-pagados" class="bg-white rounded-3xl shadow-xl overflow-hidden border border-green-200 hidden">
-                        <div class="p-5 bg-green-50 text-green-900 font-black uppercase border-b text-xs flex justify-between items-center">
-                            <span>💳 Sub-Account: Settled Payments (Paid)</span>
-                            <span id="subtotal-pagado" class="bg-green-600 text-white px-3 py-1 rounded-xl font-black text-[11px]">$0.00</span>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-xs">
-                                <thead class="bg-slate-50 font-black text-slate-400 uppercase text-[10px] tracking-wider border-b">
-                                    <tr>
-                                        <th class="p-4">Date</th>
-                                        <th class="p-4">Folio</th>
-                                        <th class="p-4">Location Address</th>
-                                        <th class="p-4 text-right">Amount Paid</th>
-                                        <th class="p-4 text-center">Method</th>
-                                        <th class="p-4 text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tabla-h-pagados" class="divide-y divide-slate-100 font-bold text-slate-600"></tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div id="bloque-historial-pendientes" class="bg-white rounded-3xl shadow-xl overflow-hidden border border-red-200 hidden">
-                        <div class="p-5 bg-red-50 text-red-900 font-black uppercase border-b text-xs flex justify-between items-center">
-                            <span>⚠️ Sub-Account: Pending Balances & Debts (Unpaid)</span>
-                            <span id="subtotal-pendiente" class="bg-red-600 text-white px-3 py-1 rounded-xl font-black text-[11px]">$0.00</span>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-xs">
-                                <thead class="bg-slate-50 font-black text-slate-400 uppercase text-[10px] tracking-wider border-b">
-                                    <tr>
-                                        <th class="p-4">Date</th>
-                                        <th class="p-4">Folio</th>
-                                        <th class="p-4">Location Address</th>
-                                        <th class="p-4 text-right">Amount Debt</th>
-                                        <th class="p-4 text-center">Status</th>
-                                        <th class="p-4 text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tabla-h-pendientes" class="divide-y divide-slate-100 font-bold text-slate-600"></tbody>
-                            </table>
+                    <div class="flex flex-wrap gap-2 max-h-24 overflow-y-auto w-full md:w-auto p-1 bg-white/50 rounded-lg border border-red-100">
+                        <div v-for="inv in overdueInvoices" :key="inv.id" class="flex items-center gap-2 bg-white px-2.5 py-1 rounded-md text-xs border border-red-200 shadow-2xl">
+                            <span class="font-semibold text-slate-700">#{{ inv.folio }} - {{ getCustomerName(inv.customerId) }}</span>
+                            <span class="font-bold text-red-600">${{ inv.total.toFixed(2) }}</span>
+                            <button @click="sendWhatsAppReminder(inv)" class="text-green-600 hover:text-green-700 font-bold ml-1 flex items-center gap-0.5">
+                                <i class="fa-brands fa-whatsapp"></i> Remind
+                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
-        </main>
+<!-- TAB 1: BILLING CONSOLE -->
+                <div v-show="currentTab === 'invoice'" class="space-y-6">
+                    <div class="flex flex-col xl:flex-row gap-6 items-start">
+                        <!-- Invoice Creator Frame -->
+                        <div id="invoice-print-area" class="w-full xl:w-2/3 bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200">
+                            <!-- Invoice Header Meta Structure -->
+                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-slate-100 mb-6">
+                                <div class="flex items-center gap-4">
+                                    <img src="logo.png" class="h-16 w-auto object-contain" onerror="this.src='https://placehold.co/120x120?text=Logo'">
+                                    <div>
+                                        <h2 class="text-2xl font-black text-slate-800 leading-none">JOSE</h2>
+                                        <p class="text-green-600 font-bold tracking-widest text-xs uppercase mt-0.5">Landscaping Care</p>
+                                    </div>
+                                </div>
+                                <div class="text-left md:text-right">
+                                    <h2 class="text-xl font-bold text-slate-800 tracking-tight">INVOICE</h2>
+                                    <div class="text-xs text-slate-500 font-medium mt-1 space-y-0.5">
+                                        <div><span class="font-bold text-slate-700">FOLIO:</span> #{{ invoiceForm.folio }}</div>
+                                        <div class="no-print flex items-center gap-1 md:justify-end mt-1">
+                                            <span class="font-bold text-slate-700">DATE:</span>
+                                            <input type="date" v-model="invoiceForm.date" class="border border-slate-200 rounded px-1.5 py-0.5 bg-slate-50 text-xs">
+                                        </div>
+                                        <div class="hidden print-block"><span class="font-bold text-slate-700">DATE:</span> {{ invoiceForm.date }}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Customer & Details Grid -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-4 rounded-xl border border-slate-100 mb-6">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1 no-print">Customer Registry</label>
+                                    <select v-model="invoiceForm.customerId" @change="onInvoiceCustomerChange" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 no-print">
+                                        <option value="">-- Select Customer --</option>
+                                        <option v-for="c in customers" :key="c.id" :value="c.id">{{ c.name }}</option>
+                                    </select>
+                                    <h3 class="text-sm font-bold text-slate-800 mt-2 hidden print-block">CUSTOMER: {{ getCustomerName(invoiceForm.customerId) }}</h3>
+                                    
+                                    <div class="mt-3">
+                                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1 no-print">Target Work Location</label>
+                                        <select v-model="invoiceForm.locationId" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 no-print" :disabled="!invoiceForm.customerId">
+                                            <option value="">-- Choose Location --</option>
+                                            <option v-for="loc in activeCustomerLocations" :key="loc.id" :value="loc.id">[{{ loc.label }}] {{ loc.address }}</option>
+                                        </select>
+                                        <p class="text-xs font-semibold text-slate-700 mt-1.5 bg-white p-2 rounded border border-slate-200 shadow-2xl">
+                                            <i class="fa-solid fa-location-dot text-green-600 mr-1"></i> 
+                                            <span class="font-medium text-slate-500">Service Address:</span> {{ getSelectedAddressText }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Payment Method</label>
+                                        <select v-model="invoiceForm.paymentMethod" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500">
+                                            <option value="Cash">💵 Cash</option>
+                                            <option value="Check">✍️ Check</option>
+                                            <option value="Card">💳 Card</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Invoice Items Table -->
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-sm">
+                                    <thead>
+                                        <tr class="border-b border-slate-200 text-slate-400 font-semibold text-xs uppercase tracking-wider">
+                                            <th class="py-2.5">Description of Services Rendered</th>
+                                            <th class="py-2.5 w-20 text-center">Qty</th>
+                                            <th class="py-2.5 w-32 text-right">Unit Price</th>
+                                            <th class="py-2.5 w-32 text-right">Total</th>
+                                            <th class="py-2.5 w-10 text-center no-print"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        <tr v-for="(item, index) in invoiceForm.items" :key="index">
+                                            <td class="py-3">
+                                                <input type="text" v-model="item.description" placeholder="e.g., Monthly Lawn Care & Tree Trimming" class="w-full border-0 border-b border-transparent hover:border-slate-200 focus:border-green-500 focus:ring-0 bg-transparent py-0.5 text-sm font-medium text-slate-700">
+                                            </td>
+                                            <td class="py-3">
+                                                <input type="number" v-model.number="item.qty" class="w-full text-center border-0 border-b border-transparent hover:border-slate-200 focus:border-green-500 focus:ring-0 bg-transparent py-0.5 text-sm text-slate-700">
+                                            </td>
+                                            <td class="py-3">
+                                                <input type="number" v-model.number="item.price" class="w-full text-right border-0 border-b border-transparent hover:border-slate-200 focus:border-green-500 focus:ring-0 bg-transparent py-0.5 text-sm text-slate-700">
+                                            </td>
+                                            <td class="py-3 text-right font-semibold text-slate-700">${{ (item.qty * item.price).toFixed(2) }}</td>
+                                            <td class="py-3 text-center no-print">
+                                                <button @click="removeItemFromInvoice(index)" class="text-slate-300 hover:text-red-500 transition-colors"><i class="fa-solid fa-trash-can"></i></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <button @click="addItemToInvoice" class="mt-4 no-print text-xs font-bold text-green-600 hover:text-green-700 flex items-center gap-1 transition-colors bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-lg border border-green-200 shadow-2xl">
+                                <i class="fa-solid fa-plus"></i> Add Line Item
+                            </button>
+
+                            <!-- Totals Calculation Structure (CLEAN - NO TAXES AS REQUESTED) -->
+                            <div class="mt-6 flex justify-end border-t border-slate-100 pt-4">
+                                <div class="w-full md:w-64 space-y-1.5 text-right">
+                                    <div class="bg-green-600 text-white rounded-xl p-3 shadow-md shadow-green-600/10 flex justify-between items-center">
+                                        <span class="text-xs font-bold uppercase tracking-wider">Total Due Amount</span>
+                                        <span class="text-lg font-black">${{ invoiceTotalAmount.toFixed(2) }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Side Action Panel Frame -->
+                        <div class="w-full xl:w-1/3 space-y-4 no-print">
+                            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                                <h3 class="font-bold text-slate-800 text-sm mb-3 uppercase tracking-wide flex items-center gap-1.5"><i class="fa-solid fa-sliders text-green-600"></i> Document Publishing Panel</h3>
+                                <div class="space-y-2">
+                                    <button @click="saveInvoiceAndExport('Paid')" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-md shadow-green-600/10 text-sm flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-circle-check"></i> Save Record & Collect (Paid)
+                                    </button>
+                                    <button @click="saveInvoiceAndExport('Unpaid')" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-md shadow-amber-500/10 text-sm flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-clock"></i> Issue Outstanding (Unpaid)
+                                    </button>
+                                    <button @click="triggerBrowserPrint" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-xl transition-all text-xs flex items-center justify-center gap-2 border border-slate-200">
+                                        <i class="fa-solid fa-print"></i> Native System Hardware Print
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: CUSTOMERS SETUP -->
+                <div v-show="currentTab === 'customers'" class="space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                        <!-- Add/Edit Customer Box -->
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-800">{{ customerForm.id ? 'Modify Customer Profile' : 'Add New Customer' }}</h2>
+                                <p class="text-xs text-slate-500">All input modifications sync securely in real-time.</p>
+                            </div>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Full Primary Name</label>
+                                    <input type="text" v-model="customerForm.name" placeholder="Johnathan Doe" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Contact Phone Number</label>
+                                    <input type="text" v-model="customerForm.phone" placeholder="(555) 000-0000" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Email Address</label>
+                                    <input type="email" v-model="customerForm.email" placeholder="john@example.com" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                </div>
+                                
+                                <!-- Multi Locations Handler Subframe -->
+                                <div class="pt-2 border-t border-slate-100">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Registered Properties</label>
+                                        <button @click="addNewLocationFieldToForm" class="text-xs font-bold text-green-600 hover:text-green-700 flex items-center gap-0.5 shadow-2xl">
+                                            <i class="fa-solid fa-circle-plus"></i> Add Location
+                                        </button>
+                                    </div>
+                                    <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                                        <div v-for="(loc, index) in customerForm.locations" :key="loc.id" class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg space-y-2 relative">
+                                            <div class="flex gap-2">
+                                                <input type="text" v-model="loc.label" placeholder="Label (e.g. Work Site)" class="w-1/3 px-2 py-1 border border-slate-200 rounded text-xs bg-white focus:ring-1 focus:ring-green-500">
+                                                <input type="text" v-model="loc.address" placeholder="Physical Address Street Route" class="w-2/3 px-2 py-1 border border-slate-200 rounded text-xs bg-white focus:ring-1 focus:ring-green-500">
+                                            </div>
+                                            <button @click="removeLocationFieldFromForm(index)" class="absolute -top-1 -right-1 bg-red-100 text-red-600 rounded-full h-4 w-4 flex items-center justify-center hover:bg-red-200 transition-colors shadow-2xl">
+                                                <i class="fa-solid fa-xmark text-[9px]"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 pt-2">
+                                <button @click="saveCustomerProfile" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 rounded-lg text-sm transition-colors shadow-lg shadow-green-600/15">
+                                    Save Profile
+                                </button>
+                                <button v-if="customerForm.id" @click="resetCustomerForm" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium py-2 px-3 rounded-lg text-sm transition-colors">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Real-time Directory Output Grid -->
+                        <div class="lg:col-span-2 bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                            <h3 class="font-bold text-slate-800 text-base mb-4">Active Directory Database</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-sm">
+                                    <thead>
+                                        <tr class="border-b border-slate-100 text-slate-400 text-xs font-semibold uppercase">
+                                            <th class="pb-2">Client Details</th>
+                                            <th class="pb-2">Locations Count</th>
+                                            <th class="pb-2 text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        <tr v-for="c in customers" :key="c.id" class="hover:bg-slate-50/50">
+                                            <td class="py-3">
+                                                <div class="font-semibold text-slate-800">{{ c.name }}</div>
+                                                <div class="text-xs text-slate-400 mt-0.5 space-x-2">
+                                                    <span><i class="fa-solid fa-phone text-[10px]"></i> {{ c.phone || 'N/A' }}</span>
+                                                    <span><i class="fa-solid fa-envelope text-[10px]"></i> {{ c.email || 'N/A' }}</span>
+                                                </div>
+                                            </td>
+                                            <td class="py-3">
+                                                <span class="inline-flex items-center bg-slate-100 px-2 py-0.5 rounded text-xs font-medium text-slate-600">
+                                                    {{ c.locations ? c.locations.length : 0 }} properties
+                                                </span>
+                                            </td>
+                                            <td class="py-3 text-right space-x-1.5">
+                                                <button @click="editCustomerProfile(c)" class="text-xs font-medium bg-slate-100 hover:bg-green-50 text-slate-600 hover:text-green-600 px-2.5 py-1 rounded transition-colors shadow-2xl">Edit</button>
+                                                <button @click="deleteCustomerProfile(c.id)" class="text-xs font-medium bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 px-2.5 py-1 rounded transition-colors shadow-2xl">Delete</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                 <!-- TAB 3: AUTOMATIONS & CALENDAR ARTIFACTS -->
+                <div v-show="currentTab === 'automation'" class="space-y-6">
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+                        <!-- Setup Automation Form -->
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-800">Schedule Recurring Work</h2>
+                                <p class="text-xs text-slate-500">Automate recurring monthly/weekly billing workflows seamlessly.</p>
+                            </div>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Select Account Target</label>
+                                    <select v-model="autoForm.customerId" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50 focus:ring-2 focus:ring-green-500">
+                                        <option value="">-- Choose Account --</option>
+                                        <option v-for="c in customers" :key="c.id" :value="c.id">{{ c.name }}</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Billing Loop Interval</label>
+                                    <select v-model="autoForm.frequency" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50 focus:ring-2 focus:ring-green-500">
+                                        <option value="Monthly">📅 Monthly (Every Month)</option>
+                                        <option value="Biweekly">⏳ Biweekly (Every 14 Days)</option>
+                                        <option value="Weekly">🍂 Weekly (Every 7 Days)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Fixed Contract Price ($)</label>
+                                    <input type="number" v-model.number="autoForm.price" placeholder="150.00" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-green-500">
+                                </div>
+                                <div>
+                                    <!-- EDITABLE AUTOMATION DATE FIELD -->
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Next Activation / Due Date</label>
+                                    <input type="date" v-model="autoForm.nextDate" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-green-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Default Scope Line Item</label>
+                                    <input type="text" v-model="autoForm.description" placeholder="Standard Commercial Gardening Package" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-green-500">
+                                </div>
+                            </div>
+                            <button @click="saveAutomationSchedule" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 rounded-lg text-sm transition-colors shadow-lg shadow-green-600/15">
+                                Deploy Workflow
+                            </button>
+                        </div>
+
+                        <!-- Calendar Grid & Queue Visual Layout -->
+                        <div class="xl:col-span-2 space-y-6">
+                            <!-- Visual Monthly Calendar Agenda Grid -->
+                            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h3 class="font-bold text-slate-800 text-base">Visual Work Calendar</h3>
+                                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider bg-slate-50 border border-slate-100 px-2 py-1 rounded">Active Routines Layout</span>
+                                </div>
+                                <div class="grid grid-cols-7 gap-1 bg-slate-100 p-1.5 rounded-xl border border-slate-200 text-center text-xs font-bold text-slate-600 mb-2">
+                                    <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+                                </div>
+                                <div class="grid grid-cols-7 gap-1 h-64 overflow-y-auto">
+                                    <div v-for="day in calendarDays" :key="day.dateStr" :class="['p-1 border rounded-lg bg-white min-h-[50px] flex flex-col justify-between', day.isToday ? 'border-green-500 ring-2 ring-green-100' : 'border-slate-100']">
+                                        <span class="text-[10px] font-bold text-slate-400 self-end">{{ day.dayNum }}</span>
+                                        <div class="space-y-0.5 max-h-10 overflow-y-auto">
+                                            <div v-for="evt in day.events" :key="evt.id" class="text-[9px] font-bold bg-green-50 text-green-700 border border-green-200 px-1 rounded truncate shadow-2xl" :title="evt.title">
+                                                {{ evt.title }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Interactive Automations Registry Table -->
+                            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                                <div class="mb-3">
+                                    <h3 class="font-bold text-slate-800 text-base">Active Automations Registry</h3>
+                                    <p class="text-xs text-slate-400">Generate planned outstanding items with 1-Click.</p>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left text-sm">
+                                        <thead>
+                                            <tr class="border-b border-slate-100 text-slate-400 text-xs font-semibold uppercase">
+                                                <th class="pb-2">Account Target</th>
+                                                <th class="pb-2">Interval Loop</th>
+                                                <th class="pb-2">Target Date</th>
+                                                <th class="pb-2 text-right">Fixed Price</th>
+                                                <th class="pb-2 text-center">Engine Tool</th>
+                                                <th class="pb-2 text-right">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100">
+                                            <tr v-for="a in automations" :key="a.id" class="hover:bg-slate-50/50">
+                                                <td class="py-3 font-semibold text-slate-800">{{ getCustomerName(a.customerId) }}</td>
+                                                <td class="py-3"><span class="bg-blue-50 text-blue-700 border border-blue-100 px-2 py-0.5 rounded text-xs font-medium">{{ a.frequency }}</span></td>
+                                                <td class="py-3 font-medium text-slate-600 text-xs">{{ a.nextDate }}</td>
+                                                <td class="py-3 text-right font-bold text-slate-700">${{ a.price.toFixed(2) }}</td>
+                                                <td class="py-3 text-center">
+                                                    <button @click="triggerDraftInvoiceFromAutomation(a)" class="bg-green-50 hover:bg-green-100 text-green-700 font-bold px-2 py-1 border border-green-200 text-xs rounded-lg transition-colors inline-flex items-center gap-1 shadow-2xl">
+                                                        <i class="fa-solid fa-bolt"></i> Draft Invoice
+                                                    </button>
+                                                </td>
+                                                <td class="py-3 text-right">
+                                                    <button @click="deleteAutomationSchedule(a.id)" class="text-slate-300 hover:text-red-500 transition-colors shadow-2xl"><i class="fa-solid fa-trash-can"></i></button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- TAB 4: NOTES & TASKS ARTIFACTS -->
+                <div v-show="currentTab === 'reminders'" class="space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                        <!-- Creator Box -->
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-800">Add Reminder / Note</h2>
+                                <p class="text-xs text-slate-500">Keep track of pending field jobs, warnings or maintenance notices.</p>
+                            </div>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Task Priority Level</label>
+                                    <select v-model="reminderForm.priority" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50 focus:ring-2 focus:ring-green-500">
+                                        <option value="Low">🟢 Low Priority</option>
+                                        <option value="Medium">🟡 Medium Scope</option>
+                                        <option value="High">🔴 High Critical Alert</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Target Description text</label>
+                                    <textarea v-model="reminderForm.text" rows="3" placeholder="Fix damaged sprinklers at Smith property next Tuesday..." class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+                                </div>
+                            </div>
+                            <button @click="saveReminderNote" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 rounded-lg text-sm transition-colors shadow-lg shadow-green-600/15">
+                                Append Note
+                            </button>
+                        </div>
+
+                        <!-- Interactive Grid Output Queue -->
+                        <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div v-for="r in reminders" :key="r.id" :class="['p-4 rounded-2xl border bg-white flex flex-col justify-between transition-all shadow-sm', r.priority === 'High' ? 'border-l-4 border-l-red-500' : r.priority === 'Medium' ? 'border-l-4 border-l-amber-500' : 'border-l-4 border-l-green-500']">
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span :class="['px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider', r.priority === 'High' ? 'bg-red-50 text-red-700 border border-red-100' : r.priority === 'Medium' ? 'bg-amber-50 text-amber-700 border border-amber-100' : 'bg-green-50 text-green-700 border border-green-100']">
+                                            {{ r.priority }} Priority
+                                        </span>
+                                        <span class="text-[10px] text-slate-400 font-medium">{{ r.date }}</span>
+                                    </div>
+                                    <p class="text-sm font-medium text-slate-700 leading-relaxed">{{ r.text }}</p>
+                                </div>
+                                <div class="flex justify-end pt-3 mt-3 border-t border-slate-100">
+                                    <button @click="deleteReminderNote(r.id)" class="text-xs font-semibold text-slate-400 hover:text-red-500 flex items-center gap-0.5 transition-colors shadow-2xl">
+                                        <i class="fa-solid fa-circle-check"></i> Complete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- TAB 5: SMART LEDGER & HISTORY -->
+                <div v-show="currentTab === 'history'" class="space-y-6">
+                    <!-- Advanced Filters & Engine Search Console Frame -->
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                            <h3 class="font-bold text-slate-800 text-base flex items-center gap-1.5"><i class="fa-solid fa-magnifying-glass text-green-600"></i> Search & Filter Console</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Client Profile Target</label>
+                                    <select v-model="filters.customerId" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50 focus:ring-2 focus:ring-green-500">
+                                        <option value="">-- All Registered Customers --</option>
+                                        <option v-for="c in customers" :key="c.id" :value="c.id">{{ c.name }}</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Billing Payment Status</label>
+                                    <select v-model="filters.status" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50 focus:ring-2 focus:ring-green-500">
+                                        <option value="">-- All Billing States --</option>
+                                        <option value="Paid">🟢 Settled Payments (Paid)</option>
+                                        <option value="Unpaid">🔴 Pending Balances & Debts (Unpaid)</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Start Date</label>
+                                        <input type="date" v-model="filters.startDate" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs bg-slate-50 focus:ring-1 focus:ring-green-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">End Date</label>
+                                        <input type="date" v-model="filters.endDate" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs bg-slate-50 focus:ring-1 focus:ring-green-500">
+                                    </div>
+                                </div>
+                                <button @click="resetHistoryFilters" class="w-full text-center text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors bg-slate-100 hover:bg-slate-200 py-2 rounded-lg border border-slate-200 shadow-2xl">
+                                    Reset / Clear All Search Filters
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Real-time Financial Metrics Summary Frame -->
+                        <div class="xl:col-span-2 bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-6">
+                            <div class="space-y-4 w-full md:w-1/3">
+                                <div class="bg-slate-50 p-4 border border-slate-100 rounded-xl">
+                                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total Volume Selected</span>
+                                    <span class="text-3xl font-black text-slate-800 block mt-1">${{ filteredInvoicesTotalSum.toFixed(2) }}</span>
+                                </div>
+                            </div>
+                            <div class="w-full md:w-2/3 h-36 flex items-center justify-center relative">
+                                <canvas id="analyticsChartEngine"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Split Ledgers Streams for Paid / Unpaid Master Accounts -->
+                    <div class="space-y-6">
+                        <!-- STREAM A: COMPREHENSIVE HISTORY LISTING -->
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                            <div class="flex justify-between items-center mb-3">
+                                <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider">Main Sales Stream</h3>
+                                <span class="text-xs bg-slate-100 px-2 py-1 border border-slate-200 text-slate-600 rounded font-bold uppercase tracking-wide shadow-2xl">{{ filteredInvoices.length }} invoices matched</span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-sm">
+                                    <thead>
+                                        <tr class="border-b border-slate-100 text-slate-400 text-xs font-semibold uppercase">
+                                            <th class="pb-2">Timeline Dates</th>
+                                            <th class="pb-2">Folio & Client Name</th>
+                                            <th class="pb-2">Location of Service</th>
+                                            <th class="pb-2 text-right">Amount Due</th>
+                                            <th class="pb-2 text-center">Status</th>
+                                            <th class="pb-2 text-right">System Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        <tr v-for="inv in filteredInvoices" :key="inv.id" class="hover:bg-slate-50/50">
+                                            <td class="py-3 font-medium text-slate-600 text-xs">{{ inv.date }}</td>
+                                            <td class="py-3">
+                                                <div class="font-bold text-slate-800">#{{ inv.folio }}</div>
+                                                <div class="text-xs text-slate-400 mt-0.5">{{ getCustomerName(inv.customerId) }}</div>
+                                            </td>
+                                            <td class="py-3 text-xs font-medium text-slate-500 max-w-xs truncate" :title="getLocationAddressText(inv.customerId, inv.locationId)">
+                                                {{ getLocationAddressText(inv.customerId, inv.locationId) }}
+                                            </td>
+                                            <td class="py-3 text-right font-black text-slate-800">${{ inv.total.toFixed(2) }}</td>
+                                            <td class="py-3 text-center">
+                                                <!-- INTERACTIVE TOGGLE STATE SWITCH BUTTON -->
+                                                <button @click="toggleInvoicePaymentStatus(inv)" :class="['px-2.5 py-1 rounded text-xs font-bold border transition-all shadow-2xl', inv.status === 'Paid' ? 'bg-green-50 text-green-700 border-green-200 hover:bg-red-50 hover:text-red-700 hover:border-red-200' : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-green-50 hover:text-green-700 hover:border-green-200']" :title="inv.status === 'Paid' ? 'Click to mark as Unpaid' : 'Click to mark as Paid'">
+                                                    <span v-if="inv.status === 'Paid'"><i class="fa-solid fa-circle-check"></i> Paid</span>
+                                                    <span v-else><i class="fa-solid fa-clock"></i> Unpaid</span>
+                                                </button>
+                                            </td>
+                                            <td class="py-3 text-right space-x-1">
+                                                <button @click="loadInvoiceIntoActiveWorkspace(inv)" class="text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded border border-slate-200 transition-all shadow-2xl" title="Reload to Billing console"><i class="fa-solid fa-folder-open"></i></button>
+                                                <button @click="sendWhatsAppReminder(inv)" class="text-xs font-bold bg-green-50 hover:bg-green-100 text-green-700 px-2 py-1 rounded border border-green-200 transition-all shadow-2xl" title="Send WhatsApp Message"><i class="fa-brands fa-whatsapp"></i></button>
+                                                <button @click="deleteInvoiceRecord(inv.id)" class="text-xs font-medium bg-slate-50 hover:bg-red-50 text-slate-300 hover:text-red-500 px-2 py-1 rounded transition-all shadow-2xl"><i class="fa-solid fa-trash-can"></i></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- SUB-ACCOUNT TABLES STRUCTURES -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Paid Stream Account -->
+                            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider text-green-700">💳 Sub-Account: Settled Payments (Paid)</h4>
+                                    <span class="text-xs font-black text-green-600">${{ totalPaidSumAmount.toFixed(2) }}</span>
+                                </div>
+                                <div class="overflow-x-auto max-h-60">
+                                    <table class="w-full text-left text-xs">
+                                        <thead>
+                                            <tr class="border-b border-slate-100 text-slate-400 font-semibold uppercase">
+                                                <th class="pb-2">Date</th>
+                                                <th class="pb-2">Folio</th>
+                                                <th class="pb-2">Location Address</th>
+                                                <th class="pb-2 text-right">Amount Paid</th>
+                                                <th class="pb-2 text-right">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100">
+                                            <tr v-for="inv in invoices.filter(i => i.status === 'Paid')" :key="inv.id">
+                                                <td class="py-2 text-slate-500">{{ inv.date }}</td>
+                                                <td class="py-2 font-bold text-slate-700">#{{ inv.folio }}</td>
+                                                <td class="py-2 text-slate-500 max-w-[120px] truncate">{{ getLocationAddressText(inv.customerId, inv.locationId) }}</td>
+                                                <td class="py-2 text-right font-bold text-green-600">${{ inv.total.toFixed(2) }}</td>
+                                                <td class="py-2 text-right">
+                                                    <button @click="toggleInvoicePaymentStatus(inv)" class="text-[10px] font-bold bg-amber-50 hover:bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded border border-amber-200 shadow-2xl">Revert</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- Unpaid Stream Account -->
+                            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider text-amber-600">⚠️ Sub-Account: Pending Balances & Debts (Unpaid)</h4>
+                                    <span class="text-xs font-black text-amber-600">${{ totalUnpaidSumAmount.toFixed(2) }}</span>
+                                </div>
+                                <div class="overflow-x-auto max-h-60">
+                                    <table class="w-full text-left text-xs">
+                                        <thead>
+                                            <tr class="border-b border-slate-100 text-slate-400 font-semibold uppercase">
+                                                <th class="pb-2">Date</th>
+                                                <th class="pb-2">Folio</th>
+                                                <th class="pb-2">Location Address</th>
+                                                <th class="pb-2 text-right">Amount Debt</th>
+                                                <th class="pb-2 text-right">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100">
+                                            <tr v-for="inv in invoices.filter(i => i.status === 'Unpaid')" :key="inv.id">
+                                                <td class="py-2 text-slate-500">{{ inv.date }}</td>
+                                                <td class="py-2 font-bold text-slate-700">#{{ inv.folio }}</td>
+                                                <td class="py-2 text-slate-500 max-w-[120px] truncate">{{ getLocationAddressText(inv.customerId, inv.locationId) }}</td>
+                                                <td class="py-2 text-right font-bold text-amber-600">${{ inv.total.toFixed(2) }}</td>
+                                                <td class="py-2 text-right space-x-1">
+                                                    <button @click="toggleInvoicePaymentStatus(inv)" class="text-[10px] font-bold bg-green-50 hover:bg-green-100 text-green-700 px-1.5 py-0.5 rounded border border-green-200 shadow-2xl">Collect</button>
+                                                    <button @click="sendWhatsAppReminder(inv)" class="text-[10px] text-green-600 font-bold shadow-2xl"><i class="fa-brands fa-whatsapp text-xs"></i></button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
     </div>
 
-    <div id="render-pdf-clon" class="absolute top-[-5000px] left-[-5000px] w-[800px] bg-white p-12" style="font-family: sans-serif;"></div>
-
+    <!-- MAIN CORE INTEGRATION SCRIPTS DEPLOYMENT -->
     <script>
-                // CONFIGURACIÓN DE TU BASE DE DATOS REAL DE FIREBASE
-        const firebaseConfig = {
-            apiKey: "AIzaSyBKPqlndtjyYJduNZBagPIex15jv3AIdt4",
-            authDomain: "jose-landscaping-care.firebaseapp.com",
-            databaseURL: "https://jose-landscaping-care-default-rtdb.firebaseio.com",
-            projectId: "jose-landscaping-care",
-            storageBucket: "jose-landscaping-care.firebasestorage.app",
-            messagingSenderId: "865188722544",
-            appId: "1:865188722544:web:bd140d827ebb9c503f41b5"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        let cacheClientes = {};
-        let cacheFacturas = {};
-        let cacheNotas = {};
-        let cacheProgramaciones = {};
-        let miGrafico = null;
-
-        const CONFIG_SEGURIDAD = { user: "admin", pass: "jose1234" };
-
-        function autenticar() {
-            const u = document.getElementById('login-user').value.trim();
-            const p = document.getElementById('login-pass').value.trim();
-            
-            if(u === CONFIG_SEGURIDAD.user && p === CONFIG_SEGURIDAD.pass) {
-                document.getElementById('v-login').classList.add('hidden');
-                document.getElementById('app-content').classList.remove('hidden');
-                document.getElementById('login-error').classList.add('hidden');
-                conectarEscuchasNube();
-            } else {
-                document.getElementById('login-error').classList.remove('hidden');
-            }
-        }
-
-        function cerrarSesion() {
-            document.getElementById('login-user').value = "";
-            document.getElementById('login-pass').value = "";
-            document.getElementById('app-content').classList.add('hidden');
-            document.getElementById('v-login').classList.remove('hidden');
-        }
-
-        document.getElementById('login-pass').addEventListener('keypress', function(e) {
-            if(e.key === 'Enter') autenticar();
-        });
-
-        // SOLUCIÓN AL ERROR DE CARGA: Conexión asíncrona real a Firebase al entrar al panel
-        function conectarEscuchasNube() {
-            db.ref('clientes').on('value', snapshot => {
-                cacheClientes = snapshot.val() || {};
-                actualizarSelectorClientesFactura();
-                actualizarSelectorClientesProgramar();
-                actualizarFiltrosConsolaHistorial();
-                if(document.getElementById('v-clientes').classList.contains('active')) listarClientes();
-            });
-
-            db.ref('facturas').on('value', snapshot => {
-                cacheFacturas = snapshot.val() || {};
-                if(document.getElementById('v-historial').classList.contains('active')) ejecutarFiltrosHistorial();
-            });
-
-            db.ref('notas').on('value', snapshot => {
-                cacheNotas = snapshot.val() || {};
-                if(document.getElementById('v-notas').classList.contains('active')) listarNotas();
-            });
-
-            db.ref('programaciones').on('value', snapshot => {
-                cacheProgramaciones = snapshot.val() || {};
-                if(document.getElementById('v-programar').classList.contains('active')) listarProgramaciones();
-            });
-        }
-
-        function irA(id) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            
-            document.querySelectorAll('aside nav button').forEach(b => b.classList.remove('bg-green-800', 'border-green-500'));
-            document.getElementById('btn-' + id).classList.add('bg-green-800', 'border-green-500');
-            
-            if(id === 'v-clientes') { resetClienteForm(); listarClientes(); }
-            if(id === 'v-historial') { ejecutarFiltrosHistorial(); }
-            if(id === 'v-notas') { resetNotaForm(); listarNotas(); }
-            if(id === 'v-programar') { resetProgramarForm(); listarProgramaciones(); }
-            actualizarSelectorClientesFactura();
-        }
-
-        function calcularTodo() {
-            let subtotal = 0;
-            document.querySelectorAll('#filas tr').forEach(row => {
-                const c = parseFloat(row.querySelector('.cant').value) || 0;
-                const p = parseFloat(row.querySelector('.prec').value) || 0;
-                const t = c * p;
-                row.querySelector('.total-fila').innerText = "$" + t.toFixed(2);
-                subtotal += t;
-            });
-            
-            document.getElementById('sub').innerText = "$" + subtotal.toFixed(2);
-            const conIva = document.getElementById('aplicar-iva').checked;
-            let iva = conIva ? subtotal * 0.16 : 0;
-            
-            if(conIva) {
-                document.getElementById('box-iva').classList.remove('hidden');
-            } else {
-                document.getElementById('box-iva').classList.add('hidden');
-            }
-            
-            document.getElementById('val-iva').innerText = "$" + iva.toFixed(2);
-            document.getElementById('tot').innerText = "$" + (subtotal + iva).toFixed(2);
-        }
-
-        function nuevaFila(desc = "", prec = 0) {
-            const tr = document.createElement('tr');
-            tr.className = "hover:bg-slate-50 group border-b transition-all";
-            tr.innerHTML = `
-                <td class="p-4"><input type="text" value="${desc}" class="w-full outline-none bg-transparent uppercase font-bold text-slate-700 placeholder-slate-300" placeholder="E.g. Yard Cleaning and Maintenance Services..."></td>
-                <td class="p-4"><input type="number" value="1" class="cant w-full text-center outline-none bg-transparent font-black text-slate-800" oninput="calcularTodo()"></td>
-                <td class="p-4"><input type="number" value="${prec}" class="prec w-full text-right outline-none bg-transparent font-black text-green-700" oninput="calcularTodo()"></td>
-                <td class="total-fila p-4 text-right font-black text-slate-800">$0.00</td>
-                <td class="p-4 text-center no-print">
-                    <button onclick="this.parentElement.parentElement.remove(); calcularTodo();" class="text-slate-300 hover:text-red-600 font-black transition-all text-sm">✕</button>
-                </td>
-            `;
-            document.getElementById('filas').appendChild(tr);
-            calcularTodo();
-                                                              }
-        function agregarCamposDireccion(tipo = "Work Site", valor = "") {
-            const contenedor = document.getElementById('contenedor-direcciones-form');
-            const div = document.createElement('div');
-            const uniqueId = 'dir_' + Date.now() + Math.random().toString(36).substr(2, 5);
-            div.id = uniqueId;
-            div.className = "flex gap-2 items-center fila-direccion-form bg-slate-50 p-2 border rounded-xl shadow-sm";
-            div.innerHTML = `
-                <input type="text" placeholder="Tag" value="${tipo}" class="dir-tipo p-2 border rounded-lg text-[11px] w-28 uppercase font-black bg-white text-slate-700 outline-none focus:border-green-600">
-                <input type="text" placeholder="Full Location Address" value="${valor}" class="dir-valor flex-1 p-2 border rounded-lg text-[11px] bg-white font-bold outline-none focus:border-green-600">
-                <button onclick="document.getElementById('${uniqueId}').remove()" class="text-slate-400 font-black px-2 hover:text-red-600 transition-all">✕</button>
-            `;
-            contenedor.appendChild(div);
-        }
-
-        function guardarCliente() {
-            const id = document.getElementById('edit-id').value;
-            const n = document.getElementById('n-cli').value.trim();
-            const t = document.getElementById('t-cli').value.trim();
-            const costo = parseFloat(document.getElementById('costo-cli').value) || 0;
-
-            if(!n) return alert("Error: El nombre es obligatorio.");
-
-            let direcciones = [];
-            document.querySelectorAll('.fila-direccion-form').forEach(fila => {
-                const tipo = fila.querySelector('.dir-tipo').value.trim() || "Location";
-                const valor = fila.querySelector('.dir-valor').value.trim();
-                if(valor) direcciones.push({ tipo, valor });
-            });
-
-            const datosEstructurados = { n, t, costo, direcciones };
-
-            if(id) {
-                db.ref('clientes/' + id).set(datosEstructurados).then(() => { 
-                    alert("Success: Cliente actualizado."); 
-                    resetClienteForm(); 
-                });
-            } else {
-                db.ref('clientes').push(datosEstructurados).then(() => { 
-                    alert("Success: Cliente registrado."); 
-                    resetClienteForm(); 
-                });
-            }
-        }
-
-        function resetClienteForm() {
-            document.getElementById('n-cli').value = "";
-            document.getElementById('t-cli').value = "";
-            document.getElementById('costo-cli').value = "";
-            document.getElementById('edit-id').value = "";
-            document.getElementById('contenedor-direcciones-form').innerHTML = "";
-            document.getElementById('titulo-cliente').innerText = "Add New Customer";
-            document.getElementById('btn-save-cli').innerText = "Save Profile";
-            agregarCamposDireccion("Work Site");
-        }
-
-        function editarCliente(id) {
-            const c = cacheClientes[id];
-            if(!c) return;
-            
-            document.getElementById('n-cli').value = c.n;
-            document.getElementById('t-cli').value = c.t || "";
-            document.getElementById('costo-cli').value = c.costo || "";
-            document.getElementById('edit-id').value = id;
-            document.getElementById('titulo-cliente').innerText = "Edit Profile";
-            document.getElementById('btn-save-cli').innerText = "Update Profile";
-
-            const contenedor = document.getElementById('contenedor-direcciones-form');
-            contenedor.innerHTML = "";
-            
-            if(c.direcciones && c.direcciones.length > 0) {
-                c.direcciones.forEach(d => agregarCamposDireccion(d.tipo, d.valor));
-            } else {
-                agregarCamposDireccion("Work Site");
-            }
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function eliminarCliente(id) {
-            if(confirm("¿Seguro que desea eliminar permanentemente este cliente?")) {
-                db.ref('clientes/' + id).remove();
-            }
-        }
-
-        function listarClientes() {
-            const contenedor = document.getElementById('lista-cli');
-            contenedor.innerHTML = "";
-            
-            let html = "";
-            for (let id in cacheClientes) {
-                const c = cacheClientes[id];
-                let listadoDireccionesHTML = "";
-                const displayCosto = c.costo ? parseFloat(c.costo).toFixed(2) : "0.00";
-                
-                if(c.direcciones && c.direcciones.length > 0) {
-                    listadoDireccionesHTML = c.direcciones.map(d => `
-                        <div class="flex items-center justify-between text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-200/60 shadow-inner">
-                            <span class="text-slate-600"><b class="text-green-800 text-[10px] font-black tracking-wide bg-green-100/80 px-2 py-0.5 rounded-md mr-1">[${d.tipo.toUpperCase()}]</b> ${d.valor}</span>
-                            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.valor)}" target="_blank" class="text-[10px] bg-white border border-slate-200 text-blue-600 p-1.5 px-3 rounded-lg font-black tracking-wide shadow-sm hover:bg-blue-50 transition-all">📍 MAPS</a>
-                        </div>
-                    `).join('');
-                } else {
-                    listadoDireccionesHTML = '<p class="text-xs text-slate-400 italic">No addresses tracked.</p>';
-                }
-
-                html += `
-                    <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-md flex flex-col justify-between gap-5 transition-all hover:shadow-lg">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="font-black text-xl text-slate-800 uppercase tracking-tight leading-none">${c.n}</h3>
-                                <p class="text-xs text-slate-500 font-bold mt-1.5 flex items-center gap-1">📞 ${c.t || 'Unregistered Phone'}</p>
-                                <p class="text-xs text-green-700 font-black mt-1 bg-green-50 px-2.5 py-1 rounded-lg border border-green-200/60 w-fit">💵 Standard Rate: $${displayCosto}</p>
-                            </div>
-                            <div class="flex gap-2 no-print">
-                                <button onclick="editarCliente('${id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-600 p-2.5 px-4 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all">Edit</button>
-                                <button onclick="eliminarCliente('${id}')" class="bg-red-50 hover:bg-red-100 text-red-600 p-2.5 px-4 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all">Delete</button>
-                            </div>
-                        </div>
-                        <div class="space-y-1.5 border-t pt-3">
-                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Locations Directory:</p>
-                            ${listadoDireccionesHTML}
-                        </div>
-                    </div>`;
-            }
-            contenedor.innerHTML = html || '<div class="bg-white text-center p-12 rounded-3xl border border-dashed text-slate-400 font-black uppercase text-xs">No entries found on Database.</div>';
-        }
-           // ========================================== -->
-        // MODULO RECURRENTE: AUTOMACIONES Y REINSCRIBIR
-        // ========================================== -->
-        function actualizarSelectorClientesProgramar() {
-            const s = document.getElementById('prog-sel-cliente');
-            if(!s) return;
-            let opciones = '<option value="">-- SELECT CUSTOMER PROFILE --</option>';
-            for(let id in cacheClientes){ opciones += `<option value="${id}">${cacheClientes[id].n.toUpperCase()}</option>`; }
-            s.innerHTML = opciones;
-        }
-
-        function guardarProgramacion() {
-            const id = document.getElementById('prog-id').value;
-            const clienteId = document.getElementById('prog-sel-cliente').value;
-            const frecuencia = document.getElementById('prog-frecuencia').value;
-            const costo = parseFloat(document.getElementById('prog-costo').value) || 0;
-            const desc = document.getElementById('prog-desc').value.trim();
-
-            if(!clienteId || costo <= 0 || !desc) return alert("Por favor complete todos los parámetros de automatización.");
-
-            const progData = {
-                clienteId: clienteId,
-                clienteNombre: cacheClientes[clienteId].n,
-                frecuencia: frecuencia,
-                costo: costo,
-                desc: desc
-            };
-
-            if(id) {
-                db.ref('programaciones/' + id).set(progData).then(() => { alert("Automatización modificada."); resetProgramarForm(); });
-            } else {
-                db.ref('programaciones').push(progData).then(() => { alert("Automatización guardada con éxito."); resetProgramarForm(); });
-            }
-        }
-
-        function resetProgramarForm() {
-            document.getElementById('prog-id').value = "";
-            document.getElementById('prog-sel-cliente').value = "";
-            document.getElementById('prog-costo').value = "";
-            document.getElementById('prog-desc').value = "STANDARD MONTHLY LANDSCAPING SERVICE PACKAGE";
-            document.getElementById('titulo-prog').innerText = "Schedule Invoice";
-            document.getElementById('btn-save-prog').innerText = "Activate Automation";
-        }
-
-        function editarProgramacion(id) {
-            const p = cacheProgramaciones[id];
-            if(!p) return;
-            document.getElementById('prog-id').value = id;
-            document.getElementById('prog-sel-cliente').value = p.clienteId;
-            document.getElementById('prog-frecuencia').value = p.frecuencia;
-            document.getElementById('prog-costo').value = p.costo;
-            document.getElementById('prog-desc').value = p.desc;
-            document.getElementById('titulo-prog').innerText = "Edit Automation";
-            document.getElementById('btn-save-prog').innerText = "Update Automation";
-        }
-
-        function eliminarProgramacion(id) {
-            if(confirm("¿Desea desvincular y eliminar permanentemente este flujo automático?")) {
-                db.ref('programaciones/' + id).remove();
-            }
-        }
-
-        function generarFacturaDesdeAutomatizacion(id) {
-            const p = cacheProgramaciones[id];
-            if(!p) return;
-
-            // Cambia a la vista de factura y carga los datos automáticamente
-            irA('v-factura');
-            document.getElementById('sel-cliente').value = p.clienteId;
-            seleccionarCliente();
-            
-            // Forzar las filas según la programación
-            document.getElementById('filas').innerHTML = "";
-            nuevaFila(p.desc, p.costo);
-            alert(`Datos de ${p.clienteNombre} cargados en el folio actual. Revisa y presiona Exportar PDF.`);
-        }
-
-        function listarProgramaciones() {
-            const contenedor = document.getElementById('lista-programaciones');
-            contenedor.innerHTML = "";
-            let html = "";
-            for(let id in cacheProgramaciones) {
-                const p = cacheProgramaciones[id];
-                html += `
-                <div class="bg-white border-l-8 border-green-600 p-5 rounded-r-3xl shadow-sm flex items-center justify-between transition-all hover:shadow-md">
-                    <div>
-                        <span class="text-[9px] font-black text-white bg-green-700 px-2 py-0.5 rounded-md uppercase tracking-wider">${p.frecuencia}</span>
-                        <h4 class="font-black text-slate-800 uppercase text-lg tracking-tight mt-1 leading-none">${p.clienteNombre}</h4>
-                        <p class="text-xs text-slate-500 font-bold mt-1 uppercase italic">${p.desc}</p>
-                        <p class="text-sm font-black text-green-700 mt-1">Estipulado: $${parseFloat(p.costo).toFixed(2)}</p>
-                    </div>
-                    <div class="flex flex-col gap-2 text-right">
-                        <button onclick="generarFacturaDesdeAutomatizacion('${id}')" class="bg-green-600 hover:bg-green-700 text-white font-black text-[10px] p-2 px-4 rounded-xl uppercase tracking-wider shadow-sm">⚡ Draft Invoice</button>
-                        <div class="flex gap-2 justify-end text-xs">
-                            <button onclick="editarProgramacion('${id}')" class="text-blue-600 font-bold hover:underline">Edit</button>
-                            <span class="text-slate-300">|</span>
-                            <button onclick="eliminarProgramacion('${id}')" class="text-red-600 font-bold hover:underline">Delete</button>
-                        </div>
-                    </div>
-                </div>`;
-            }
-            contenedor.innerHTML = html || '<div class="bg-white text-center p-12 rounded-3xl border border-dashed text-slate-400 font-black uppercase text-xs">No active recurring automations.</div>';
-                }
-        // ========================================== -->
-        // MODULOS TRADICIONALES ADICIONALES
-        // ========================================== -->
-        function guardarNota() {
-            const id = document.getElementById('nota-id').value;
-            const t = document.getElementById('nota-titulo').value.trim();
-            const c = document.getElementById('nota-contenido').value.trim();
-
-            if(!t || !c) return alert("Por favor complete el Título y Contenido de la nota.");
-
-            const notaData = { t: t, c: c, fecha: new Date().toLocaleDateString() };
-
-            if(id) {
-                db.ref('notas/' + id).set(notaData).then(() => { alert("Nota actualizada."); resetNotaForm(); });
-            } else {
-                db.ref('notas').push(notaData).then(() => { alert("Nota guardada con éxito."); resetNotaForm(); });
-            }
-        }
-
-        function resetNotaForm() {
-            document.getElementById('nota-id').value = "";
-            document.getElementById('nota-titulo').value = "";
-            document.getElementById('nota-contenido').value = "";
-            document.getElementById('titulo-nota').innerText = "Add Reminder / Note";
-            document.getElementById('btn-save-nota').innerText = "Save Note";
-        }
-
-        function editarNota(id) {
-            const n = cacheNotas[id];
-            if(!n) return;
-            document.getElementById('nota-id').value = id;
-            document.getElementById('nota-titulo').value = n.t;
-            document.getElementById('nota-contenido').value = n.c;
-            document.getElementById('titulo-nota').innerText = "Edit Note";
-            document.getElementById('btn-save-nota').innerText = "Update Note";
-        }
-
-        function eliminarNota(id) {
-            if(confirm("¿Marcar como resuelta y eliminar nota?")) { db.ref('notas/' + id).remove(); }
-        }
-
-        function listarNotas() {
-            const contenedor = document.getElementById('lista-notas');
-            contenedor.innerHTML = "";
-            let html = "";
-            for(let id in cacheNotas) {
-                const n = cacheNotas[id];
-                html += `
-                <div class="bg-yellow-50/70 border border-yellow-200 p-5 rounded-3xl flex flex-col justify-between shadow-sm hover:shadow-md transition-all">
-                    <div>
-                        <div class="flex justify-between items-start border-b border-yellow-200/60 pb-2 mb-3">
-                            <span class="text-[9px] font-black text-yellow-700 bg-yellow-200 px-2 py-0.5 rounded-md uppercase tracking-wider">${n.fecha}</span>
-                            <div class="flex gap-1.5 no-print">
-                                <button onclick="editarNota('${id}')" class="text-[10px] font-bold text-blue-600 hover:underline">Edit</button>
-                                <span class="text-slate-300">|</span>
-                                <button onclick="eliminarNota('${id}')" class="text-[10px] font-bold text-red-600 hover:underline">Done ✓</button>
-                            </div>
-                        </div>
-                        <h4 class="font-black text-slate-800 uppercase text-sm tracking-tight mb-2">${n.t}</h4>
-                        <p class="text-xs text-slate-600 whitespace-pre-wrap font-medium leading-relaxed">${n.c}</p>
-                    </div>
-                </div>`;
-            }
-            contenedor.innerHTML = html || '<div class="bg-white col-span-2 text-center p-12 rounded-3xl border border-dashed text-slate-400 font-black uppercase text-xs">No pending notes or tasks.</div>';
-        }
-
-        function actualizarSelectorClientesFactura() {
-            const s = document.getElementById('sel-cliente');
-            if(!s) return;
-            let opciones = '<option value="">-- SELECT CREDIT ACCOUNT / CLIENT --</option>';
-            for(let id in cacheClientes){ opciones += `<option value="${id}">${cacheClientes[id].n.toUpperCase()}</option>`; }
-            s.innerHTML = opciones;
-        }
-
-        function seleccionarCliente() {
-            const id = document.getElementById('sel-cliente').value;
-            const selDir = document.getElementById('sel-direccion');
-            document.getElementById('filas').innerHTML = "";
-            
-            if(!id) {
-                document.getElementById('doc-nombre').innerText = "Select Customer";
-                document.getElementById('doc-dir-display').innerText = "No address selected";
-                document.getElementById('doc-tel').innerText = "";
-                selDir.innerHTML = '<option value="">-- Choose Location --</option>';
-                nuevaFila();
-                return;
-            }
-
-            const c = cacheClientes[id];
-            document.getElementById('doc-nombre').innerText = c.n;
-            document.getElementById('doc-tel').innerText = c.t ? "📞 " + c.t : "No Phone Listed";
-
-            const costoBase = c.costo ? parseFloat(c.costo) : 0;
-            nuevaFila("STANDARD LANDSCAPING & MAINTENANCE SERVICE", costoBase);
-
-            let opcionesDir = '<option value="">-- Choose Location --</option>';
-            if(c.direcciones && c.direcciones.length > 0) {
-                c.direcciones.forEach(d => { opcionesDir += `<option value="[${d.tipo}] ${d.valor}">[${d.tipo.toUpperCase()}] ${d.valor}</option>`; });
-            } else {
-                opcionesDir += '<option value="No Address Linked">No Registered Addresses Found</option>';
-            }
-            selDir.innerHTML = opcionesDir;
-            cambiarDireccionFactura();
-        }
-
-        function cambiarDireccionFactura() {
-            const val = document.getElementById('sel-direccion').value;
-            document.getElementById('doc-dir-display').innerText = val ? "📍 " + val : "NO ADDRESS SELECTED FOR DOCUMENT PRINT";
-        }
-
-        function guardarFactura() {
-            calcularTodo();
-            const total = document.getElementById('tot').innerText;
-            if(total === "$0.00") return alert("La factura no puede guardarse con valor de $0.00");
-
-            let conceptosCompletos = [];
-            document.querySelectorAll('#filas tr').forEach(row => {
-                conceptosCompletos.push({
-                    d: row.querySelectorAll('input')[0].value,
-                    c: row.querySelectorAll('input')[1].value,
-                    p: row.querySelectorAll('input')[2].value
-                });
-            });
-
-            const facturaData = {
-                folio: document.getElementById('folio').value.trim() || "SN",
-                fechaFactura: document.getElementById('fecha').value, 
-                fechaCreacion: new Date().toLocaleDateString(), 
-                cliente: document.getElementById('doc-nombre').innerText,
-                direccionServicio: document.getElementById('sel-direccion').value || "No address assigned",
-                montoTotal: total,
-                metodo: document.getElementById('metodo-pago').value,
-                estado: document.getElementById('pagado').checked,
-                conceptos: conceptosCompletos,
-                conIva: document.getElementById('aplicar-iva').checked
-            };
-
-            db.ref('facturas').push(facturaData).then(() => {
-                // Renderizado directo
-                reimprimirFacturaPDF_Raw(facturaData);
-                alert("Factura guardada y PDF generado.");
-                document.getElementById('folio').value = "";
-                document.getElementById('sel-cliente').value = "";
-                seleccionarCliente();
-                irA('v-historial');
-            });
-        }
-
-        function actualizarFiltrosConsolaHistorial() {
-            const selectFiltro = document.getElementById('historial-filtro-cliente');
-            if(!selectFiltro) return;
-            let opciones = '<option value="all">-- SHOW ALL CUSTOMERS --</option>';
-            for(let id in cacheClientes){ opciones += `<option value="${cacheClientes[id].n.toUpperCase()}">${cacheClientes[id].n.toUpperCase()}</option>`; }
-            selectFiltro.innerHTML = opciones;
-        }
-
-        function limpiarFiltrosHistorial() {
-            document.getElementById('historial-filtro-cliente').value = "all";
-            document.getElementById('historial-filtro-mes').value = "";
-            ejecutarFiltrosHistorial();
-        }
-
-        function ejecutarFiltrosHistorial() {
-            const clienteSeleccionado = document.getElementById('historial-filtro-cliente').value;
-            const mesSeleccionado = document.getElementById('historial-filtro-mes').value;
-            
-            const tbodyGeneral = document.getElementById('tabla-h');
-            const tbodyPagados = document.getElementById('tabla-h-pagados');
-            const tbodyPendientes = document.getElementById('tabla-h-pendientes');
-            
-            tbodyGeneral.innerHTML = "";
-            tbodyPagados.innerHTML = "";
-            tbodyPendientes.innerHTML = "";
-
-            let totalInyectado = 0;
-            let totalPagadoAcumulado = 0;
-            let totalPendienteAcumulado = 0;
-            let contadorInvoices = 0;
-
-            if (clienteSeleccionado !== "all") {
-                document.getElementById('bloque-historial-general').classList.add('hidden');
-                document.getElementById('bloque-historial-pagados').classList.remove('hidden');
-                document.getElementById('bloque-historial-pendientes').classList.remove('hidden');
-            } else {
-                document.getElementById('bloque-historial-general').classList.remove('hidden');
-                document.getElementById('bloque-historial-pagados').classList.add('hidden');
-                document.getElementById('bloque-historial-pendientes').classList.add('hidden');
-            }
-
-            let facturasProcesables = [];
-            for(let id in cacheFacturas) { facturasProcesables.push({ id, ...cacheFacturas[id] }); }
-            facturasProcesables.reverse();
-
-            facturasProcesables.forEach(f => {
-                if (clienteSeleccionado !== "all" && f.cliente.toUpperCase() !== clienteSeleccionado) return;
-                
-                if (mesSeleccionado) {
-                    const mesFactura = f.fechaFactura ? f.fechaFactura.substring(0, 7) : "";
-                    if (mesFactura !== mesSeleccionado) return;
-                }
-
-                const montoNumerico = parseFloat(f.montoTotal.replace('$', '')) || 0;
-                totalInyectado += montoNumerico;
-                contadorInvoices++;
-
-                if (f.estado) { totalPagadoAcumulado += montoNumerico; } else { totalPendienteAcumulado += montoNumerico; }
-
-                const saldoPendiente = f.estado ? "$0.00" : f.montoTotal;
-                const filaHTML = `
-                <tr class="hover:bg-slate-50 transition-all border-b">
-                    <td class="p-4 text-slate-400">
-                        <span class="text-slate-800 font-bold block">${f.fechaFactura || 'S/F'}</span>
-                        <span class="text-[9px] uppercase font-black block mt-0.5">Logged: ${f.fechaCreacion}</span>
-                    </td>
-                    <td class="p-4">
-                        <span class="text-green-800 font-black text-sm block">#${f.folio}</span>
-                        <span class="uppercase text-slate-800 font-black block tracking-tight">${f.cliente}</span>
-                    </td>
-                    <td class="p-4 text-slate-500 uppercase text-[10px] max-w-xs truncate font-medium">${f.direccionServicio}</td>
-                    <td class="p-4 text-right font-bold">
-                        <span class="text-slate-800 text-sm block">${f.montoTotal}</span>
-                        <span class="text-[10px] block mt-0.5 ${f.estado ? 'text-slate-400' : 'text-red-500 font-black uppercase'}">Due: ${saldoPendiente}</span>
-                    </td>
-                    <td class="p-4 text-center">
-                        <span class="px-2.5 py-1 rounded-xl text-[9px] font-black uppercase tracking-wider ${f.estado ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                            ${f.estado ? 'Paid' : 'Unpaid'}
-                        </span>
-                    </td>
-                    <td class="p-4 text-right space-y-1 no-print">
-                        <div class="flex gap-1 justify-end">
-                            <button onclick="reimprimirFacturaPDF('${f.id}')" class="bg-blue-600 hover:bg-blue-700 text-white p-1.5 px-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-sm">📥 PDF</button>
-                            ${!f.estado ? `<button onclick="pagarFactura('${f.id}')" class="bg-green-600 hover:bg-green-700 text-white p-1.5 px-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-sm">Paid</button>` : ''}
-                            <button onclick="eliminarFactura('${f.id}')" class="bg-slate-100 text-slate-400 p-1.5 px-2.5 rounded-lg text-[10px] font-black uppercase hover:bg-red-600 hover:text-white transition-all">✕</button>
-                        </div>
-                    </td>
-                </tr>`;
-                tbodyGeneral.innerHTML += filaHTML;
-
-                if(f.estado) {
-                    tbodyPagados.innerHTML += `
-                    <tr class="hover:bg-slate-50 text-xs border-b">
-                        <td class="p-3 text-slate-400">${f.fechaFactura}</td>
-                        <td class="p-3 text-green-800 font-black">#${f.folio}</td>
-                        <td class="p-3 text-slate-500 max-w-xs truncate uppercase text-[10px]">${f.direccionServicio}</td>
-                        <td class="p-3 text-right text-slate-800 font-black">${f.montoTotal}</td>
-                        <td class="p-3 text-center text-[10px] text-slate-500 uppercase font-black">${f.metodo || 'Cash'}</td>
-                        <td class="p-3 text-right"><button onclick="reimprimirFacturaPDF('${f.id}')" class="text-blue-600 font-bold hover:underline">📥 Download</button></td>
-                    </tr>`;
-                } else {
-                    tbodyPendientes.innerHTML += `
-                    <tr class="hover:bg-slate-50 text-xs border-b">
-                        <td class="p-3 text-slate-400">${f.fechaFactura}</td>
-                        <td class="p-3 text-red-600 font-black">#${f.folio}</td>
-                        <td class="p-3 text-slate-500 max-w-xs truncate uppercase text-[10px]">${f.direccionServicio}</td>
-                        <td class="p-3 text-right text-red-600 font-black">${f.montoTotal}</td>
-                        <td class="p-3 text-center"><span class="bg-red-100 text-red-700 px-2 py-0.5 text-[9px] uppercase font-black rounded">Debt</span></td>
-                        <td class="p-3 text-right flex gap-2 justify-end">
-                            <button onclick="pagarFactura('${f.id}')" class="text-green-700 font-black hover:underline">Mark Paid</button>
-                            <span class="text-slate-300">|</span>
-                            <button onclick="reimprimirFacturaPDF('${f.id}')" class="text-blue-600 font-bold hover:underline">📥 PDF</button>
-                        </td>
-                    </tr>`;
-                }
-            });
-
-            document.getElementById('gran-total').innerText = "$" + totalInyectado.toFixed(2);
-            document.getElementById('contador-general').innerText = contadorInvoices + " invoices matches";
-            document.getElementById('subtotal-pagado').innerText = "Settled: $" + totalPagadoAcumulado.toFixed(2);
-            document.getElementById('subtotal-pendiente').innerText = "Debt: $" + totalPendienteAcumulado.toFixed(2);
-
-            actualizarGraficoEstadistico(totalPagadoAcumulado, totalPendienteAcumulado);
-        }
-        function actualizarGraficoEstadistico(pagado, pendiente) {
-            const ctx = document.getElementById('graficoFinanzas').getContext('2d');
-            if (miGrafico) { miGrafico.destroy(); }
-            miGrafico = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['SETTLED CASHFLOW (PAID)', 'RECEIVABLES / DEBTS (UNPAID)'],
-                    datasets: [{
-                        label: 'Gross Volume ($)',
-                        data: [pagado, pendiente],
-                        backgroundColor: ['rgba(22, 163, 74, 0.85)', 'rgba(220, 38, 38, 0.85)'],
-                        borderColor: ['#16a34a', '#dc2626'],
-                        borderWidth: 2,
-                        borderRadius: 12,
-                        barThickness: 45
-                    }]
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    // Authentication Module Context variables
+                    isAuthenticated: false,
+                    loginUser: '',
+                    loginPass: '',
+                    loginError: false,
+
+                    // Interface State controllers
+                    currentTab: 'invoice',
+
+                    // Active Cache Arrays matching cloud models
+                    customers: [],
+                    invoices: [],
+                    automations: [],
+                    reminders: [],
+
+                    // UI Reactive workspaces forms
+                    invoiceForm: {
+                        folio: '',
+                        date: new Date().toISOString().substring(0, 10),
+                        customerId: '',
+                        locationId: '',
+                        paymentMethod: 'Cash',
+                        items: [{ description: '', qty: 1, price: 0 }]
+                    },
+                    customerForm: { id: null, name: '', phone: '', email: '', locations: [] },
+                    autoForm: { id: null, customerId: '', frequency: 'Monthly', price: 0, nextDate: new Date().toISOString().substring(0, 10), description: '' },
+                    reminderForm: { id: null, priority: 'Medium', text: '' },
+
+                    // Global Engine History Filters
+                    filters: { customerId: '', status: '', startDate: '', endDate: '' },
+
+                    // Dynamic Metrics Engine reference holder
+                    chartInstance: null
+                };
+            },
+            computed: {
+                activeCustomerLocations() {
+                    if (!this.invoiceForm.customerId) return [];
+                    const customer = this.customers.find(c => c.id === this.invoiceForm.customerId);
+                    return customer && customer.locations ? customer.locations : [];
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { weight: 'bold' } } },
-                        x: { grid: { display: false }, ticks: { font: { weight: 'bold', size: 10 } } }
+                getSelectedAddressText() {
+                    if (!this.invoiceForm.customerId || !this.invoiceForm.locationId) return 'No address selected';
+                    const customer = this.customers.find(c => c.id === this.invoiceForm.customerId);
+                    if (!customer || !customer.locations) return 'No address selected';
+                    const loc = customer.locations.find(l => l.id === this.invoiceForm.locationId);
+                    return loc ? `[${loc.label}] ${loc.address}` : 'No address selected';
+                },
+                invoiceTotalAmount() {
+                    return this.invoiceForm.items.reduce((sum, item) => sum + (item.qty * item.price), 0);
+                },
+                // OVERDUE FILTER MODULE: Identifies Unpaid invoices past 7 days out
+                overdueInvoices() {
+                    const thresholdDate = new Date();
+                    thresholdDate.setDate(thresholdDate.getDate() - 7);
+                    return this.invoices.filter(inv => {
+                        if (inv.status !== 'Unpaid') return false;
+                        const invDate = new Date(inv.date);
+                        return invDate < thresholdDate;
+                    });
+                },
+                filteredInvoices() {
+                    return this.invoices.filter(inv => {
+                        if (this.filters.customerId && inv.customerId !== this.filters.customerId) return false;
+                        if (this.filters.status && inv.status !== this.filters.status) return false;
+                        if (this.filters.startDate && inv.date < this.filters.startDate) return false;
+                        if (this.filters.endDate && inv.date > this.filters.endDate) return false;
+                        return true;
+                    });
+                },
+                filteredInvoicesTotalSum() {
+                    return this.filteredInvoices.reduce((sum, inv) => sum + inv.total, 0);
+                },
+                totalPaidSumAmount() {
+                    return this.invoices.filter(i => i.status === 'Paid').reduce((sum, i) => sum + i.total, 0);
+                },
+                totalUnpaidSumAmount() {
+                    return this.invoices.filter(i => i.status === 'Unpaid').reduce((sum, i) => sum + i.total, 0);
+                },
+                calendarDays() {
+                    const days = [];
+                    const baseDate = new Date();
+                    // Generate monthly bounding layout of 28 dynamic upcoming tracks
+                    for (let i = -7; i < 21; i++) {
+                        const d = new Date();
+                        d.setDate(baseDate.getDate() + i);
+                        const dateStr = d.toISOString().substring(0, 10);
+                        
+                        const matchedEvents = [];
+                        this.automations.forEach(a => {
+                            if (a.nextDate === dateStr) {
+                                matchedEvents.push({ id: a.id, title: `${this.getCustomerName(a.customerId)} ($${a.price})` });
+                            }
+                        });
+                        days.push({
+                            dateStr,
+                            dayNum: d.getDate(),
+                            isToday: i === 0,
+                            events: matchedEvents
+                        });
                     }
+                    return days;
                 }
-            });
-        }
+            },
+            watch: {
+                filteredInvoices: {
+                    handler() { this.renderAnalyticsChartEngine(); },
+                    deep: true
+                }
+            },
+            methods: {
+                handleLogin() {
+                    if (this.loginUser === 'admin' && this.loginPass === 'jose1234') {
+                        this.isAuthenticated = true;
+                        this.loginError = false;
+                        localStorage.setItem('jcll_auth_token', 'true');
+                        this.initializeLocalDatabaseStreams();
+                    } else {
+                        this.loginError = true;
+                    }
+                },
+                logout() {
+                    this.isAuthenticated = false;
+                    localStorage.removeItem('jcll_auth_token');
+                },
+                // CACHE FALLBACK ENGINE STANDALONE SYNCER
+                initializeLocalDatabaseStreams() {
+                    const localCustomers = localStorage.getItem('jcll_db_customers');
+                    const localInvoices = localStorage.getItem('jcll_db_invoices');
+                    const localAutomations = localStorage.getItem('jcll_db_automations');
+                    const localReminders = localStorage.getItem('jcll_db_reminders');
 
-        function pagarFactura(id) { db.ref('facturas/' + id).update({ estado: true }).then(() => { ejecutarFiltrosHistorial(); }); }
-        function eliminarFactura(id) { if(confirm("¿Eliminar registro de factura?")) { db.ref('facturas/' + id).remove().then(() => { ejecutarFiltrosHistorial(); }); } }
+                    this.customers = localCustomers ? JSON.parse(localCustomers) : [
+                        { id: 'c1', name: 'James Smith', phone: '555-0192', email: 'smith@mail.com', locations: [{ id: 'l1', label: 'Work Site', address: '124 Oak Drive, Houston TX' }] },
+                        { id: 'c2', name: 'Maria Rodriguez', phone: '555-0481', email: 'maria@mail.com', locations: [{ id: 'l2', label: 'Main House', address: '789 Maple Ave, Austin TX' }, { id: 'l3', label: 'Rental Flat', address: '404 Pine Rd, Austin TX' }] }
+                    ];
 
-        // ========================================== -->
-        // SOLUCIÓN AL DISEÑO Y ALINEACIÓN DE LOS PDFS
-        // ========================================== -->
-        function reimprimirFacturaPDF(id) {
-            const f = cacheFacturas[id];
-            if (!f) return alert("Error al localizar la información de la factura.");
-            reimprimirFacturaPDF_Raw(f);
-        }
+                    this.invoices = localInvoices ? JSON.parse(localInvoices) : [
+                        { id: 'inv1', folio: '1001', date: new Date().toISOString().substring(0, 10), customerId: 'c1', locationId: 'l1', paymentMethod: 'Cash', items: [{ description: 'General Grass Cut & Clean', qty: 1, price: 120 }], total: 120, status: 'Paid' }
+                    ];
 
-        function reimprimirFacturaPDF_Raw(f) {
-            const renderClon = document.getElementById('render-pdf-clon');
-            renderClon.innerHTML = "";
+                    this.automations = localAutomations ? JSON.parse(localAutomations) : [];
+                    this.reminders = localReminders ? JSON.parse(localReminders) : [];
 
-            let filasHTML = "";
-            if(f.conceptos && f.conceptos.length > 0) {
-                f.conceptos.forEach(c => {
-                    const cantNum = parseFloat(c.c) || 1;
-                    const precNum = parseFloat(c.p) || 0;
-                    filasHTML += `
-                    <tr style="border-bottom: 1px solid #e2e8f0; font-size: 13px;">
-                        <td style="padding: 12px; text-transform: uppercase; font-weight: bold; color: #334155;">${c.d}</td>
-                        <td style="padding: 12px; text-align: center; font-weight: 900; color: #1e293b;">${c.c}</td>
-                        <td style="padding: 12px; text-align: right; font-weight: 900; color: #16a34a;">$${precNum.toFixed(2)}</td>
-                        <td style="padding: 12px; text-align: right; font-weight: 900; color: #1e293b;">$${(cantNum * precNum).toFixed(2)}</td>
-                    </tr>`;
-                });
-            } else {
-                filasHTML = `<tr style="border-bottom: 1px solid #e2e8f0;"><td colspan="4" style="padding: 12px; text-align: center; color: #94a3b8;">Standard Service Line</td></tr>`;
+                    this.generateNextFolioValue();
+                    setTimeout(() => { this.renderAnalyticsChartEngine(); }, 300);
+                },
+                commitDataToStorage(key, data) {
+                    localStorage.setItem(key, JSON.stringify(data));
+                },
+                generateNextFolioValue() {
+                    if (this.invoices.length === 0) {
+                        this.invoiceForm.folio = '1001';
+                        return;
+                    }
+                    const highestFolio = Math.max(...this.invoices.map(i => parseInt(i.folio) || 1000));
+                    this.invoiceForm.folio = (highestFolio + 1).toString();
+                },
+                getCustomerName(id) {
+                    const c = this.customers.find(cust => cust.id === id);
+                    return c ? c.name : 'Unknown Account';
+                },
+                getLocationAddressText(custId, locId) {
+                    const c = this.customers.find(cust => cust.id === custId);
+                    if (!c || !c.locations) return 'No profile matching location';
+                    const l = c.locations.find(loc => loc.id === locId);
+                    return l ? `[${l.label}] ${l.address}` : 'Unspecified properties address';
+                },
+                onInvoiceCustomerChange() {
+                    this.invoiceForm.locationId = '';
+                    if (this.activeCustomerLocations.length > 0) {
+                        this.invoiceForm.locationId = this.activeCustomerLocations[0].id;
+                    }
+                },
+                addItemToInvoice() {
+                    this.invoiceForm.items.push({ description: '', qty: 1, price: 0 });
+                },
+                removeItemFromInvoice(index) {
+                    if (this.invoiceForm.items.length > 1) {
+                        this.invoiceForm.items.splice(index, 1);
+                    }
+                },
+                saveInvoiceAndExport(status) {
+                    if (!this.invoiceForm.customerId || !this.invoiceForm.locationId) {
+                        alert('Error: Please link a targeted valid Customer & Location address before saving!');
+                        return;
+                    }
+
+                    const newInvoice = {
+                        id: 'inv_' + Date.now(),
+                        folio: this.invoiceForm.folio,
+                        date: this.invoiceForm.date,
+                        customerId: this.invoiceForm.customerId,
+                        locationId: this.invoiceForm.locationId,
+                        paymentMethod: this.invoiceForm.paymentMethod,
+                        items: JSON.parse(JSON.stringify(this.invoiceForm.items)),
+                        total: this.invoiceTotalAmount,
+                        status: status
+                    };
+
+                    this.invoices.unshift(newInvoice);
+                    this.commitDataToStorage('jcll_db_invoices', this.invoices);
+                    alert(`Invoice record status established [${status}] successfully compiled!`);
+                    
+                    // Cleanup work context
+                    this.invoiceForm.items = [{ description: '', qty: 1, price: 0 }];
+                    this.invoiceForm.customerId = '';
+                    this.invoiceForm.locationId = '';
+                    this.generateNextFolioValue();
+                },
+                // INTERACTIVE REVERT / TOGGLE RE-MUTATOR SYSTEM FUNCTION
+                toggleInvoicePaymentStatus(invoice) {
+                    invoice.status = invoice.status === 'Paid' ? 'Unpaid' : 'Paid';
+                    this.commitDataToStorage('jcll_db_invoices', this.invoices);
+                },
+                loadInvoiceIntoActiveWorkspace(invoice) {
+                    this.invoiceForm.folio = invoice.folio;
+                    this.invoiceForm.date = invoice.date;
+                    this.invoiceForm.customerId = invoice.customerId;
+                    this.invoiceForm.locationId = invoice.locationId;
+                    this.invoiceForm.paymentMethod = invoice.paymentMethod;
+                    this.invoiceForm.items = JSON.parse(JSON.stringify(invoice.items));
+                    this.currentTab = 'invoice';
+                },
+                deleteInvoiceRecord(id) {
+                    if (confirm('Are you absolutely sure you want to purge this structural historical invoice record?')) {
+                        this.invoices = this.invoices.filter(i => i.id !== id);
+                        this.commitDataToStorage('jcll_db_invoices', this.invoices);
+                    }
+                },
+                // DYNAMIC MESSAGING ENGINE WHATSAPP INTEGRATION (FORMATED CLEAN IN ENGLISH)
+                sendWhatsAppReminder(invoice) {
+                    const customer = this.customers.find(c => c.id === invoice.customerId);
+                    if (!customer) return;
+                    
+                    const cleanPhone = customer.phone ? customer.phone.replace(/\D/g, '') : '';
+                    const address = this.getLocationAddressText(invoice.customerId, invoice.locationId);
+                    
+                    // Text payload clean structure
+                    let message = `Hi ${customer.name}, *JOSE LANDSCAPING CARE* hopes you are doing well. This is an administrative statement regarding invoice *#${invoice.folio}* dated ${invoice.date}.\n\n`;
+                    message += `*Service Property Location:* ${address}\n`;
+                    message += `*Total Outstanding Balance Due:* $${invoice.total.toFixed(2)}\n`;
+                    message += `*Current Payment Status:* ${invoice.status === 'Paid' ? '✅ SETTLED (Thank You!)' : '⚠️ PENDING / OUTSTANDING'}\n\n`;
+                    message += `If your balance is outstanding, please coordinate payment via ${invoice.paymentMethod}. Thank you for choosing our professional care services! 🌱`;
+
+                    const encodedText = encodeURIComponent(message);
+                    const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedText}`;
+                    window.open(whatsappUrl, '_blank');
+                },
+                triggerBrowserPrint() {
+                    window.print();
+                },
+                // CUSTOMER ARTIFACTS INTERFACE LOGIC
+                addNewLocationFieldToForm() {
+                    this.customerForm.locations.push({ id: 'loc_' + Date.now() + Math.random().toString(36).substr(2, 5), label: 'Work Site', address: '' });
+                },
+                removeLocationFieldFromForm(index) {
+                    this.customerForm.locations.splice(index, 1);
+                },
+                saveCustomerProfile() {
+                    if (!this.customerForm.name) {
+                        alert('Customer Full Name required!');
+                        return;
+                    }
+
+                    if (this.customerForm.id) {
+                        // Editing existing profile
+                        const index = this.customers.findIndex(c => c.id === this.customerForm.id);
+                        if (index !== -1) this.customers[index] = JSON.parse(JSON.stringify(this.customerForm));
+                    } else {
+                        // Creating new profiles
+                        const newCust = JSON.parse(JSON.stringify(this.customerForm));
+                        newCust.id = 'c_' + Date.now();
+                        this.customers.push(newCust);
+                    }
+
+                    this.commitDataToStorage('jcll_db_customers', this.customers);
+                    this.resetCustomerForm();
+                },
+                editCustomerProfile(customer) {
+                    this.customerForm = JSON.parse(JSON.stringify(customer));
+                    if (!this.customerForm.locations) this.customerForm.locations = [];
+                },
+                deleteCustomerProfile(id) {
+                    if (confirm('Delete customer profile? This will break historical address associations.')) {
+                        this.customers = this.customers.filter(c => c.id !== id);
+                        this.commitDataToStorage('jcll_db_customers', this.customers);
+                    }
+                },
+                resetCustomerForm() {
+                    this.customerForm = { id: null, name: '', phone: '', email: '', locations: [] };
+                },
+                // AUTOMATION ROUTINES ENGINE ACTIONS
+                saveAutomationSchedule() {
+                    if (!this.autoForm.customerId || !this.autoForm.price) {
+                        alert('Target client profile mapping and fixed price criteria parameters matching are required!');
+                        return;
+                    }
+
+                    const newAuto = {
+                        id: 'auto_' + Date.now(),
+                        customerId: this.autoForm.customerId,
+                        frequency: this.autoForm.frequency,
+                        price: this.autoForm.price,
+                        nextDate: this.autoForm.nextDate,
+                        description: this.autoForm.description || 'Standard Scheduled Landscaping Package'
+                    };
+
+                    this.automations.push(newAuto);
+                    this.commitDataToStorage('jcll_db_automations', this.automations);
+                    
+                    // Reset fields
+                    this.autoForm.customerId = '';
+                    this.autoForm.price = 0;
+                    this.autoForm.description = '';
+                },
+                triggerDraftInvoiceFromAutomation(auto) {
+                    const customer = this.customers.find(c => c.id === auto.customerId);
+                    this.invoiceForm.customerId = auto.customerId;
+                    this.invoiceForm.date = auto.nextDate;
+                    
+                    this.onInvoiceCustomerChange(); // Pick primary location automatically
+                    
+                    this.invoiceForm.items = [{
+                        description: `${auto.frequency} Package: ${auto.description}`,
+                        qty: 1,
+                        price: auto.price
+                    }];
+
+                    this.currentTab = 'invoice';
+                    alert('Automation baseline drafted safely into creation workspace console!');
+                },
+                deleteAutomationSchedule(id) {
+                    this.automations = this.automations.filter(a => a.id !== id);
+                    this.commitDataToStorage('jcll_db_automations', this.automations);
+                },
+                // REMINDERS AND NOTE TRACKS ARCHITECTURES
+                saveReminderNote() {
+                    if (!this.reminderForm.text) return;
+                    const newRem = {
+                        id: 'rem_' + Date.now(),
+                        priority: this.reminderForm.priority,
+                        text: this.reminderForm.text,
+                        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                    };
+                    this.reminders.unshift(newRem);
+                    this.commitDataToStorage('jcll_db_reminders', this.reminders);
+                    this.reminderForm.text = '';
+                },
+                deleteReminderNote(id) {
+                    this.reminders = this.reminders.filter(r => r.id !== id);
+                    this.commitDataToStorage('jcll_db_reminders', this.reminders);
+                },
+                resetHistoryFilters() {
+                    this.filters = { customerId: '', status: '', startDate: '', endDate: '' };
+                },
+                // VISUAL METRICS ENGINE GENERATOR CODE
+                renderAnalyticsChartEngine() {
+                    const ctx = document.getElementById('analyticsChartEngine');
+                    if (!ctx) return;
+
+                    const paidCount = this.filteredInvoices.filter(i => i.status === 'Paid').length;
+                    const unpaidCount = this.filteredInvoices.filter(i => i.status === 'Unpaid').length;
+
+                    if (this.chartInstance) {
+                        this.chartInstance.destroy();
+                    }
+
+                    this.chartInstance = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Settled (Paid)', 'Outstanding (Unpaid)'],
+                            datasets: [{
+                                data: [paidCount, unpaidCount],
+                                backgroundColor: ['#16a34a', '#f59e0b'],
+                                borderStrokeColor: '#ffffff',
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11, weight: 'bold' } } } }
+                        }
+                    });
+                }
+            },
+            mounted() {
+                // Initialize validation state checks from cache token structures
+                if (localStorage.getItem('jcll_auth_token') === 'true') {
+                    this.isAuthenticated = true;
+                    this.initializeLocalDatabaseStreams();
+                }
             }
-
-            const totalEfectivo = parseFloat(f.montoTotal.replace('$', '')) || 0;
-            let subtotalCalculado = totalEfectivo;
-            let ivaCalculado = 0;
-            if(f.conIva) {
-                subtotalCalculado = totalEfectivo / 1.16;
-                ivaCalculado = subtotalCalculado * 0.16;
-                                                                       }
-                    // CORRECCIÓN TÉCNICA: Se reemplazó el inválido grid-cols de Tailwind por Flexbox nativo para evitar saltos de línea rústicos
-            renderClon.innerHTML = `
-                <div style="padding: 20px; border-top: 14px solid #0f290f; background: #fff;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <img src="logo.png" style="width: 90px; height: 90px; object-fit: contain;" onerror="this.src='https://via.placeholder.com/150?text=Logo'">
-                            <div>
-                                <h2 style="font-size: 32px; font-weight: 900; color: #1e293b; margin: 0; line-height: 1;">JOSE</h2>
-                                <p style="font-size: 12px; font-weight: bold; color: #16a34a; text-transform: uppercase; letter-spacing: 2px; margin: 4px 0 0 0;">Landscaping Care</p>
-                            </div>
-                        </div>
-                        <div style="text-align: right;">
-                            <h2 style="font-size: 45px; font-weight: 900; color: #f1f5f9; text-transform: uppercase; font-style: italic; margin: 0; line-height: 1;">INVOICE</h2>
-                            <p style="margin: 10px 0 0 0; font-size: 16px; font-weight: 900; color: #15803d;">FOLIO: #${f.folio}</p>
-                            <p style="margin: 2px 0 0 0; font-size: 11px; font-weight: bold; color: #475569;">DATE: ${f.fechaFactura || 'S/F'}</p>
-                        </div>
-                    </div>
-
-                    <div style="background: #f8fafc; padding: 20px; border-radius: 16px; margin-bottom: 35px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0;">
-                        <div>
-                            <p style="font-size: 10px; font-weight: 900; color: #94a3b8; text-transform: uppercase; margin: 0 0 5px 0;">Customer Profile:</p>
-                            <h3 style="font-size: 20px; font-weight: 900; color: #1e293b; text-transform: uppercase; margin: 0;">${f.cliente}</h3>
-                            <p style="font-size: 12px; font-weight: bold; color: #15803d; margin: 4px 0 0 0;">${f.direccionServicio.startsWith('📍') ? f.direccionServicio : '📍 ' + f.direccionServicio}</p>
-                        </div>
-                        <div style="text-align: right;">
-                            <p style="font-size: 13px; font-weight: 900; color: #475569; margin: 0 0 8px 0;">Method: <b style="color: #0f290f;">${f.metodo || 'Cash'}</b></p>
-                            <span style="padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 900; text-transform: uppercase; ${f.estado ? 'background: #dcfce7; color: #166534;' : 'background: #fee2e2; color: #991b1b;'}">${f.estado ? 'Paid' : 'Unpaid'}</span>
-                        </div>
-                    </div>
-
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
-                        <thead>
-                            <tr style="background: #0f290f; color: #fff; font-size: 10px; text-transform: uppercase; font-weight: 900;">
-                                <th style="padding: 12px; text-align: left; border-top-left-radius: 8px; border-bottom-left-radius: 8px;">Description of Services Rendered</th>
-                                <th style="padding: 12px; text-align: center; width: 60px;">Qty</th>
-                                <th style="padding: 12px; text-align: right; width: 100px;">Unit Price</th>
-                                <th style="padding: 12px; text-align: right; width: 100px; border-top-right-radius: 8px; border-bottom-right-radius: 8px;">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>${filasHTML}</tbody>
-                    </table>
-
-                    <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
-                        <div style="width: 250px; text-align: right; font-size: 13px; color: #64748b; font-weight: bold;">
-                            <p style="margin: 4px 0;">Subtotal: <span style="color: #1e293b; font-size: 14px; margin-left: 10px;">$${subtotalCalculado.toFixed(2)}</span></p>
-                            ${f.conIva ? `<p style="margin: 4px 0; color: #dc2626;">Tax (16%): <span style="font-size: 14px; margin-left: 10px;">$${ivaCalculado.toFixed(2)}</span></p>` : ''}
-                            <div style="background: #0f290f; color: #4ade80; padding: 15px; border-radius: 12px; margin-top: 10px;">
-                                <p style="font-size: 9px; color: #fff; text-transform: uppercase; margin: 0 0 2px 0;">Total Volume</p>
-                                <p style="font-size: 24px; font-weight: 900; margin: 0; color: #4ade80;">${f.montoTotal}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
-            
-            setTimeout(() => {
-                html2pdf().from(renderClon).set({
-                    margin: 4, 
-                    filename: 'Invoice_' + f.folio + '_' + f.cliente + '.pdf', 
-                    html2canvas: { scale: 3, useCORS: true }, 
-                    jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
-                }).save();
-            }, 400);
-        }
-
-        // Init System setup
-        document.getElementById('fecha').valueAsDate = new Date();
-        resetClienteForm();
-        resetNotaForm();
-        resetProgramarForm();
-        nuevaFila();
+        }).mount('#app');
     </script>
 </body>
 </html>
+
+                
