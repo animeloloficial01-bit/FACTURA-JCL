@@ -522,23 +522,28 @@
     
 
 <script> 
-    // Credenciales exactas vinculadas a tu Realtime Database activa
+
+// CONFIGURACIÓN OFICIAL CORREGIDA
 const firebaseConfig = {
-    apiKey: "AIzaSyBKPqlndtjyYJduNZBagPIex15jv3AIdt4", 
-    authDomain: "jose-landscaping-care-default-rtdb.firebaseapp.com", // <-- CORREGIDO
-    databaseURL: "https://jose-landscaping-care-default-rtdb.firebaseio.com", 
-    projectId: "jose-landscaping-care-default-rtdb", // <-- CORREGIDO
+    apiKey: "AIzaSyBKPqlndtjyYJduNZBagPIex15jv3AIdt4",
+    authDomain: "jose-landscaping-care-default-rtdb.firebaseapp.com",
+    databaseURL: "https://jose-landscaping-care-default-rtdb.firebaseio.com",
+    projectId: "jose-landscaping-care-default-rtdb",
     storageBucket: "jose-landscaping-care.appspot.com",
-    messagingSenderId: "338573920485", 
+    messagingSenderId: "338573920485",
     appId: "1:338573920485:web:8c903cbef2849e75c6bf23"
 };
 
-
-// Inicialización segura de Firebase
+// Forzar inicialización ordenada con la URL explícita
+let app;
 if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+    app = firebase.initializeApp(firebaseConfig);
+} else {
+    app = firebase.app();
 }
-const db = firebase.database();
+
+// Así obligamos a Firebase a saber exactamente a dónde ir antes de arrancar Vue
+const db = app.database("https://jose-landscaping-care-default-rtdb.firebaseio.com");
 
 new Vue({
     el: '#app',
@@ -564,7 +569,7 @@ new Vue({
         }
     },
     created() {
-        // Escuchas estables en tiempo real sin colapsos de sincronización
+        // Carga de datos estable
         db.ref('customers').on('value', snap => {
             this.customers = snap.val() ? Object.entries(snap.val()).map(([id, data]) => ({ id, ...data })) : [];
         });
@@ -578,7 +583,6 @@ new Vue({
         });
     },
     methods: {
-        // Enlace de mapas plano para evitar fallos de renderizado en Vue de producción
         abrirGoogleMaps(direccion) {
             if (!direccion) return;
             const url = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(direccion);
