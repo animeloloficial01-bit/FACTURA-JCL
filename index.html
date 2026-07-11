@@ -80,7 +80,7 @@
 
     <main class="flex-1 p-6 md:p-10 overflow-y-auto max-w-full">
         
-        <section v-if="currentView === 'pos'" class="space-y-6 animate-fadeIn">
+        <section v-if="currentView === 'pos'" class="space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
                 <div>
                     <h2 class="text-2xl font-black text-slate-900 tracking-tight">Terminal de Facturación</h2>
@@ -172,7 +172,7 @@
                             <span class="text-[11px] font-normal opacity-80 mt-0.5">Sincroniza estatus: PAGADO</span>
                         </button>
 
-                        <button @click="procesarFactura('pendiente')" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-sm transition-all transform active:scale-[0.98] text-center text-xs tracking-wide uppercase cursor-pointer">
+                        <button @click="procesarFactura('pendiente')" class="w-full bg-amber-50 hover:bg-amber-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-sm transition-all transform active:scale-[0.98] text-center text-xs tracking-wide uppercase cursor-pointer">
                             Número pendiente (SIN PAGAR)
                         </button>
                     </div>
@@ -202,9 +202,8 @@
                     </div>
                 </div>
             </div>
-        </section>
-
-        <section v-if="currentView === 'clientes'" class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeIn">
+        </section> 
+        <section v-if="currentView === 'clientes'" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200/80 h-fit space-y-5">
                 <div>
                     <h2 class="text-xl font-black text-slate-900 tracking-tight">{{ editMode ? 'Modificar Perfil de Cliente' : 'Registrar Nuevo Cliente' }}</h2>
@@ -223,14 +222,15 @@
                     <div>
                         <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1.5">Correo Electrónico Oficial</label>
                         <input v-model="customerForm.email" type="email" placeholder="cliente@correo.com" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none text-sm font-medium focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all">
-                    </div> 
+                    </div>
+                    
                     <div class="border-t border-slate-100 pt-4 mt-2">
                         <div class="flex justify-between items-center mb-2">
                             <label class="block text-[11px] font-bold text-slate-500 uppercase">Propiedades Vinculadas</label>
                             <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md font-bold">{{ customerForm.addresses.length }}</span>
                         </div>
                         <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
-                            <div v-for="(dir, i) in customerForm.addresses" :key="i" class="flex items-center space-x-2 animate-fadeIn">
+                            <div v-for="(dir, i) in customerForm.addresses" :key="i" class="flex items-center space-x-2">
                                 <span class="text-xs text-slate-400 font-bold w-4 text-center">{{ i+1 }}</span>
                                 <input v-model="customerForm.addresses[i]" type="text" placeholder="Dirección exacta de la propiedad o lote" class="flex-1 p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500">
                                 <button v-if="customerForm.addresses.length > 1" @click="customerForm.addresses.splice(i, 1)" class="text-slate-300 hover:text-red-500 px-1.5 py-1 hover:bg-red-50 rounded transition cursor-pointer">✕</button>
@@ -274,13 +274,15 @@
                             </div>
                             
                             <div class="flex flex-wrap gap-1.5 pt-1">
-                                <div v-for="address in c.addresses" :key="address" v-if="address" class="inline-flex items-center bg-white border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-medium text-slate-600 shadow-sm">
-                                    <span class="mr-1.5">📍</span>
-                                    <span class="truncate max-w-[180px] sm:max-w-xs">{{ address }}</span>
-                                    <button @click="abrirGoogleMaps(address)" class="ml-2.5 text-blue-600 hover:text-blue-800 font-bold bg-blue-50 px-2 py-0.5 rounded-md text-[10px] uppercase tracking-wide transition cursor-pointer">
-                                        🗺️ Ver Mapa
-                                    </button>
-                                </div>
+                                <template v-for="address in c.addresses">
+                                    <div v-if="address && address.trim() !== ''" :key="address" class="inline-flex items-center bg-white border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-medium text-slate-600 shadow-sm">
+                                        <span class="mr-1.5">📍</span>
+                                        <span class="truncate max-w-[180px] sm:max-w-xs">{{ address }}</span>
+                                        <button @click="abrirGoogleMaps(address)" class="ml-2.5 text-blue-600 hover:text-blue-800 font-bold bg-blue-50 px-2 py-0.5 rounded-md text-[10px] uppercase tracking-wide transition cursor-pointer">
+                                            🗺️ Ver Mapa
+                                        </button>
+                                    </div>
+                                </template>
                             </div>
                         </div>
                         
@@ -293,7 +295,7 @@
             </div>
         </section>
 
-        <section v-if="currentView === 'automatizacion'" class="space-y-6 animate-fadeIn">
+        <section v-if="currentView === 'automatizacion'" class="space-y-6">
             <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200/80 space-y-4">
                 <div>
                     <h2 class="text-xl font-black text-slate-900 tracking-tight">Programador de Servicios Recurrentes</h2>
@@ -325,13 +327,13 @@
                         <input v-model="scheduleForm.dueDate" type="date" class="w-full p-3 bg-slate-50 border border-amber-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-green-500/20">
                     </div>
                 </div>
+                
                 <div class="flex justify-end pt-2">
                     <button @click="saveAutomation" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-3 rounded-xl text-xs uppercase tracking-wider shadow-md transition cursor-pointer">
                         Establecer Programación Permanente
                     </button>
                 </div>
-            </div>
-
+            </div> 
             <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200/80 space-y-4">
                 <h3 class="text-sm font-bold uppercase text-slate-400 tracking-wider">Automatizaciones Corriendo en la Nube</h3>
                 
@@ -372,7 +374,7 @@
             </div>
         </section>
 
-        <section v-if="currentView === 'historial'" class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200/80 space-y-4 animate-fadeIn">
+        <section v-if="currentView === 'historial'" class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200/80 space-y-4">
             <div>
                 <h2 class="text-xl font-black text-slate-900 tracking-tight">Libro Mayor de Ventas</h2>
                 <p class="text-xs text-slate-400 mt-1">Módulo contable histórico. Control de cobranza multiplataforma y estatus financiero.</p>
@@ -428,7 +430,8 @@
         </section>
 
     </main>
-    <div v-if="showModalMensaje" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 no-print animate-fadeIn">
+
+    <div v-if="showModalMensaje" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 no-print">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xl p-6 md:p-8 space-y-5 border border-slate-100 transform transition-all">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                 <div class="flex items-center space-x-2">
@@ -515,10 +518,11 @@
         </center>
     </div>
 
-</div>
+</div> 
+    
 
-<script>
-    // 🔑 CREDENCIALES EXACTAS Y RESTAURADAS DE TU PROYECTO CLOUD DE FIREBASE REALTIME DB
+<script> 
+    // Credenciales exactas vinculadas a tu Realtime Database activa
 const firebaseConfig = {
     apiKey: "AIzaSyBKPqlndtjyYJduNZBagPIex15jv3AIdt4", 
     authDomain: "jose-landscaping-care.firebaseapp.com",
@@ -529,7 +533,7 @@ const firebaseConfig = {
     appId: "1:338573920485:web:8c903cbef2849e75c6bf23"
 };
 
-// Inicialización de la Instancia de Firebase sin duplicidades
+// Inicialización segura de Firebase
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
@@ -538,28 +542,17 @@ const db = firebase.database();
 new Vue({
     el: '#app',
     data: {
-        // Enrutamiento de Vistas Internas
         currentView: 'pos',
-        
-        // Estructuras de Datos Locales Sincronizadas
         customers: [],
         invoices: [],
         automations: [],
-        
-        // Variables de Estado del Panel de Facturación
         selectedCustomerId: '',
         availableAddresses: [],
         invoice: { folio: '', address: '', items: [{ description: '', qty: 1, price: 0 }] },
-        
-        // Variables de Estado del Panel de Clientes
         editMode: false,
         selectedCustomerForEditId: null,
         customerForm: { name: '', phone: '', email: '', addresses: [''] },
-        
-        // Variables de Estado de Automatización
         scheduleForm: { customerId: '', frequency: 'weekly', startDate: '', dueDate: '' },
-        
-        // Control de Modales de Mensajería Externa
         showModalMensaje: false,
         activeMessageData: { customerName: '', phone: '', email: '', body: '', rawInvoice: null }
     },
@@ -570,19 +563,21 @@ new Vue({
         }
     },
     created() {
-        // 🔄 ESCUCHAS DE REALTIME DATABASE PERMANENTES Y DIRECTAS DESDE EL INICIO
+        // Escuchas estables en tiempo real sin colapsos de sincronización
         db.ref('customers').on('value', snap => {
             this.customers = snap.val() ? Object.entries(snap.val()).map(([id, data]) => ({ id, ...data })) : [];
         });
+
         db.ref('invoices').on('value', snap => {
             this.invoices = snap.val() ? Object.entries(snap.val()).map(([id, data]) => ({ id, ...data })) : [];
         });
+
         db.ref('automations').on('value', snap => {
             this.automations = snap.val() ? Object.entries(snap.val()).map(([id, data]) => ({ id, ...data })) : [];
         });
     },
     methods: {
-        // 🌐 MAPAS EN VIVO INTEGRADOS SIN ERRORES DE SINTAXIS
+        // Enlace de mapas plano para evitar fallos de renderizado en Vue de producción
         abrirGoogleMaps(direccion) {
             if (!direccion) return;
             const url = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(direccion);
@@ -638,8 +633,6 @@ new Vue({
             alert("¡Transacción sincronizada y guardada exitosamente con tu base de datos cloud!");
             this.resetInvoiceForm();
         },
-        
-        // CONTROL INTEGRADO DE NOTIFICACIONES MULTICANAL
         abrirEditorMensaje(factura) {
             const cliente = this.customers.find(c => c.id === factura.customerId) || {};
             this.activeMessageData = {
@@ -665,8 +658,6 @@ new Vue({
             }
             this.showModalMensaje = false;
         },
-
-        // GESTIÓN COMPLETA DE CLIENTES
         saveCustomer() {
             if (!this.customerForm.name) {
                 alert("El nombre comercial es obligatorio.");
@@ -695,8 +686,6 @@ new Vue({
             this.editMode = false; 
             this.customerForm = { name: '', phone: '', email: '', addresses: [''] }; 
         },
-
-        // AUTOMATIZACIONES CRONOLÓGICAS SEPARADAS
         saveAutomation() {
             if (!this.scheduleForm.customerId || !this.scheduleForm.startDate || !this.scheduleForm.dueDate) {
                 alert("Complete tanto el día de activación como la fecha límite de vencimiento.");
@@ -711,7 +700,6 @@ new Vue({
                 db.ref("automations/" + id).remove(); 
             }
         },
-        // MODIFICADORES CONTABLES DEL LIBRO MAYOR
         togglePaidStatus(inv) { 
             db.ref("invoices/" + inv.id + "/paid").set(!inv.paid); 
         },
@@ -734,4 +722,3 @@ new Vue({
 </script>
 </body>
 </html>
-                
