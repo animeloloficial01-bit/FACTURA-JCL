@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jose Landscaping Care - Enterprise Management System</title>
+    <title>Jose Landscaping Care - Sistema de Facturación</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.14/vue.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,77 +11,92 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
         [v-cloak] { display: none !important; }
         
-        /* Contenedor oculto para impresión */
-        .pdf-hidden-container {
-            display: none;
-        }
-
+        /* Oculto en pantalla, pero disponible para la impresión */
+        #print-area { display: none; }
+        
         @media print {
             .no-print { display: none !important; }
-            .pdf-hidden-container { display: block !important; padding: 20px; }
+            #print-area { display: block !important; padding: 20px; }
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
+<body class="bg-slate-50 text-slate-800">
     <div id="app" v-cloak>
-        <button @click="descargarPDFDirecto" class="w-full bg-slate-950 text-white font-bold py-2 rounded-xl text-[11px] uppercase tracking-wider">
-            📥 Guardar PDF (Impresión Nativa)
-        </button>
-
-        <div id="print-area" class="pdf-hidden-container">
-            <h1 style="text-align: center; font-size: 24px; font-weight: bold;">JOSE LANDSCAPING CARE</h1>
-            <p style="text-align: center;">Servicio Profesional de Jardinería</p>
-            <hr>
-            <div style="margin: 20px 0;">
-                <p><strong>Factura:</strong> #{{ invoice.folio || 'S/N' }}</p>
-                <p><strong>Fecha:</strong> {{ new Date().toLocaleDateString() }}</p>
+        <main class="p-8">
+            <h1 class="text-2xl font-black mb-6">Terminal de Facturación</h1>
+            
+            <div class="bg-white p-6 rounded-xl shadow border">
+                <button @click="generarPDF" class="bg-slate-900 text-white px-6 py-3 rounded-lg font-bold hover:bg-slate-800">
+                    🖨️ Descargar/Imprimir PDF
+                </button>
             </div>
+        </main>
+
+        <div id="print-area">
+            <h1 style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 10px;">JOSE LANDSCAPING CARE</h1>
+            <p style="text-align: center; margin-bottom: 20px;">Servicio Profesional de Jardinería</p>
+            
+            <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                <tr>
+                    <td style="border: 1px solid #333; padding: 10px;"><strong>Folio:</strong> #{{ invoice.folio }}</td>
+                    <td style="border: 1px solid #333; padding: 10px;"><strong>Fecha:</strong> {{ new Date().toLocaleDateString() }}</td>
+                </tr>
+            </table>
+
             <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
                 <thead>
-                    <tr style="background: #f3f4f6;">
-                        <th style="border: 1px solid #ccc; padding: 8px;">Descripción</th>
-                        <th style="border: 1px solid #ccc; padding: 8px;">Cant</th>
-                        <th style="border: 1px solid #ccc; padding: 8px;">Total</th>
+                    <tr style="background-color: #eee;">
+                        <th style="border: 1px solid #333; padding: 10px;">Descripción</th>
+                        <th style="border: 1px solid #333; padding: 10px;">Cant</th>
+                        <th style="border: 1px solid #333; padding: 10px;">Subtotal</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="item in invoice.items" :key="item.description">
-                        <td style="border: 1px solid #ccc; padding: 8px;">{{ item.description }}</td>
-                        <td style="border: 1px solid #ccc; padding: 8px; text-align: center;">{{ item.qty }}</td>
-                        <td style="border: 1px solid #ccc; padding: 8px; text-align: right;">${{ (item.qty * item.price).toFixed(2) }}</td>
+                        <td style="border: 1px solid #333; padding: 10px;">{{ item.description }}</td>
+                        <td style="border: 1px solid #333; padding: 10px; text-align: center;">{{ item.qty }}</td>
+                        <td style="border: 1px solid #333; padding: 10px; text-align: right;">${{ (item.qty * item.price).toFixed(2) }}</td>
                     </tr>
                 </tbody>
             </table>
-            <div style="margin-top: 20px; text-align: right; font-size: 18px; font-weight: bold;">
-                Total: ${{ totalCalculado.total }}
-            </div>
+            
+            <p style="text-align: right; font-size: 20px; font-weight: bold; margin-top: 20px;">
+                TOTAL: ${{ totalCalculado.total }}
+            </p>
         </div>
     </div>
 
 <script>
-    // ... (Tu configuración de Firebase igual)
-
     new Vue({
         el: '#app',
-        // ... (Tu data y computed igual)
+        data: {
+            invoice: { folio: '001', items: [{ description: 'Servicio Base', qty: 1, price: 50 }] }
+        },
+        computed: {
+            totalCalculado() {
+                let total = this.invoice.items.reduce((sum, item) => sum + (item.qty * item.price), 0);
+                return { total: total.toFixed(2) };
+            }
+        },
         methods: {
-            // NUEVO MÉTODO ROBUSTO
-            descargarPDFDirecto() {
+            generarPDF() {
+                // Obtenemos el HTML del contenedor de impresión
                 const printContent = document.getElementById('print-area').innerHTML;
+                
+                // Abrimos una ventana emergente limpia
                 const win = window.open('', '_blank', 'width=800,height=600');
                 
+                // Escribimos el documento con estilos básicos en línea para asegurar renderizado
                 win.document.write(`
                     <html>
                         <head>
-                            <title>Factura ${this.invoice.folio || ''}</title>
+                            <title>Factura ${this.invoice.folio}</title>
                             <style>
-                                body { font-family: sans-serif; padding: 40px; }
+                                body { font-family: Arial, sans-serif; padding: 40px; }
                                 table { width: 100%; border-collapse: collapse; }
-                                th, td { border: 1px solid #ccc; padding: 10px; }
+                                th, td { border: 1px solid #000; padding: 10px; text-align: left; }
                             </style>
                         </head>
                         <body>
@@ -92,13 +107,12 @@
                 
                 win.document.close();
                 
-                // Pequeña espera para asegurar que el navegador cargue el HTML antes de abrir el diálogo
+                // Forzamos el diálogo de impresión
                 setTimeout(() => {
                     win.print();
                     win.close();
                 }, 500);
-            },
-            // ... (Resto de tus métodos)
+            }
         }
     });
 </script>
