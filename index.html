@@ -226,9 +226,6 @@
         <div class="border-b border-dashed my-2"></div>
         <p class="text-right font-bold text-sm">TOTAL DUE: ${{ totalCalculado.total }}</p>
     </div>
-
-</div>
-
 <script>
     // Configuración exacta verificada de tu consola
     const firebaseConfig = {
@@ -242,7 +239,9 @@
     };
 
     // Inicialización clásica global
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
     const db = firebase.database();
 
     new Vue({
@@ -267,15 +266,28 @@
             }
         },
         created() {
-            // Sincronización clásica estable en tiempo real
+            // Sincronización corregida para forzar formato de lista
             db.ref('customers').on('value', snap => {
-                this.customers = snap.val() ? Object.entries(snap.val()).map(([id, data]) => ({ id, ...data })) : [];
+                const val = snap.val();
+                if (val) {
+                    this.customers = Object.keys(val).map(key => ({
+                        id: key,
+                        ...val[key],
+                        addresses: Array.isArray(val[key].addresses) ? val[key].addresses : (val[key].addresses ? Object.values(val[key].addresses) : [''])
+                    }));
+                } else {
+                    this.customers = [];
+                }
             });
+            
             db.ref('invoices').on('value', snap => {
-                this.invoices = snap.val() ? Object.entries(snap.val()).map(([id, data]) => ({ id, ...data })) : [];
+                const val = snap.val();
+                this.invoices = val ? Object.keys(val).map(key => ({ id: key, ...val[key] })) : [];
             });
+            
             db.ref('automations').on('value', snap => {
-                this.automations = snap.val() ? Object.entries(snap.val()).map(([id, data]) => ({ id, ...data })) : [];
+                const val = snap.val();
+                this.automations = val ? Object.keys(val).map(key => ({ id: key, ...val[key] })) : [];
             });
         },
         methods: {
@@ -361,5 +373,6 @@
         }
     });
 </script>
+
 </body>
 </html>
