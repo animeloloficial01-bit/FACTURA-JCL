@@ -19,12 +19,16 @@
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         
-        /* CORRECCIÓN DEFINITIVA PARA HTML2PDF: Escondido de los ojos pero renderizado al 100% por el navegador */
+        /* PARCHE DE RENDERIZADO AJUSTADO: Invisible al ojo humano, con flujo de espacio real para el Canvas */
         .pdf-hidden-container {
-            position: absolute;
-            left: -9999px;
+            opacity: 0;
+            position: fixed;
             top: 0;
+            left: 0;
             width: 7.5in;
+            height: 1px;
+            overflow: hidden;
+            pointer-events: none;
             background: white;
             color: black;
             box-sizing: border-box;
@@ -33,7 +37,13 @@
         @media print {
             .no-print { display: none !important; }
             body { background: white; color: black; }
-            .pdf-hidden-container { position: relative !important; left: 0 !important; width: 100% !important; }
+            .pdf-hidden-container { 
+                opacity: 1 !important; 
+                position: relative !important; 
+                height: auto !important; 
+                overflow: visible !important; 
+                width: 100% !important; 
+            }
         }
     </style>
 </head>
@@ -591,7 +601,6 @@
     </div>
 
 <script>
-    // CONFIGURACIÓN DE FIREBASE CORREGIDA
     const firebaseConfig = {
         apiKey: "AIzaSyBKPqlndtjyYJduNZBagPIex15jv3AIdt4",
         authDomain: "jose-landscaping-care-default-rtdb.firebaseapp.com",
@@ -615,7 +624,7 @@
             invoices: [],
             generalNotes: [],
             
-            historyCustomerId: '', // Buscador por cliente
+            historyCustomerId: '',
 
             selectedCustomerId: '',
             selectedCustomerNotes: '',
@@ -677,7 +686,6 @@
             }
         },
         created() {
-            // Mapeador de base de datos robusto contra objetos crudos u anidados
             db.ref('clientes').on('value', snap => {
                 const val = snap.val();
                 if (val) {
@@ -687,7 +695,6 @@
                         let textAddresses = [];
                         let backendAddressesFormat = [];
 
-                        // Iteración controlada para decodificar las locaciones autorizadas sin romper la UI
                         if (Array.isArray(rawAddresses)) {
                             rawAddresses.forEach(item => {
                                 if (item && typeof item === 'object') {
@@ -759,13 +766,39 @@
             },
             descargarPDFDirecto() {
                 const element = document.getElementById('print-area');
+                
+                // Forzamos temporalmente la visibilidad geométrica completa antes del render del canvas
+                element.style.opacity = "1";
+                element.style.height = "auto";
+                element.style.overflow = "visible";
+
                 const opciones = {
                     margin: 0.5,
                     filename: `Invoice_${this.invoice.folio || 'SN'}.pdf`,
-                    html2canvas: { scale: 2, useCORS: true, logging: false },
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { 
+                        scale: 2, 
+                        useCORS: true, 
+                        logging: false,
+                        letterRendering: true
+                    },
                     jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
                 };
-                html2pdf().from(element).set(opciones).save();
+
+                // Retardo estratégico para que html2pdf procese el DOM activo
+                setTimeout(() => {
+                    html2pdf().from(element).set(opciones).save().then(() => {
+                        // Ocultamos de inmediato al finalizar la descarga
+                        element.style.opacity = "0";
+                        element.style.height = "1px";
+                        element.style.overflow = "hidden";
+                    }).catch(err => {
+                        console.error("Error al generar PDF:", err);
+                        element.style.opacity = "0";
+                        element.style.height = "1px";
+                        element.style.overflow = "hidden";
+                    });
+                }, 150);
             },
             openDispatchModal() {
                 if (!this.selectedCustomerId) return alert("Por favor asigna un cliente.");
@@ -800,7 +833,6 @@
             saveCustomer() {
                 if (!this.customerForm.name) return alert("El nombre es obligatorio.");
                 
-                // Formateador antes de empujar a Firebase para mantener la consistencia limpia
                 const compiledData = {
                     name: this.customerForm.name,
                     phone: this.customerForm.phone,
