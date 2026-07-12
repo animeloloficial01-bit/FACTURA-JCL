@@ -9,870 +9,96 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         [v-cloak] { display: none !important; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         
-        /* PARCHE DE RENDERIZADO AJUSTADO: Invisible al ojo humano, con flujo de espacio real para el Canvas */
+        /* Contenedor oculto para impresión */
         .pdf-hidden-container {
-            opacity: 0;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 7.5in;
-            height: 1px;
-            overflow: hidden;
-            pointer-events: none;
-            background: white;
-            color: black;
-            box-sizing: border-box;
+            display: none;
         }
 
         @media print {
             .no-print { display: none !important; }
-            body { background: white; color: black; }
-            .pdf-hidden-container { 
-                opacity: 1 !important; 
-                position: relative !important; 
-                height: auto !important; 
-                overflow: visible !important; 
-                width: 100% !important; 
-            }
+            .pdf-hidden-container { display: block !important; padding: 20px; }
         }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
+    <div id="app" v-cloak>
+        <button @click="descargarPDFDirecto" class="w-full bg-slate-950 text-white font-bold py-2 rounded-xl text-[11px] uppercase tracking-wider">
+            📥 Guardar PDF (Impresión Nativa)
+        </button>
 
-    <div id="app" class="min-h-screen flex flex-col md:flex-row" v-cloak>
-        
-        <aside class="w-full md:w-76 bg-slate-950 text-slate-200 p-6 no-print flex flex-col justify-between shadow-2xl shrink-0 border-r border-slate-800">
-            <div class="space-y-8">
-                <div class="flex items-center space-x-3 pb-6 border-b border-slate-800/60">
-                    <div class="bg-gradient-to-tr from-emerald-600 to-green-400 text-slate-950 w-11 h-11 rounded-2xl font-extrabold text-xl flex items-center justify-center shadow-lg shadow-green-500/20 tracking-tighter">
-                        JL
-                    </div>
-                    <div>
-                        <h1 class="text-sm font-black text-white uppercase tracking-wider leading-none">Jose Landscaping</h1>
-                        <span class="text-[10px] text-emerald-400 font-bold uppercase block mt-1 tracking-widest">Business Suite v3.5</span>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/80 space-y-2">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">📅 Filtro Temporal</span>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="text-[9px] text-slate-500 font-bold uppercase">Inicio</label>
-                            <input v-model="filterStartDate" type="date" class="w-full bg-slate-950 border border-slate-800 rounded px-1.5 py-1 text-[10px] text-white outline-none">
-                        </div>
-                        <div>
-                            <label class="text-[9px] text-slate-500 font-bold uppercase">Fin</label>
-                            <input v-model="filterEndDate" type="date" class="w-full bg-slate-950 border border-slate-800 rounded px-1.5 py-1 text-[10px] text-white outline-none">
-                        </div>
-                    </div>
-                    <button v-if="filterStartDate || filterEndDate" @click="clearDateFilters" class="w-full text-center text-[10px] text-red-400 font-bold pt-1 hover:underline">
-                        Limpiar Fechas
-                    </button>
-                </div>
-
-                <div class="space-y-1">
-                    <span class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Operaciones</span>
-                    
-                    <button @click="currentView = 'dashboard'" :class="currentView === 'dashboard' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-900'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all">
-                        <span>📊</span> <span>Panel de Control</span>
-                    </button>
-
-                    <button @click="currentView = 'pos'" :class="currentView === 'pos' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-900'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all">
-                        <span>🧾</span> <span>Terminal de Facturación</span>
-                    </button>
-                    
-                    <span class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest block pt-4 mb-2">Administración</span>
-
-                    <button @click="currentView = 'clientes'" :class="currentView === 'clientes' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-900'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all">
-                        <span>👥</span> <span>Directorio de Clientes</span>
-                    </button>
-
-                    <button @click="currentView = 'historial_cliente'" :class="currentView === 'historial_cliente' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-900'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all">
-                        <span>🔍</span> <span>Historial por Cliente</span>
-                    </button>
-                    
-                    <button @click="currentView = 'historial'" :class="currentView === 'historial' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-900'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all">
-                        <span>🗄️</span> <span>Historial & Libro Mayor</span>
-                    </button>
-
-                    <button @click="currentView = 'apuntes'" :class="currentView === 'apuntes' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-900'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all">
-                        <span>📝</span> <span>Cuaderno de Apuntes</span>
-                    </button>
-                </div>
+        <div id="print-area" class="pdf-hidden-container">
+            <h1 style="text-align: center; font-size: 24px; font-weight: bold;">JOSE LANDSCAPING CARE</h1>
+            <p style="text-align: center;">Servicio Profesional de Jardinería</p>
+            <hr>
+            <div style="margin: 20px 0;">
+                <p><strong>Factura:</strong> #{{ invoice.folio || 'S/N' }}</p>
+                <p><strong>Fecha:</strong> {{ new Date().toLocaleDateString() }}</p>
             </div>
-
-            <div class="pt-4 border-t border-slate-800/60 text-[11px] text-slate-500 font-medium flex items-center justify-center space-x-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-                <span>Cloud Realtime Sync Activo</span>
-            </div>
-        </aside>
-
-        <main class="flex-1 p-4 md:p-8 overflow-y-auto max-w-full no-print">
-            
-            <section v-if="currentView === 'dashboard'" class="space-y-6">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h2 class="text-2xl font-black text-slate-900 tracking-tight">Panel General</h2>
-                        <p class="text-xs text-slate-500 mt-0.5">Estado financiero estructurado en tiempo real.</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                    <div class="bg-white p-6 rounded-2xl border shadow-sm flex items-center justify-between">
-                        <div>
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Libro Mayor</span>
-                            <span class="text-2xl font-black text-slate-900 block mt-1">${{ stats.montoTotal }}</span>
-                        </div>
-                        <div class="bg-blue-50 text-blue-600 p-3 rounded-xl text-xl">💰</div>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border shadow-sm flex items-center justify-between">
-                        <div>
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Cobrado (PAID)</span>
-                            <span class="text-2xl font-black text-emerald-600 block mt-1">${{ stats.montoCobrado }}</span>
-                        </div>
-                        <div class="bg-emerald-50 text-emerald-600 p-3 rounded-xl text-xl">✅</div>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border shadow-sm flex items-center justify-between">
-                        <div>
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Por Cobrar</span>
-                            <span class="text-2xl font-black text-amber-600 block mt-1">${{ stats.montoPendiente }}</span>
-                        </div>
-                        <div class="bg-amber-50 text-amber-600 p-3 rounded-xl text-xl">⏳</div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl border p-6 space-y-4">
-                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider border-b pb-2">Últimas Facturas Emitidas</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead>
-                                <tr class="bg-slate-50 text-slate-400 font-bold uppercase border-b">
-                                    <th class="p-3">Folio</th>
-                                    <th class="p-3">Fecha</th>
-                                    <th class="p-3">Cliente</th>
-                                    <th class="p-3 text-center">Método</th>
-                                    <th class="p-3 text-right">Monto</th>
-                                    <th class="p-3 text-center">Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="inv in filteredInvoices.slice(0, 7)" :key="inv.id" class="border-b hover:bg-slate-50/50">
-                                    <td class="p-3 font-bold text-slate-900">#{{ inv.folio || 'SN' }}</td>
-                                    <td class="p-3 text-slate-500">{{ inv.date }}</td>
-                                    <td class="p-3 font-semibold text-slate-700">{{ inv.customerName }}</td>
-                                    <td class="p-3 text-center font-medium text-slate-600">
-                                        <span class="px-2 py-0.5 bg-slate-100 rounded text-[11px] font-bold">{{ inv.paymentMethod || 'Efectivo' }}</span>
-                                    </td>
-                                    <td class="p-3 text-right font-bold text-slate-900">${{ inv.total }}</td>
-                                    <td class="p-3 text-center">
-                                        <span :class="inv.paid ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'" class="px-2 py-0.5 rounded-md font-extrabold text-[10px]">
-                                            {{ inv.paid ? 'PAID' : 'PENDING' }}
-                                        </span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-            
-            <section v-if="currentView === 'pos'" class="space-y-6">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b">
-                    <h2 class="text-2xl font-black text-slate-900 tracking-tight">Módulo de Facturación</h2>
-                    <div class="bg-white px-4 py-2 rounded-xl shadow-sm border flex items-center space-x-3">
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Folio:</span>
-                        <input v-model="invoice.folio" type="text" placeholder="#0001" class="w-28 text-center font-black text-sm border bg-slate-50 rounded-xl py-1.5 outline-none">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border space-y-6">
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Asignar Cliente</label>
-                                <select v-model="selectedCustomerId" @change="onCustomerChange" class="w-full p-3 bg-slate-50 border rounded-xl text-xs font-bold text-slate-700 outline-none">
-                                    <option value="">-- Seleccionar Cliente --</option>
-                                    <option v-for="c in customers" :key="c.id" :value="c.id">{{ c.name }}</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Locación del Servicio</label>
-                                <select v-model="invoice.address" class="w-full p-3 bg-slate-50 border rounded-xl text-xs font-bold text-slate-700 outline-none">
-                                    <option value="">-- Seleccionar Dirección --</option>
-                                    <option v-for="dir in availableAddresses" :key="dir" :value="dir">{{ dir }}</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Método de Pago</label>
-                                <select v-model="invoice.paymentMethod" class="w-full p-3 bg-slate-50 border rounded-xl text-xs font-bold text-slate-700 outline-none">
-                                    <option value="Efectivo">💵 Efectivo</option>
-                                    <option value="Tarjeta">💳 Tarjeta</option>
-                                    <option value="Cheque">✍️ Cheque</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div v-if="selectedCustomerNotes" class="bg-amber-50 border border-amber-200 text-amber-900 p-4 rounded-xl text-xs font-medium">
-                            📌 <span class="font-bold uppercase tracking-wider text-[10px] text-amber-700">Notas de este cliente:</span> {{ selectedCustomerNotes }}
-                        </div>
-
-                        <div class="pt-2">
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Conceptos de Trabajo</label>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-left border-collapse min-w-[500px]">
-                                    <thead>
-                                        <tr class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase border-b">
-                                            <th class="p-3">Descripción Actividad</th>
-                                            <th class="p-3 w-20 text-center">Cant</th>
-                                            <th class="p-3 w-36 text-right">Precio Unitario</th>
-                                            <th class="p-3 w-16 text-center"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(item, index) in invoice.items" :key="index" class="border-b">
-                                            <td class="p-2">
-                                                <input v-model="item.description" type="text" placeholder="Ej. Lawn Mowing Service" class="w-full p-2.5 border rounded-xl text-xs font-medium outline-none">
-                                            </td>
-                                            <td class="p-2">
-                                                <input v-model.number="item.qty" type="number" min="1" class="w-full p-2.5 text-center border rounded-xl text-xs font-bold outline-none">
-                                            </td>
-                                            <td class="p-2">
-                                                <div class="relative flex items-center">
-                                                    <span class="absolute left-3 text-slate-400 text-xs font-bold">$</span>
-                                                    <input v-model.number="item.price" type="number" step="0.01" class="w-full text-right pl-6 p-2.5 border rounded-xl text-xs font-bold outline-none">
-                                                </div>
-                                            </td>
-                                            <td class="p-2 text-center">
-                                                <button v-if="invoice.items.length > 1" @click="invoice.items.splice(index, 1)" class="text-red-500 font-bold">✕</button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <button @click="addInvoiceItem" class="mt-4 text-xs text-emerald-600 font-extrabold uppercase tracking-wider">
-                                ➕ Agregar Actividad
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="space-y-5">
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border space-y-3">
-                            <button @click="procesarFactura('cobrar')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider">
-                                Registrar como PAID (Cobrado)
-                            </button>
-                            <button @click="procesarFactura('pendiente')" class="w-full bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold py-3 rounded-xl text-xs uppercase tracking-wider">
-                                Guardar como PENDING
-                            </button>
-                        </div>
-
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border space-y-2">
-                            <button @click="imprimirSistemaNativo" class="w-full border bg-white text-slate-700 font-bold py-2 rounded-xl text-[11px] uppercase tracking-wider">
-                                🖨️ Imprimir Ticket
-                            </button>
-                            <button @click="descargarPDFDirecto" class="w-full bg-slate-950 text-white font-bold py-2 rounded-xl text-[11px] uppercase tracking-wider">
-                                📥 Guardar PDF
-                            </button>
-                            <button @click="openDispatchModal" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-[11px] uppercase tracking-wider mt-2">
-                                💬 Preparar Mensaje / Envío
-                            </button>
-                        </div>
-
-                        <div class="bg-slate-950 text-white p-6 rounded-2xl shadow-xl space-y-3">
-                            <div class="flex justify-between items-baseline pt-1">
-                                <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Total Final:</span>
-                                <span class="text-3xl font-black text-white tracking-tight">${{ totalCalculado.total }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section v-if="currentView === 'clientes'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border h-fit space-y-4">
-                    <h2 class="text-lg font-black text-slate-900 tracking-tight">
-                        {{ editMode ? 'Modificar Ficha' : 'Alta de Cliente' }}
-                    </h2>
-                    <div class="space-y-3.5">
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nombre Completo</label>
-                            <input v-model="customerForm.name" type="text" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-medium outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Teléfono</label>
-                            <input v-model="customerForm.phone" type="text" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-medium outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Precio Estándar Servicio ($)</label>
-                            <input v-model.number="customerForm.price" type="number" step="0.01" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-medium outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Notas de Campo / Operación</label>
-                            <textarea v-model="customerForm.notes" rows="2" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-medium resize-none outline-none" placeholder="Detalles específicos..."></textarea>
-                        </div>
-
-                        <div class="pt-2 border-t">
-                            <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Locaciones Autorizadas</span>
-                            <div v-for="(addr, idx) in customerForm.addresses" :key="idx" class="p-3 bg-slate-50 rounded-xl border mb-2 space-y-2 relative">
-                                <button v-if="customerForm.addresses.length > 1" @click="customerForm.addresses.splice(idx, 1)" class="absolute top-2 right-2 text-red-500 font-bold text-xs">✕</button>
-                                <div>
-                                    <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Tipo</label>
-                                    <select v-model="addr.tipo" class="w-full p-2 bg-white border rounded-lg text-xs font-semibold outline-none">
-                                        <option value="Home">Home</option>
-                                        <option value="Billing address">Billing Address</option>
-                                        <option value="Work Site">Work Site</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Dirección</label>
-                                    <input v-model="addr.valor" type="text" placeholder="Calle, Número, Ciudad" class="w-full p-2 bg-white border rounded-lg text-xs font-medium outline-none">
-                                </div>
-                            </div>
-                            <button @click="addFormAddress" type="button" class="text-xs text-emerald-600 font-bold mt-1 uppercase tracking-wider">
-                                ➕ Add Address
-                            </button>
-                        </div>
-
-                        <div class="flex space-x-2 pt-3">
-                            <button @click="saveCustomer" class="flex-1 bg-emerald-600 text-white py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider">
-                                {{ editMode ? 'Guardar Ficha' : 'Registrar Cliente' }}
-                            </button>
-                            <button v-if="editMode" @click="resetCustomerForm" class="bg-slate-100 text-slate-700 py-2.5 px-4 rounded-xl text-xs font-bold">
-                                Cancelar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border space-y-4">
-                    <div>
-                        <h2 class="text-lg font-black text-slate-900 tracking-tight">Directorio del Sistema</h2>
-                        <p class="text-xs text-slate-400">Cuentas vinculadas actualmente en tiempo real.</p>
-                    </div>
-                    <div class="space-y-3.5 max-h-[600px] overflow-y-auto pr-1">
-                        <div v-for="c in customers" :key="c.id" class="p-4 bg-slate-50 rounded-xl border flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                            <div class="flex-1 space-y-1.5">
-                                <div class="flex items-center space-x-3">
-                                    <h3 class="font-extrabold text-slate-900 text-base leading-none">{{ c.name }}</h3>
-                                    <span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-black">${{ c.price }}</span>
-                                </div>
-                                <div class="text-xs text-slate-500 font-medium space-x-4">
-                                    <span>📞 Teléfono: {{ c.phone || 'N/A' }}</span>
-                                </div>
-                                <div v-if="c.notes" class="text-xs text-slate-600 bg-white p-2.5 rounded-lg border italic">
-                                    📌 <b>Notas:</b> {{ c.notes }}
-                                </div>
-                                
-                                <div class="pt-1.5">
-                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Locaciones Autorizadas de Trabajo:</span>
-                                    <ul class="space-y-1">
-                                        <li v-for="(loc, lIdx) in c.cleanAddressesList" :key="lIdx" class="text-xs text-slate-700 bg-emerald-50/40 border border-emerald-100 px-2.5 py-1 rounded-md flex items-center justify-between">
-                                            <span>🏠 <b class="text-slate-900 font-bold text-[11px]">{{ loc.tipo }}:</b> {{ loc.valor }}</span>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="flex sm:flex-col justify-end gap-1.5 shrink-0 pt-0.5">
-                                <button @click="editCustomer(c)" class="bg-amber-100 text-amber-800 px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider text-center">Editar</button>
-                                <button @click="deleteCustomer(c.id)" class="bg-red-50 text-red-600 px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider text-center">Borrar</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section v-if="currentView === 'historial_cliente'" class="bg-white p-6 rounded-2xl shadow-sm border space-y-6">
-                <div>
-                    <h2 class="text-lg font-black text-slate-900 tracking-tight">Búsqueda de Historial por Cliente</h2>
-                    <p class="text-xs text-slate-500">Selecciona un cliente para desplegar sus notas y todas las facturas emitidas.</p>
-                </div>
-
-                <div class="max-w-md">
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Seleccionar Cliente</label>
-                    <select v-model="historyCustomerId" class="w-full p-3 bg-slate-50 border rounded-xl text-xs font-bold text-slate-700 outline-none">
-                        <option value="">-- Buscar un Cliente --</option>
-                        <option v-for="c in customers" :key="c.id" :value="c.id">{{ c.name }}</option>
-                    </select>
-                </div>
-
-                <div v-if="historyCustomerId" class="space-y-4 pt-2">
-                    <div class="bg-slate-50 p-4 rounded-xl border grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Notas Internas Guardadas:</span>
-                            <p class="text-xs text-slate-700 font-medium italic mt-1">{{ getCustomerNotes(historyCustomerId) || 'Ninguna nota guardada.' }}</p>
-                        </div>
-                        <div class="text-left sm:text-right flex flex-col justify-center">
-                            <span class="text-xs font-medium text-slate-500">Monto Total Facturado a este Cliente:</span>
-                            <span class="text-xl font-black text-slate-900">${{ totalFacturadoCliente }}</span>
-                        </div>
-                    </div>
-
-                    <div class="overflow-x-auto rounded-xl border">
-                        <table class="w-full text-left text-xs">
-                            <thead>
-                                <tr class="bg-slate-50 text-[10px] text-slate-400 font-bold uppercase border-b">
-                                    <th class="p-3">Folio</th>
-                                    <th class="p-3">Fecha</th>
-                                    <th class="p-3">Locación</th>
-                                    <th class="p-3 text-center">Método de Pago</th>
-                                    <th class="p-3 text-right">Monto</th>
-                                    <th class="p-3 text-center">Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="inv in clientInvoices" :key="inv.id" class="border-b hover:bg-slate-50/40">
-                                    <td class="p-3 font-bold text-slate-900">#{{ inv.folio }}</td>
-                                    <td class="p-3 text-slate-500">{{ inv.date }}</td>
-                                    <td class="p-3 font-medium text-slate-600">{{ inv.address }}</td>
-                                    <td class="p-3 text-center">
-                                        <span class="bg-slate-100 text-slate-800 font-bold px-2 py-0.5 rounded text-[11px]">{{ inv.paymentMethod || 'Efectivo' }}</span>
-                                    </td>
-                                    <td class="p-3 text-right font-black text-slate-900">${{ inv.total }}</td>
-                                    <td class="p-3 text-center">
-                                        <span :class="inv.paid ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'" class="px-2 py-0.5 rounded text-[10px] font-black">
-                                            {{ inv.paid ? 'PAID' : 'PENDING' }}
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr v-if="clientInvoices.length === 0">
-                                    <td colspan="6" class="p-6 text-center text-slate-400 font-medium">Este cliente no posee facturas registradas en el historial.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <section v-if="currentView === 'historial'" class="bg-white p-6 rounded-2xl shadow-sm border space-y-4">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-lg font-black text-slate-900 tracking-tight">Libro Mayor e Historial Completo</h2>
-                </div>
-                <div class="overflow-x-auto rounded-xl border">
-                    <table class="w-full text-left text-xs">
-                        <thead>
-                            <tr class="bg-slate-50 text-[10px] text-slate-400 font-bold uppercase border-b">
-                                <th class="p-4">Folio / Fecha</th>
-                                <th class="p-4">Cliente Asignado</th>
-                                <th class="p-4 text-center">Método</th>
-                                <th class="p-4 text-right">Monto Total</th>
-                                <th class="p-4 text-center">Estado</th>
-                                <th class="p-4 text-right">Controles</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="inv in filteredInvoices" :key="inv.id" class="border-b">
-                                <td class="p-4">
-                                    <div class="font-black text-slate-900">#{{ inv.folio || 'S/N' }}</div>
-                                    <div class="text-[10px] text-slate-400 font-semibold mt-0.5">{{ inv.date }}</div>
-                                </td>
-                                <td class="p-4 font-extrabold text-slate-800">{{ inv.customerName }}</td>
-                                <td class="p-4 text-center">
-                                    <span class="bg-slate-100 px-2 py-0.5 rounded font-bold text-slate-700">{{ inv.paymentMethod || 'Efectivo' }}</span>
-                                </td>
-                                <td class="p-4 text-right font-black text-slate-900">${{ inv.total }}</td>
-                                <td class="p-4 text-center">
-                                    <span :class="inv.paid ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'" class="px-2.5 py-1 rounded-lg text-[10px] font-black">
-                                        {{ inv.paid ? 'PAID' : 'PENDING' }}
-                                    </span>
-                                </td>
-                                <td class="p-4 text-right space-x-1.5">
-                                    <button @click="togglePaidStatus(inv)" class="border px-3 py-1.5 rounded-lg bg-white text-[11px] hover:bg-slate-50 font-semibold shadow-sm">Cambiar Estado</button>
-                                    <button @click="deleteInvoice(inv.id)" class="text-red-500 font-bold hover:text-red-700 ml-2">✕</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <section v-if="currentView === 'apuntes'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border h-fit space-y-4">
-                    <h2 class="text-lg font-black text-slate-900 tracking-tight">Nuevo Apunte General</h2>
-                    <div class="space-y-3.5">
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Título del Recordatorio</label>
-                            <input v-model="noteForm.title" type="text" placeholder="Ej. Mantenimiento de Troca" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-medium outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Fecha</label>
-                            <input v-model="noteForm.date" type="date" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-medium outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Contenido / Pendientes</label>
-                            <textarea v-model="noteForm.content" rows="4" placeholder="Escribe tareas o notas internas..." class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-medium resize-none outline-none"></textarea>
-                        </div>
-                        <button @click="saveGeneralNote" class="w-full bg-emerald-600 text-white py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-emerald-700">
-                            Guardar Apunte
-                        </button>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border space-y-4">
-                    <h2 class="text-lg font-black text-slate-900 tracking-tight">Bitácora Interna</h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[550px] overflow-y-auto pr-1">
-                        <div v-for="note in generalNotes" :key="note.id" class="bg-slate-50 p-4 rounded-xl border border-slate-200 relative flex flex-col justify-between">
-                            <button @click="deleteGeneralNote(note.id)" class="absolute top-3 right-3 text-slate-400 hover:text-red-500 font-bold text-xs">✕</button>
-                            <div class="space-y-2">
-                                <h4 class="font-black text-slate-900 text-sm tracking-tight pr-4">{{ note.title }}</h4>
-                                <span class="text-[9px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded font-bold block w-fit">{{ note.date }}</span>
-                                <p class="text-xs text-slate-600 font-medium whitespace-pre-wrap pt-1">{{ note.content }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-        </main>
-
-        <div v-if="showDispatchModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 no-print">
-            <div class="bg-white rounded-2xl shadow-2xl border w-full max-w-lg p-6 space-y-4">
-                <div class="flex justify-between items-center border-b pb-2">
-                    <h3 class="text-base font-black text-slate-900 uppercase tracking-tight">Despacho de Comunicaciones</h3>
-                    <button @click="showDispatchModal = false" class="text-slate-400 hover:text-slate-600 font-black text-sm">✕</button>
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Cuerpo del mensaje:</label>
-                    <textarea v-model="editableMessageText" rows="6" class="w-full p-3 bg-slate-50 border rounded-xl text-xs font-semibold text-slate-700 outline-none resize-none focus:border-blue-500"></textarea>
-                </div>
-                <div class="grid grid-cols-3 gap-2 pt-2">
-                    <button @click="sendViaWhatsApp" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-[10px] uppercase tracking-wider text-center">WhatsApp</button>
-                    <button @click="sendViaSMS" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-[10px] uppercase tracking-wider text-center">SMS</button>
-                    <button @click="sendViaEmail" class="bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-[10px] uppercase tracking-wider text-center">Email</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="print-area" class="pdf-hidden-container p-10 font-mono text-xs">
-            <center class="mb-6">
-                <h1 class="text-xl font-bold tracking-widest">JOSE LANDSCAPING CARE</h1>
-                <p>Professional Landscaping Services</p>
-                <div class="border-b border-black my-4"></div>
-            </center>
-            
-            <table class="w-full mb-6">
-                <tr>
-                    <td>
-                        <p class="font-bold">INVOICE: #{{ invoice.folio || 'S/N' }}</p>
-                        <p>Fecha Emisión: {{ new Date().toISOString().split('T')[0] }}</p>
-                    </td>
-                    <td class="text-right">
-                        <p class="font-bold">Cliente: {{ getCustomerName(selectedCustomerId) }}</p>
-                        <p>Locación: {{ invoice.address || 'Dirección Principal' }}</p>
-                        <p>Método de Pago: {{ invoice.paymentMethod || 'Efectivo' }}</p>
-                    </td>
-                </tr>
-            </table>
-            
-            <table class="w-full text-left border-collapse mt-4">
+            <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
                 <thead>
-                    <tr class="border-b border-black font-bold text-[10px]">
-                        <th class="pb-2">Descripción</th>
-                        <th class="pb-2 text-center w-12">Cant</th>
-                        <th class="pb-2 text-right w-24">Precio</th>
-                        <th class="pb-2 text-right w-24">Subtotal</th>
+                    <tr style="background: #f3f4f6;">
+                        <th style="border: 1px solid #ccc; padding: 8px;">Descripción</th>
+                        <th style="border: 1px solid #ccc; padding: 8px;">Cant</th>
+                        <th style="border: 1px solid #ccc; padding: 8px;">Total</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="item in invoice.items" :key="item.description" class="border-b border-gray-300">
-                        <td class="py-2">{{ item.description || 'Servicio General' }}</td>
-                        <td class="py-2 text-center">x{{ item.qty }}</td>
-                        <td class="py-2 text-right">${{ Number(item.price).toFixed(2) }}</td>
-                        <td class="py-2 text-right font-bold">${{ (item.qty * item.price).toFixed(2) }}</td>
+                    <tr v-for="item in invoice.items" :key="item.description">
+                        <td style="border: 1px solid #ccc; padding: 8px;">{{ item.description }}</td>
+                        <td style="border: 1px solid #ccc; padding: 8px; text-align: center;">{{ item.qty }}</td>
+                        <td style="border: 1px solid #ccc; padding: 8px; text-align: right;">${{ (item.qty * item.price).toFixed(2) }}</td>
                     </tr>
                 </tbody>
             </table>
-            
-            <div class="border-t border-black mt-6 pt-4 flex justify-between items-center bg-slate-50 p-3">
-                <span class="font-bold">TOTAL DUE AMOUNT:</span>
-                <span class="text-lg font-bold">${{ totalCalculado.total }}</span>
+            <div style="margin-top: 20px; text-align: right; font-size: 18px; font-weight: bold;">
+                Total: ${{ totalCalculado.total }}
             </div>
         </div>
-
     </div>
 
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyBKPqlndtjyYJduNZBagPIex15jv3AIdt4",
-        authDomain: "jose-landscaping-care-default-rtdb.firebaseapp.com",
-        databaseURL: "https://jose-landscaping-care-default-rtdb.firebaseio.com",
-        projectId: "jose-landscaping-care-default-rtdb",
-        storageBucket: "jose-landscaping-care.appspot.com",
-        messagingSenderId: "338573920485",
-        appId: "1:338573920485:web:8c903cbef2849e75c6bf23"
-    };
-
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    // ... (Tu configuración de Firebase igual)
 
     new Vue({
         el: '#app',
-        data: {
-            currentView: 'dashboard',
-            filterStartDate: '',
-            filterEndDate: '',
-            customers: [],
-            invoices: [],
-            generalNotes: [],
-            
-            historyCustomerId: '',
-
-            selectedCustomerId: '',
-            selectedCustomerNotes: '',
-            availableAddresses: [],
-            invoice: { 
-                folio: '', 
-                address: '', 
-                paymentMethod: 'Efectivo', 
-                items: [{ description: 'Lawn Mowing Service', qty: 1, price: 0 }] 
-            },
-            editMode: false,
-            selectedCustomerForEditId: null,
-            customerForm: { 
-                name: '', 
-                phone: '', 
-                price: 0, 
-                notes: '', 
-                addresses: [{ tipo: 'Home', valor: '' }] 
-            },
-            noteForm: { title: '', date: new Date().toISOString().split('T')[0], content: '' },
-            showDispatchModal: false,
-            editableMessageText: '',
-            currentDispatchPhone: ''
-        },
-        computed: {
-            filteredInvoices() {
-                return this.invoices.filter(inv => {
-                    if (!inv.date) return true;
-                    if (this.filterStartDate && inv.date < this.filterStartDate) return false;
-                    if (this.filterEndDate && inv.date > this.filterEndDate) return false;
-                    return true;
-                });
-            },
-            clientInvoices() {
-                if (!this.historyCustomerId) return [];
-                return this.invoices.filter(inv => inv.customerId === this.historyCustomerId);
-            },
-            totalFacturadoCliente() {
-                let sum = 0;
-                this.clientInvoices.forEach(inv => sum += Number(inv.total || 0));
-                return sum.toFixed(2);
-            },
-            stats() {
-                let total = 0, cobrado = 0, pendiente = 0;
-                this.filteredInvoices.forEach(inv => {
-                    let amount = Number(inv.total || 0);
-                    total += amount;
-                    if (inv.paid) cobrado += amount;
-                    else pendiente += amount;
-                });
-                return { montoTotal: total.toFixed(2), montoCobrado: cobrado.toFixed(2), montoPendiente: pendiente.toFixed(2) };
-            },
-            totalCalculado() {
-                let subtotal = 0;
-                if (this.invoice && this.invoice.items) {
-                    subtotal = this.invoice.items.reduce((sum, item) => sum + (Number(item.qty || 0) * Number(item.price || 0)), 0);
-                }
-                return { total: subtotal.toFixed(2) };
-            }
-        },
-        created() {
-            db.ref('clientes').on('value', snap => {
-                const val = snap.val();
-                if (val) {
-                    this.customers = Object.keys(val).map(key => {
-                        const rawData = val[key] || {};
-                        let rawAddresses = rawData.addresses || rawData.direcciones || [];
-                        let textAddresses = [];
-                        let backendAddressesFormat = [];
-
-                        if (Array.isArray(rawAddresses)) {
-                            rawAddresses.forEach(item => {
-                                if (item && typeof item === 'object') {
-                                    textAddresses.push(item.valor || '');
-                                    backendAddressesFormat.push({ tipo: item.tipo || 'Home', valor: item.valor || '' });
-                                } else if (typeof item === 'string') {
-                                    textAddresses.push(item);
-                                    backendAddressesFormat.push({ tipo: 'Home', valor: item });
-                                }
-                            });
-                        } else if (typeof rawAddresses === 'object') {
-                            Object.values(rawAddresses).forEach(item => {
-                                if (item && typeof item === 'object') {
-                                    textAddresses.push(item.valor || '');
-                                    backendAddressesFormat.push({ tipo: item.tipo || 'Home', valor: item.valor || '' });
-                                } else if (typeof item === 'string') {
-                                    textAddresses.push(item);
-                                    backendAddressesFormat.push({ tipo: 'Home', valor: item });
-                                }
-                            });
-                        }
-
-                        if (textAddresses.length === 0) {
-                            textAddresses.push('Dirección Principal');
-                            backendAddressesFormat.push({ tipo: 'Home', valor: 'Dirección Principal' });
-                        }
-
-                        return {
-                            id: key,
-                            name: rawData.name || rawData.nombre || 'Sin Nombre',
-                            phone: rawData.phone || rawData.telefono || '',
-                            price: rawData.price || rawData.precio || 0,
-                            notes: rawData.notes || rawData.notas || '',
-                            addresses: textAddresses,
-                            cleanAddressesList: backendAddressesFormat
-                        };
-                    });
-                } else { this.customers = []; }
-            });
-
-            db.ref('facturas').on('value', snap => {
-                const val = snap.val();
-                this.invoices = val ? Object.keys(val).map(key => ({ id: key, ...val[key] })).reverse() : [];
-            });
-
-            db.ref('apuntes_generales').on('value', snap => {
-                const val = snap.val();
-                this.generalNotes = val ? Object.keys(val).map(key => ({ id: key, ...val[key] })).reverse() : [];
-            });
-        },
+        // ... (Tu data y computed igual)
         methods: {
-            clearDateFilters() { this.filterStartDate = ''; this.filterEndDate = ''; },
-            onCustomerChange() {
-                const client = this.customers.find(c => c.id === this.selectedCustomerId);
-                if (client) {
-                    this.availableAddresses = client.addresses;
-                    this.invoice.address = this.availableAddresses[0] || '';
-                    this.selectedCustomerNotes = client.notes;
-                    this.currentDispatchPhone = client.phone;
-                    if (this.invoice.items.length > 0) this.invoice.items[0].price = client.price;
-                } else {
-                    this.availableAddresses = []; this.invoice.address = ''; this.selectedCustomerNotes = ''; this.currentDispatchPhone = '';
-                }
-            },
-            addInvoiceItem() { this.invoice.items.push({ description: 'Extra Service', qty: 1, price: 0 }); },
-            addFormAddress() { this.customerForm.addresses.push({ tipo: 'Home', valor: '' }); },
-            imprimirSistemaNativo() {
-                window.print();
-            },
+            // NUEVO MÉTODO ROBUSTO
             descargarPDFDirecto() {
-                const element = document.getElementById('print-area');
+                const printContent = document.getElementById('print-area').innerHTML;
+                const win = window.open('', '_blank', 'width=800,height=600');
                 
-                // Forzamos temporalmente la visibilidad geométrica completa antes del render del canvas
-                element.style.opacity = "1";
-                element.style.height = "auto";
-                element.style.overflow = "visible";
-
-                const opciones = {
-                    margin: 0.5,
-                    filename: `Invoice_${this.invoice.folio || 'SN'}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { 
-                        scale: 2, 
-                        useCORS: true, 
-                        logging: false,
-                        letterRendering: true
-                    },
-                    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-                };
-
-                // Retardo estratégico para que html2pdf procese el DOM activo
+                win.document.write(`
+                    <html>
+                        <head>
+                            <title>Factura ${this.invoice.folio || ''}</title>
+                            <style>
+                                body { font-family: sans-serif; padding: 40px; }
+                                table { width: 100%; border-collapse: collapse; }
+                                th, td { border: 1px solid #ccc; padding: 10px; }
+                            </style>
+                        </head>
+                        <body>
+                            ${printContent}
+                        </body>
+                    </html>
+                `);
+                
+                win.document.close();
+                
+                // Pequeña espera para asegurar que el navegador cargue el HTML antes de abrir el diálogo
                 setTimeout(() => {
-                    html2pdf().from(element).set(opciones).save().then(() => {
-                        // Ocultamos de inmediato al finalizar la descarga
-                        element.style.opacity = "0";
-                        element.style.height = "1px";
-                        element.style.overflow = "hidden";
-                    }).catch(err => {
-                        console.error("Error al generar PDF:", err);
-                        element.style.opacity = "0";
-                        element.style.height = "1px";
-                        element.style.overflow = "hidden";
-                    });
-                }, 150);
+                    win.print();
+                    win.close();
+                }, 500);
             },
-            openDispatchModal() {
-                if (!this.selectedCustomerId) return alert("Por favor asigna un cliente.");
-                const clientName = this.getCustomerName(this.selectedCustomerId);
-                this.editableMessageText = `Hello ${clientName}, this is Jose Landscaping Care. Your invoice #${this.invoice.folio || 'S/N'} for the service at ${this.invoice.address || 'Ubicación'} is ready. Total due amount is $${this.totalCalculado.total}. Payment method: ${this.invoice.paymentMethod}. Thank you!`;
-                this.showDispatchModal = true;
-            },
-            sendViaWhatsApp() {
-                window.open(`https://api.whatsapp.com/send?phone=${this.currentDispatchPhone.replace(/\D/g, '')}&text=${encodeURIComponent(this.editableMessageText)}`, '_blank');
-            },
-            sendViaSMS() {
-                window.open(`sms:${this.currentDispatchPhone.replace(/\D/g, '')}?body=${encodeURIComponent(this.editableMessageText)}`, '_blank');
-            },
-            sendViaEmail() {
-                window.open(`mailto:?subject=${encodeURIComponent('Invoice #' + (this.invoice.folio || '') + ' - Jose Landscaping')}&body=${encodeURIComponent(this.editableMessageText)}`, '_blank');
-            },
-            procesarFactura(estado) {
-                if (!this.selectedCustomerId) return alert("Por favor asigna un cliente.");
-                const data = {
-                    folio: this.invoice.folio || 'S/N',
-                    customerId: this.selectedCustomerId,
-                    customerName: this.getCustomerName(this.selectedCustomerId),
-                    address: this.invoice.address,
-                    date: new Date().toISOString().split('T')[0],
-                    total: this.totalCalculado.total,
-                    paid: estado === 'cobrar',
-                    paymentMethod: this.invoice.paymentMethod,
-                    items: this.invoice.items
-                };
-                db.ref('facturas').push(data).then(() => { alert("¡Factura guardada exitosamente!"); this.resetInvoiceForm(); });
-            },
-            saveCustomer() {
-                if (!this.customerForm.name) return alert("El nombre es obligatorio.");
-                
-                const compiledData = {
-                    name: this.customerForm.name,
-                    phone: this.customerForm.phone,
-                    price: this.customerForm.price,
-                    notes: this.customerForm.notes,
-                    addresses: this.customerForm.addresses.map(a => ({ tipo: a.tipo, valor: a.valor }))
-                };
-
-                if (this.editMode) {
-                    db.ref("clientes/" + this.selectedCustomerForEditId).set(compiledData).then(() => { alert("Ficha del cliente actualizada."); this.resetCustomerForm(); });
-                } else {
-                    db.ref('clientes').push(compiledData).then(() => { alert("Cliente registrado en el directorio."); this.resetCustomerForm(); });
-                }
-            },
-            editCustomer(c) {
-                this.editMode = true; 
-                this.selectedCustomerForEditId = c.id;
-                this.customerForm = { 
-                    name: c.name, 
-                    phone: c.phone, 
-                    price: c.price, 
-                    notes: c.notes, 
-                    addresses: JSON.parse(JSON.stringify(c.cleanAddressesList)) 
-                };
-            },
-            deleteCustomer(id) { if (confirm("¿Seguro de remover este cliente?")) db.ref("clientes/" + id).remove(); },
-            resetCustomerForm() { this.editMode = false; this.selectedCustomerForEditId = null; this.customerForm = { name: '', phone: '', price: 0, notes: '', addresses: [{ tipo: 'Home', valor: '' }] }; },
-            togglePaidStatus(inv) { db.ref("facturas/" + inv.id + "/paid").set(!inv.paid); },
-            deleteInvoice(id) { if (confirm("¿Deseas remover esta factura?")) db.ref("facturas/" + id).remove(); },
-            getCustomerName(id) { const c = this.customers.find(x => x.id === id); return c ? c.name : 'Sin Nombre'; },
-            getCustomerNotes(id) { const c = this.customers.find(x => x.id === id); return c ? c.notes : ''; },
-            resetInvoiceForm() {
-                this.invoice = { folio: '', address: '', paymentMethod: 'Efectivo', items: [{ description: 'Lawn Mowing Service', qty: 1, price: 0 }] };
-                this.selectedCustomerId = ''; this.availableAddresses = []; this.selectedCustomerNotes = ''; this.currentDispatchPhone = '';
-            },
-            saveGeneralNote() {
-                if (!this.noteForm.title || !this.noteForm.content) return alert("Faltan campos.");
-                db.ref('apuntes_generales').push(this.noteForm).then(() => { this.noteForm.title = ''; this.noteForm.content = ''; alert("Apunte guardado."); });
-            },
-            deleteGeneralNote(id) { if (confirm("¿Remover nota?")) db.ref('apuntes_generales/' + id).remove(); }
+            // ... (Resto de tus métodos)
         }
     });
 </script>
