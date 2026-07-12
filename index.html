@@ -228,18 +228,18 @@
     </div>
 <script>
     // Configuración exacta verificada de tu consola
-        // Configuración corregida para conectar a tus datos reales
+<!-- COMPORTAMIENTO SCRIPT TOTALMENTE CORREGIDO -->
+<script>
     const firebaseConfig = {
         apiKey: "AIzaSyBKPqlndtjyYJduNZBagPIex15jv3AIdt4",
-        authDomain: "jose-landscaping-care.firebaseapp.com", // <-- Corregido
+        authDomain: "jose-landscaping-care-default-rtdb.firebaseapp.com",
         databaseURL: "https://jose-landscaping-care-default-rtdb.firebaseio.com",
-        projectId: "jose-landscaping-care", // <-- Corregido (Tu ID real)
+        projectId: "jose-landscaping-care-default-rtdb",
         storageBucket: "jose-landscaping-care.appspot.com",
         messagingSenderId: "338573920485",
         appId: "1:338573920485:web:8c903cbef2849e75c6bf23"
     };
 
-    // Inicialización clásica global
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
     }
@@ -267,25 +267,35 @@
             }
         },
         created() {
-            // Sincronización corregida para forzar formato de lista
-            db.ref('customers').on('value', snap => {
+            // Sincronizado en español con tu Firebase ('clientes')
+            db.ref('clientes').on('value', snap => {
                 const val = snap.val();
                 if (val) {
-                    this.customers = Object.keys(val).map(key => ({
-                        id: key,
-                        ...val[key],
-                        addresses: Array.isArray(val[key].addresses) ? val[key].addresses : (val[key].addresses ? Object.values(val[key].addresses) : [''])
-                    }));
+                    this.customers = Object.keys(val).map(key => {
+                        let rawAddresses = val[key].addresses || [''];
+                        let formattedAddresses = Array.isArray(rawAddresses) 
+                            ? rawAddresses 
+                            : (typeof rawAddresses === 'object' ? Object.values(rawAddresses) : [rawAddresses]);
+                        
+                        return {
+                            id: key,
+                            name: val[key].name || 'Sin Nombre',
+                            phone: val[key].phone || '',
+                            email: val[key].email || '',
+                            addresses: formattedAddresses.filter(a => a && String(a).trim() !== '')
+                        };
+                    });
                 } else {
                     this.customers = [];
                 }
             });
-            
-            db.ref('invoices').on('value', snap => {
+
+            // Sincronizado en español con tu Firebase ('facturas')
+            db.ref('facturas').on('value', snap => {
                 const val = snap.val();
                 this.invoices = val ? Object.keys(val).map(key => ({ id: key, ...val[key] })) : [];
             });
-            
+
             db.ref('automations').on('value', snap => {
                 const val = snap.val();
                 this.automations = val ? Object.keys(val).map(key => ({ id: key, ...val[key] })) : [];
@@ -327,16 +337,19 @@
                     paid: estado === 'cobrar',
                     items: this.invoice.items
                 };
-                db.ref('invoices').push(data);
+                // GUARDAR EN ESPAÑOL
+                db.ref('facturas').push(data);
                 alert("¡Factura guardada!");
                 this.resetInvoiceForm();
             },
             saveCustomer() {
                 if (!this.customerForm.name) return alert("El nombre es obligatorio.");
                 if (this.editMode) {
-                    db.ref("customers/" + this.selectedCustomerForEditId).set(this.customerForm);
+                    // ACTUALIZAR EN ESPAÑOL
+                    db.ref("clientes/" + this.selectedCustomerForEditId).set(this.customerForm);
                 } else {
-                    db.ref('customers').push(this.customerForm);
+                    // CREAR EN ESPAÑOL
+                    db.ref('clientes').push(this.customerForm);
                 }
                 this.resetCustomerForm();
             },
@@ -346,7 +359,8 @@
                 this.customerForm = { name: c.name, phone: c.phone, email: c.email, addresses: c.addresses ? [...c.addresses] : [''] };
             },
             deleteCustomer(id) {
-                if (confirm("¿Borrar cliente?")) db.ref("customers/" + id).remove();
+                // BORRAR EN ESPAÑOL
+                if (confirm("¿Borrar cliente?")) db.ref("clientes/" + id).remove();
             },
             resetCustomerForm() {
                 this.editMode = false;
@@ -357,10 +371,12 @@
                 this.scheduleForm = { customerId: '', frequency: 'weekly', startDate: '', dueDate: '' };
             },
             togglePaidStatus(inv) {
-                db.ref("invoices/" + inv.id + "/paid").set(!inv.paid);
+                // ACTUALIZAR FACTURA EN ESPAÑOL
+                db.ref("facturas/" + inv.id + "/paid").set(!inv.paid);
             },
             deleteInvoice(id) {
-                if (confirm("¿Borrar registro?")) db.ref("invoices/" + id).remove();
+                // BORRAR FACTURA EN ESPAÑOL
+                if (confirm("¿Borrar registro?")) db.ref("facturas/" + id).remove();
             },
             getCustomerName(id) {
                 const c = this.customers.find(x => x.id === id);
