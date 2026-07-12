@@ -162,6 +162,10 @@
                             </div>
                         </div>
 
+                        <div v-if="selectedCustomerNotes" class="bg-amber-50 border border-amber-200 text-amber-900 p-4 rounded-xl text-xs font-medium">
+                            📌 <span class="font-bold uppercase tracking-wider text-[10px] text-amber-700">Notas de este cliente:</span> {{ selectedCustomerNotes }}
+                        </div>
+
                         <div class="pt-2">
                             <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Conceptos de Trabajo</label>
                             <div class="overflow-x-auto">
@@ -246,8 +250,36 @@
                             <input v-model="customerForm.phone" type="text" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-medium">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Correo Electrónico</label>
-                            <input v-model="customerForm.email" type="email" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-medium">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Precio del Servicio ($)</label>
+                            <input v-model.number="customerForm.price" type="number" step="0.01" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Notas Internas</label>
+                            <textarea v-model="customerForm.notes" rows="2" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-medium resize-none" placeholder="Ej. Perro en patio trasero / Portón con candado..."></textarea>
+                        </div>
+
+                        <div class="pt-2 border-t">
+                            <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Locaciones Autorizadas</span>
+                            <div v-for="(addr, idx) in customerForm.addresses" :key="idx" class="p-3 bg-slate-50 rounded-xl border mb-2 space-y-2 relative">
+                                <button v-if="customerForm.addresses.length > 1" @click="customerForm.addresses.splice(idx, 1)" class="absolute top-2 right-2 text-red-500 font-bold text-xs">✕</button>
+                                <div>
+                                    <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Tipo</label>
+                                    <select v-model="addr.tipo" class="w-full p-2 bg-white border rounded-lg text-xs font-semibold outline-none">
+                                        <option value="Home">Home</option>
+                                        <option value="Billing Address">Billing Address</option>
+                                        <option value="Work">Work</option>
+                                        <option value="Property 2">Property 2</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Dirección</label>
+                                    <input v-model="addr.valor" type="text" placeholder="Calle, Número, Ciudad" class="w-full p-2 bg-white border rounded-lg text-xs font-medium outline-none">
+                                </div>
+                            </div>
+                            <button @click="addFormAddress" type="button" class="text-xs text-emerald-600 font-bold mt-1 uppercase tracking-wider">
+                                ➕ Add Address
+                            </button>
                         </div>
 
                         <div class="flex space-x-2 pt-3">
@@ -267,11 +299,16 @@
                     <div class="space-y-3.5 max-h-[550px] overflow-y-auto">
                         <div v-for="c in customers" :key="c.id" class="p-4 bg-slate-50 rounded-xl border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                             <div class="flex-1">
-                                <h3 class="font-extrabold text-slate-900 text-base leading-none">{{ c.name }}</h3>
+                                <div class="flex items-center space-x-3">
+                                    <h3 class="font-extrabold text-slate-900 text-base leading-none">{{ c.name }}</h3>
+                                    <span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-black">${{ c.price }}</span>
+                                </div>
                                 <div class="flex items-center space-x-4 mt-2 text-xs text-slate-500">
                                     <span>📞 {{ c.phone }}</span>
-                                    <span>✉️ {{ c.email }}</span>
                                 </div>
+                                <p v-if="c.notes" class="text-xs text-slate-500 italic mt-1 bg-white p-2 rounded-lg border border-slate-100">
+                                    📝 {{ c.notes }}
+                                </p>
                                 <div class="mt-3 pt-2.5 border-t">
                                     <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Locaciones:</span>
                                     <ul class="list-disc list-inside text-xs text-slate-600 font-medium space-y-1">
@@ -393,15 +430,22 @@
             customers: [],
             invoices: [],
             selectedCustomerId: '',
+            selectedCustomerNotes: '',
             availableAddresses: [],
             invoice: { 
                 folio: '', 
                 address: '', 
-                items: [{ description: '', qty: 1, price: 0 }] 
+                items: [{ description: 'Lawn Mowing Service', qty: 1, price: 0 }] 
             },
             editMode: false,
             selectedCustomerForEditId: null,
-            customerForm: { name: '', phone: '', email: '' }
+            customerForm: { 
+                name: '', 
+                phone: '', 
+                price: 0, 
+                notes: '', 
+                addresses: [{ tipo: 'Home', valor: '' }] 
+            }
         },
         computed: {
             stats() {
@@ -429,50 +473,51 @@
             }
         },
         created() {
-            // Sincronización robusta y tolerante a esquemas vacíos
             db.ref('clientes').on('value', snap => {
                 const val = snap.val();
                 if (val) {
                     this.customers = Object.keys(val).map(key => {
                         const rawData = val[key] || {};
-
-                        const findField = (obj, keysToFind) => {
-                            if (!obj || typeof obj !== 'object') return null;
-                            for (let k in obj) {
-                                if (keysToFind.includes(k.toLowerCase()) && typeof obj[k] === 'string') {
-                                    return obj[k];
-                                }
-                            }
-                            return null;
-                        };
-
-                        let detectedName = rawData.name || rawData.nombre || rawData.clientName || findField(rawData, ['name', 'nombre', 'cliente']) || 'Sin Nombre';
-                        let detectedPhone = rawData.phone || rawData.telefono || findField(rawData, ['phone', 'telefono', 'tel']) || 'N/A';
-                        let detectedEmail = rawData.email || rawData.correo || findField(rawData, ['email', 'correo', 'mail']) || 'N/A';
                         
                         let rawAddresses = rawData.addresses || rawData.direcciones || [];
                         let parsedAddresses = [];
-                        
+                        let backendAddressesFormat = [];
+
                         if (Array.isArray(rawAddresses)) {
                             rawAddresses.forEach(item => {
-                                if (item && typeof item === 'object' && item.valor) parsedAddresses.push(item.valor);
-                                else if (item && typeof item === 'string') parsedAddresses.push(item);
+                                if (item && typeof item === 'object') {
+                                    parsedAddresses.push(item.valor || 'Dirección');
+                                    backendAddressesFormat.push({ tipo: item.tipo || 'Home', valor: item.valor || '' });
+                                } else if (typeof item === 'string') {
+                                    parsedAddresses.push(item);
+                                    backendAddressesFormat.push({ tipo: 'Home', valor: item });
+                                }
                             });
                         } else if (typeof rawAddresses === 'object') {
                             Object.values(rawAddresses).forEach(item => {
-                                if (item && typeof item === 'object' && item.valor) parsedAddresses.push(item.valor);
-                                else if (item && typeof item === 'string') parsedAddresses.push(item);
+                                if (item && typeof item === 'object') {
+                                    parsedAddresses.push(item.valor || 'Dirección');
+                                    backendAddressesFormat.push({ tipo: item.tipo || 'Home', valor: item.valor || '' });
+                                } else if (typeof item === 'string') {
+                                    parsedAddresses.push(item);
+                                    backendAddressesFormat.push({ tipo: 'Home', valor: item });
+                                }
                             });
                         }
 
-                        if (parsedAddresses.length === 0) parsedAddresses.push('Dirección Principal');
+                        if (parsedAddresses.length === 0) {
+                            parsedAddresses.push('Dirección Principal');
+                            backendAddressesFormat.push({ tipo: 'Home', valor: 'Dirección Principal' });
+                        }
 
                         return {
                             id: key,
-                            name: detectedName,
-                            phone: detectedPhone,
-                            email: detectedEmail,
-                            addresses: parsedAddresses
+                            name: rawData.name || rawData.nombre || 'Sin Nombre',
+                            phone: rawData.phone || rawData.telefono || 'N/A',
+                            price: rawData.price || rawData.precio || 0,
+                            notes: rawData.notes || rawData.notas || '',
+                            addresses: parsedAddresses,
+                            rawAddressesFormat: backendAddressesFormat
                         };
                     });
                 } else {
@@ -488,11 +533,25 @@
         methods: {
             onCustomerChange() {
                 const client = this.customers.find(c => c.id === this.selectedCustomerId);
-                this.availableAddresses = client ? client.addresses : [];
-                this.invoice.address = this.availableAddresses[0] || '';
+                if (client) {
+                    this.availableAddresses = client.addresses;
+                    this.invoice.address = this.availableAddresses[0] || '';
+                    this.selectedCustomerNotes = client.notes;
+                    // Autoasignar la tarifa habitual del cliente al primer concepto
+                    if (this.invoice.items.length > 0) {
+                        this.invoice.items[0].price = client.price;
+                    }
+                } else {
+                    this.availableAddresses = [];
+                    this.invoice.address = '';
+                    this.selectedCustomerNotes = '';
+                }
             },
             addInvoiceItem() {
-                this.invoice.items.push({ description: '', qty: 1, price: 0 });
+                this.invoice.items.push({ description: 'Extra Service', qty: 1, price: 0 });
+            },
+            addFormAddress() {
+                this.customerForm.addresses.push({ tipo: 'Home', valor: '' });
             },
             imprimirSistemaNativo() {
                 window.print();
@@ -540,7 +599,13 @@
             editCustomer(c) {
                 this.editMode = true;
                 this.selectedCustomerForEditId = c.id;
-                this.customerForm = { name: c.name, phone: c.phone, email: c.email };
+                this.customerForm = { 
+                    name: c.name, 
+                    phone: c.phone, 
+                    price: c.price, 
+                    notes: c.notes, 
+                    addresses: JSON.parse(JSON.stringify(c.rawAddressesFormat))
+                };
             },
             deleteCustomer(id) {
                 if (confirm("¿Eliminar este cliente?")) db.ref("clientes/" + id).remove();
@@ -548,7 +613,7 @@
             resetCustomerForm() {
                 this.editMode = false;
                 this.selectedCustomerForEditId = null;
-                this.customerForm = { name: '', phone: '', email: '' };
+                this.customerForm = { name: '', phone: '', price: 0, notes: '', addresses: [{ tipo: 'Home', valor: '' }] };
             },
             togglePaidStatus(inv) {
                 db.ref("facturas/" + inv.id + "/paid").set(!inv.paid);
@@ -561,9 +626,10 @@
                 return c ? c.name : 'Sin Nombre';
             },
             resetInvoiceForm() {
-                this.invoice = { folio: '', address: '', items: [{ description: '', qty: 1, price: 0 }] };
+                this.invoice = { folio: '', address: '', items: [{ description: 'Lawn Mowing Service', qty: 1, price: 0 }] };
                 this.selectedCustomerId = '';
                 this.availableAddresses = [];
+                this.selectedCustomerNotes = '';
             }
         }
     });
