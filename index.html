@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jose Landscaping Care - Sistema de Facturación</title>
     
+    <!-- LIBRERÍAS CLÁSICAS OBLIGATORIAS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -24,6 +25,7 @@
 
 <div id="app" class="min-h-screen flex flex-col md:flex-row">
     
+    <!-- BARRA LATERAL -->
     <aside class="w-full md:w-72 bg-slate-900 text-slate-100 p-6 no-print flex flex-col justify-between shadow-xl shrink-0">
         <div class="space-y-8">
             <div class="flex items-center space-x-3 pb-6 border-b border-slate-800">
@@ -50,12 +52,14 @@
             </nav>
         </div>
         <div class="pt-6 border-t border-slate-800 text-center text-xs text-slate-500">
-            🟢 Sistema Conectado Base
+            🟢 Sistema Sincronizado
         </div>
     </aside>
 
+    <!-- CONTENIDO PRINCIPAL -->
     <main class="flex-1 p-6 md:p-10 overflow-y-auto max-w-full">
         
+        <!-- VISTA: FACTURACIÓN -->
         <section v-if="currentView === 'pos'" class="space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
                 <div>
@@ -130,6 +134,7 @@
             </div>
         </section>
 
+        <!-- VISTA: CLIENTES -->
         <section v-if="currentView === 'clientes'" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="bg-white p-6 rounded-2xl shadow-sm border h-fit space-y-4">
                 <h2 class="text-xl font-black text-slate-900">{{ editMode ? 'Modificar Cliente' : 'Nuevo Cliente' }}</h2>
@@ -169,6 +174,7 @@
             </div>
         </section>
 
+        <!-- VISTA: AUTOMATIZACIONES -->
         <section v-if="currentView === 'automatizacion'" class="space-y-6">
             <div class="bg-white p-6 rounded-2xl shadow-sm border space-y-4">
                 <h2 class="text-xl font-black text-slate-900">Programador de Servicios</h2>
@@ -182,6 +188,7 @@
             </div>
         </section>
 
+        <!-- VISTA: HISTORIAL -->
         <section v-if="currentView === 'historial'" class="bg-white p-6 rounded-2xl shadow-sm border space-y-4">
             <h2 class="text-xl font-black text-slate-900">Historial Comercial</h2>
             <div class="overflow-x-auto rounded-xl border">
@@ -210,6 +217,7 @@
 
     </main>
 
+    <!-- TICKET IMPRESIÓN -->
     <div id="ticket" class="hidden print:block bg-white p-8 max-w-md mx-auto text-black text-xs font-mono">
         <center class="mb-4"><h1 class="text-lg font-black">JOSE LANDSCAPING CARE</h1><div class="border-b my-2"></div></center>
         <p><strong>INVOICE:</strong> {{ invoice.folio || 'SN' }}</p>
@@ -226,9 +234,10 @@
         <div class="border-b border-dashed my-2"></div>
         <p class="text-right font-bold text-sm">TOTAL DUE: ${{ totalCalculado.total }}</p>
     </div>
-<script>
-    // Configuración exacta verificada de tu consola
-<!-- COMPORTAMIENTO SCRIPT TOTALMENTE CORREGIDO -->
+
+</div>
+
+<!-- COMPORTAMIENTO LÓGICO VUE + FIREBASE -->
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyBKPqlndtjyYJduNZBagPIex15jv3AIdt4",
@@ -267,7 +276,7 @@
             }
         },
         created() {
-            // Sincronizado en español con tu Firebase ('clientes')
+            // Jalar desde 'clientes' (Español)
             db.ref('clientes').on('value', snap => {
                 const val = snap.val();
                 if (val) {
@@ -290,7 +299,7 @@
                 }
             });
 
-            // Sincronizado en español con tu Firebase ('facturas')
+            // Jalar desde 'facturas' (Español)
             db.ref('facturas').on('value', snap => {
                 const val = snap.val();
                 this.invoices = val ? Object.keys(val).map(key => ({ id: key, ...val[key] })) : [];
@@ -337,7 +346,6 @@
                     paid: estado === 'cobrar',
                     items: this.invoice.items
                 };
-                // GUARDAR EN ESPAÑOL
                 db.ref('facturas').push(data);
                 alert("¡Factura guardada!");
                 this.resetInvoiceForm();
@@ -345,10 +353,8 @@
             saveCustomer() {
                 if (!this.customerForm.name) return alert("El nombre es obligatorio.");
                 if (this.editMode) {
-                    // ACTUALIZAR EN ESPAÑOL
                     db.ref("clientes/" + this.selectedCustomerForEditId).set(this.customerForm);
                 } else {
-                    // CREAR EN ESPAÑOL
                     db.ref('clientes').push(this.customerForm);
                 }
                 this.resetCustomerForm();
@@ -359,7 +365,6 @@
                 this.customerForm = { name: c.name, phone: c.phone, email: c.email, addresses: c.addresses ? [...c.addresses] : [''] };
             },
             deleteCustomer(id) {
-                // BORRAR EN ESPAÑOL
                 if (confirm("¿Borrar cliente?")) db.ref("clientes/" + id).remove();
             },
             resetCustomerForm() {
@@ -371,11 +376,9 @@
                 this.scheduleForm = { customerId: '', frequency: 'weekly', startDate: '', dueDate: '' };
             },
             togglePaidStatus(inv) {
-                // ACTUALIZAR FACTURA EN ESPAÑOL
                 db.ref("facturas/" + inv.id + "/paid").set(!inv.paid);
             },
             deleteInvoice(id) {
-                // BORRAR FACTURA EN ESPAÑOL
                 if (confirm("¿Borrar registro?")) db.ref("facturas/" + id).remove();
             },
             getCustomerName(id) {
@@ -390,6 +393,5 @@
         }
     });
 </script>
-
 </body>
 </html>
