@@ -16,11 +16,11 @@
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
         }
+        [v-cloak] { display: none !important; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
+        
         @media print {
             .no-print { display: none !important; }
             body { background: white; color: black; }
@@ -28,357 +28,347 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
 
-<div id="app" class="min-h-screen flex flex-col md:flex-row" v-cloak>
-    
-    <aside class="w-full md:w-76 bg-slate-950 text-slate-200 p-6 no-print flex flex-col justify-between shadow-2xl shrink-0 border-r border-slate-800">
-        <div class="space-y-8">
-            <div class="flex items-center space-x-3 pb-6 border-b border-slate-800/60">
-                <div class="bg-gradient-to-tr from-emerald-600 to-green-400 text-slate-950 w-11 h-11 rounded-2xl font-extrabold text-xl flex items-center justify-center shadow-lg shadow-green-500/20 tracking-tighter">
-                    JL
-                </div>
-                <div>
-                    <h1 class="text-sm font-black text-white uppercase tracking-wider leading-none">Jose Landscaping</h1>
-                    <span class="text-[10px] text-emerald-400 font-bold uppercase block mt-1 tracking-widest">Business Suite v2.0</span>
-                </div>
-            </div>
-
-            <div class="space-y-1">
-                <span class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Operaciones</span>
-                
-                <button @click="currentView = 'dashboard'" :class="currentView === 'dashboard' ? 'bg-emerald-600 text-white font-semibold shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all duration-150">
-                    <span>📊</span> <span>Panel de Control</span>
-                </button>
-
-                <button @click="currentView = 'pos'" :class="currentView === 'pos' ? 'bg-emerald-600 text-white font-semibold shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all duration-150">
-                    <span>🧾</span> <span>Terminal de Facturación</span>
-                </button>
-                
-                <span class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest block pt-4 mb-2">Administración</span>
-
-                <button @click="currentView = 'clientes'" :class="currentView === 'clientes' ? 'bg-emerald-600 text-white font-semibold shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all duration-150">
-                    <span>👥</span> <span>Directorio de Clientes</span>
-                </button>
-                
-                <button @click="currentView = 'historial'" :class="currentView === 'historial' ? 'bg-emerald-600 text-white font-semibold shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all duration-150">
-                    <span>🗄️</span> <span>Historial & Libro Mayor</span>
-                </button>
-            </div>
-        </div>
-
-        <div class="pt-4 border-t border-slate-800/60 text-[11px] text-slate-500 font-medium flex items-center justify-center space-x-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-            <span>Cloud Realtime Sync Conectado</span>
-        </div>
-    </aside>
-
-    <main class="flex-1 p-4 md:p-8 overflow-y-auto max-w-full no-print">
+    <div id="app" class="min-h-screen flex flex-col md:flex-row" v-cloak>
         
-        <section v-if="currentView === 'dashboard'" class="space-y-6">
-            <div>
-                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Panel General</h2>
-                <p class="text-xs text-slate-500 mt-0.5">Estado financiero en tiempo real.</p>
+        <aside class="w-full md:w-76 bg-slate-950 text-slate-200 p-6 no-print flex flex-col justify-between shadow-2xl shrink-0 border-r border-slate-800">
+            <div class="space-y-8">
+                <div class="flex items-center space-x-3 pb-6 border-b border-slate-800/60">
+                    <div class="bg-gradient-to-tr from-emerald-600 to-green-400 text-slate-950 w-11 h-11 rounded-2xl font-extrabold text-xl flex items-center justify-center shadow-lg shadow-green-500/20 tracking-tighter">
+                        JL
+                    </div>
+                    <div>
+                        <h1 class="text-sm font-black text-white uppercase tracking-wider leading-none">Jose Landscaping</h1>
+                        <span class="text-[10px] text-emerald-400 font-bold uppercase block mt-1 tracking-widest">Business Suite v2.0</span>
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <span class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Operaciones</span>
+                    
+                    <button @click="currentView = 'dashboard'" :class="currentView === 'dashboard' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-900'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all">
+                        <span>📊</span> <span>Panel de Control</span>
+                    </button>
+
+                    <button @click="currentView = 'pos'" :class="currentView === 'pos' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-900'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all">
+                        <span>🧾</span> <span>Terminal de Facturación</span>
+                    </button>
+                    
+                    <span class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest block pt-4 mb-2">Administración</span>
+
+                    <button @click="currentView = 'clientes'" :class="currentView === 'clientes' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-900'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all">
+                        <span>👥</span> <span>Directorio de Clientes</span>
+                    </button>
+                    
+                    <button @click="currentView = 'historial'" :class="currentView === 'historial' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-900'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all">
+                        <span>🗄️</span> <span>Historial & Libro Mayor</span>
+                    </button>
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
-                    <div>
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Libro Mayor (Total)</span>
-                        <span class="text-2xl font-black text-slate-900 block mt-1">${{ stats.montoTotal }}</span>
-                    </div>
-                    <div class="bg-blue-50 text-blue-600 p-3 rounded-xl text-xl font-bold">💰</div>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
-                    <div>
-                        <span class="text-2xl font-black text-emerald-600 block mt-1">${{ stats.montoCobrado }}</span>
-                    </div>
-                    <div class="bg-emerald-50 text-emerald-600 p-3 rounded-xl text-xl font-bold">✅</div>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
-                    <div>
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Por Cobrar</span>
-                        <span class="text-2xl font-black text-amber-600 block mt-1">${{ stats.montoPendiente }}</span>
-                    </div>
-                    <div class="bg-amber-50 text-amber-600 p-3 rounded-xl text-xl font-bold">⏳</div>
-                </div>
+            <div class="pt-4 border-t border-slate-800/60 text-[11px] text-slate-500 font-medium flex items-center justify-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+                <span>Cloud Realtime Sync Activo</span>
             </div>
+        </aside>
 
-            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-4">
-                <div class="flex items-center justify-between border-b pb-3">
-                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Últimas Facturas Generadas</h3>
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto max-w-full no-print">
+            
+            <section v-if="currentView === 'dashboard'" class="space-y-6">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-900 tracking-tight">Panel General</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Estado financiero en tiempo real.</p>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs border-collapse">
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Libro Mayor</span>
+                            <span class="text-2xl font-black text-slate-900 block mt-1">${{ stats.montoTotal }}</span>
+                        </div>
+                        <div class="bg-blue-50 text-blue-600 p-3 rounded-xl text-xl">💰</div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Cobrado (PAID)</span>
+                            <span class="text-2xl font-black text-emerald-600 block mt-1">${{ stats.montoCobrado }}</span>
+                        </div>
+                        <div class="bg-emerald-50 text-emerald-600 p-3 rounded-xl text-xl">✅</div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Por Cobrar</span>
+                            <span class="text-2xl font-black text-amber-600 block mt-1">${{ stats.montoPendiente }}</span>
+                        </div>
+                        <div class="bg-amber-50 text-amber-600 p-3 rounded-xl text-xl">⏳</div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border p-6 space-y-4">
+                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider border-b pb-2">Últimas Facturas</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-400 font-bold uppercase border-b">
+                                    <th class="p-3">Folio</th>
+                                    <th class="p-3">Cliente</th>
+                                    <th class="p-3 text-right">Monto</th>
+                                    <th class="p-3 text-center">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="inv in invoices.slice(0, 5)" :key="inv.id" class="border-b hover:bg-slate-50/50">
+                                    <td class="p-3 font-bold text-slate-900">#{{ inv.folio || 'SN' }}</td>
+                                    <td class="p-3 font-semibold text-slate-700">{{ inv.customerName }}</td>
+                                    <td class="p-3 text-right font-bold text-slate-900">${{ inv.total }}</td>
+                                    <td class="p-3 text-center">
+                                        <span :class="inv.paid ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'" class="px-2 py-0.5 rounded-md font-extrabold text-[10px]">
+                                            {{ inv.paid ? 'PAID' : 'PENDING' }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <section v-if="currentView === 'pos'" class="space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b">
+                    <h2 class="text-2xl font-black text-slate-900 tracking-tight">Módulo de Facturación</h2>
+                    <div class="bg-white px-4 py-2 rounded-xl shadow-sm border flex items-center space-x-3">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Folio:</span>
+                        <input v-model="invoice.folio" type="text" placeholder="#0001" class="w-28 text-center font-black text-sm border bg-slate-50 rounded-xl py-1.5 outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border space-y-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Asignar Cliente</label>
+                                <select v-model="selectedCustomerId" @change="onCustomerChange" class="w-full p-3 bg-slate-50 border rounded-xl text-xs font-bold text-slate-700 outline-none">
+                                    <option value="">-- Seleccionar Cliente --</option>
+                                    <option v-for="c in customers" :key="c.id" :value="c.id">{{ c.name }}</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Locación del Servicio</label>
+                                <select v-model="invoice.address" class="w-full p-3 bg-slate-50 border rounded-xl text-xs font-bold text-slate-700 outline-none">
+                                    <option value="">-- Seleccionar Dirección --</option>
+                                    <option v-for="dir in availableAddresses" :key="dir" :value="dir">{{ dir }}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="pt-2">
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Conceptos de Trabajo</label>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse min-w-[500px]">
+                                    <thead>
+                                        <tr class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase border-b">
+                                            <th class="p-3">Descripción Actividad</th>
+                                            <th class="p-3 w-20 text-center">Cant</th>
+                                            <th class="p-3 w-36 text-right">Precio Unitario</th>
+                                            <th class="p-3 w-16 text-center"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(item, index) in invoice.items" :key="index" class="border-b">
+                                            <td class="p-2">
+                                                <input v-model="item.description" type="text" placeholder="Ej. Lawn Mowing Service" class="w-full p-2.5 border rounded-xl text-xs font-medium outline-none">
+                                            </td>
+                                            <td class="p-2">
+                                                <input v-model.number="item.qty" type="number" min="1" class="w-full p-2.5 text-center border rounded-xl text-xs font-bold outline-none">
+                                            </td>
+                                            <td class="p-2">
+                                                <div class="relative flex items-center">
+                                                    <span class="absolute left-3 text-slate-400 text-xs font-bold">$</span>
+                                                    <input v-model.number="item.price" type="number" step="0.01" class="w-full text-right pl-6 p-2.5 border rounded-xl text-xs font-bold outline-none">
+                                                </div>
+                                            </td>
+                                            <td class="p-2 text-center">
+                                                <button v-if="invoice.items.length > 1" @click="invoice.items.splice(index, 1)" class="text-red-500 font-bold">✕</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button @click="addInvoiceItem" class="mt-4 text-xs text-emerald-600 font-extrabold uppercase tracking-wider">
+                                ➕ Agregar Actividad
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-5">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border space-y-3">
+                            <button @click="procesarFactura('cobrar')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider">
+                                Registrar como PAID (Cobrado)
+                            </button>
+                            <button @click="procesarFactura('pendiente')" class="w-full bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold py-3 rounded-xl text-xs uppercase tracking-wider">
+                                Guardar como PENDING
+                            </button>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border space-y-2.5">
+                            <button @click="imprimirSistemaNativo" class="w-full border bg-white text-slate-700 font-bold py-2.5 rounded-xl text-[11px] uppercase tracking-wider">
+                                🖨️ Imprimir Ticket
+                            </button>
+                            <button @click="descargarPDFDirecto" class="w-full bg-slate-950 text-white font-bold py-2.5 rounded-xl text-[11px] uppercase tracking-wider">
+                                📥 Guardar PDF
+                            </button>
+                        </div>
+
+                        <div class="bg-slate-950 text-white p-6 rounded-2xl shadow-xl space-y-3">
+                            <div class="flex justify-between items-baseline pt-1">
+                                <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Total Final:</span>
+                                <span class="text-3xl font-black text-white tracking-tight">${{ totalCalculado.total }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section v-if="currentView === 'clientes'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border h-fit space-y-4">
+                    <h2 class="text-lg font-black text-slate-900 tracking-tight">
+                        {{ editMode ? 'Modificar Ficha' : 'Alta de Cliente' }}
+                    </h2>
+                    
+                    <div class="space-y-3.5">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nombre Completo</label>
+                            <input v-model="customerForm.name" type="text" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Teléfono</label>
+                            <input v-model="customerForm.phone" type="text" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Correo Electrónico</label>
+                            <input v-model="customerForm.email" type="email" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-medium">
+                        </div>
+
+                        <div class="flex space-x-2 pt-3">
+                            <button @click="saveCustomer" class="flex-1 bg-emerald-600 text-white py-2.5 rounded-xl font-bold text-xs uppercase">
+                                {{ editMode ? 'Guardar Ficha' : 'Registrar' }}
+                            </button>
+                            <button v-if="editMode" @click="resetCustomerForm" class="bg-slate-100 text-slate-700 py-2.5 px-4 rounded-xl text-xs font-bold">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border space-y-4">
+                    <h2 class="text-lg font-black text-slate-900 tracking-tight">Directorio del Sistema</h2>
+                    
+                    <div class="space-y-3.5 max-h-[550px] overflow-y-auto">
+                        <div v-for="c in customers" :key="c.id" class="p-4 bg-slate-50 rounded-xl border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div class="flex-1">
+                                <h3 class="font-extrabold text-slate-900 text-base leading-none">{{ c.name }}</h3>
+                                <div class="flex items-center space-x-4 mt-2 text-xs text-slate-500">
+                                    <span>📞 {{ c.phone }}</span>
+                                    <span>✉️ {{ c.email }}</span>
+                                </div>
+                                <div class="mt-3 pt-2.5 border-t">
+                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Locaciones:</span>
+                                    <ul class="list-disc list-inside text-xs text-slate-600 font-medium space-y-1">
+                                        <li v-for="address in c.addresses" :key="address">{{ address }}</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="flex sm:flex-col justify-end gap-1.5 shrink-0">
+                                <button @click="editCustomer(c)" class="bg-amber-100 text-amber-800 px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase">Editar</button>
+                                <button @click="deleteCustomer(c.id)" class="bg-red-50 text-red-600 px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase">Borrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section v-if="currentView === 'historial'" class="bg-white p-6 rounded-2xl shadow-sm border space-y-4">
+                <h2 class="text-lg font-black text-slate-900 tracking-tight">Libro Mayor e Historial</h2>
+                <div class="overflow-x-auto rounded-xl border">
+                    <table class="w-full text-left text-xs">
                         <thead>
-                            <tr class="bg-slate-50 text-slate-400 font-bold uppercase border-b border-slate-200">
-                                <th class="p-3">Folio</th>
-                                <th class="p-3">Cliente</th>
-                                <th class="p-3 text-right">Monto</th>
-                                <th class="p-3 text-center">Estado</th>
+                            <tr class="bg-slate-50 text-[10px] text-slate-400 font-bold uppercase border-b">
+                                <th class="p-4">Folio / Fecha</th>
+                                <th class="p-4">Cliente Asignado</th>
+                                <th class="p-4 text-right">Monto Total</th>
+                                <th class="p-4 text-center">Estado</th>
+                                <th class="p-4 text-right">Controles</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="inv in invoices.slice(0, 5)" :key="inv.id" class="border-b border-slate-100 hover:bg-slate-50/50">
-                                <td class="p-3 font-bold text-slate-900">#{{ inv.folio || 'SN' }}</td>
-                                <td class="p-3 font-semibold text-slate-700">{{ inv.customerName }}</td>
-                                <td class="p-3 text-right font-bold text-slate-900">${{ inv.total }}</td>
-                                <td class="p-3 text-center">
-                                    <span :class="inv.paid ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'" class="px-2 py-0.5 rounded-md font-extrabold text-[10px]">
+                            <tr v-for="inv in invoices" :key="inv.id" class="border-b">
+                                <td class="p-4">
+                                    <div class="font-black text-slate-900">#{{ inv.folio || 'S/N' }}</div>
+                                    <div class="text-[10px] text-slate-400 font-semibold mt-0.5">{{ inv.date }}</div>
+                                </td>
+                                <td class="p-4 font-extrabold text-slate-800">{{ inv.customerName }}</td>
+                                <td class="p-4 text-right font-black text-slate-900">${{ inv.total }}</td>
+                                <td class="p-4 text-center">
+                                    <span :class="inv.paid ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'" class="px-2.5 py-1 rounded-lg text-[10px] font-black">
                                         {{ inv.paid ? 'PAID' : 'PENDING' }}
                                     </span>
+                                </td>
+                                <td class="p-4 text-right space-x-1.5">
+                                    <button @click="togglePaidStatus(inv)" class="border px-3 py-1.5 rounded-lg bg-white text-[11px]">Cambiar Estado</button>
+                                    <button @click="deleteInvoice(inv.id)" class="text-red-500 font-bold">✕</button>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </section>
-        
-        <section v-if="currentView === 'pos'" class="space-y-6">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b">
+            </section>
+
+        </main>
+
+        <div id="ticket" class="hidden print:block bg-white p-10 max-w-2xl mx-auto text-black text-xs font-mono print-clean">
+            <center class="mb-6">
+                <h1 class="text-2xl font-black tracking-widest">JOSE LANDSCAPING CARE</h1>
+                <div class="border-b my-4"></div>
+            </center>
+            
+            <div class="grid grid-cols-2 gap-6 mb-6">
                 <div>
-                    <h2 class="text-2xl font-black text-slate-900 tracking-tight">Módulo de Facturación</h2>
+                    <p class="font-black text-sm">INVOICE: #{{ invoice.folio || 'S/N' }}</p>
+                    <p class="font-bold">Fecha: {{ new Date().toISOString().split('T')[0] }}</p>
                 </div>
-                <div class="bg-white px-4 py-2 rounded-xl shadow-sm border flex items-center space-x-3">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Folio:</span>
-                    <input v-model="invoice.folio" type="text" placeholder="#0001" class="w-28 text-center font-black text-sm border bg-slate-50 rounded-xl py-1.5 text-slate-800 outline-none">
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border space-y-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Asignar Cliente</label>
-                            <select v-model="selectedCustomerId" @change="onCustomerChange" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none">
-                                <option value="">-- Seleccionar Cliente --</option>
-                                <option v-for="c in customers" :key="c.id" :value="c.id">{{ c.name }}</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Locación del Servicio</label>
-                            <select v-model="invoice.address" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none">
-                                <option value="">-- Seleccionar Dirección --</option>
-                                <option v-for="dir in availableAddresses" :key="dir" :value="dir">{{ dir }}</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="pt-2">
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Conceptos de Trabajo</label>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse min-w-[500px]">
-                                <thead>
-                                    <tr class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase border-b border-slate-200">
-                                        <th class="p-3">Descripción Actividad</th>
-                                        <th class="p-3 w-20 text-center">Cant</th>
-                                        <th class="p-3 w-36 text-right">Precio Unitario</th>
-                                        <th class="p-3 w-16 text-center"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="(item, index) in invoice.items" :key="index" class="border-b border-slate-100">
-                                        <td class="p-2">
-                                            <input v-model="item.description" type="text" placeholder="Ej. Lawn Mowing Service" class="w-full p-2.5 border rounded-xl text-xs font-medium outline-none">
-                                        </td>
-                                        <td class="p-2">
-                                            <input v-model.number="item.qty" type="number" min="1" class="w-full p-2.5 text-center border rounded-xl text-xs font-bold outline-none">
-                                        </td>
-                                        <td class="p-2">
-                                            <div class="relative flex items-center">
-                                                <span class="absolute left-3 text-slate-400 text-xs font-bold">$</span>
-                                                <input v-model.number="item.price" type="number" step="0.01" class="w-full text-right pl-6 p-2.5 border rounded-xl text-xs font-bold outline-none">
-                                            </div>
-                                        </td>
-                                        <td class="p-2 text-center">
-                                            <button v-if="invoice.items.length > 1" @click="invoice.items.splice(index, 1)" class="text-red-500 font-bold">✕</button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <button @click="addInvoiceItem" class="mt-4 text-xs text-emerald-600 font-extrabold uppercase tracking-wider">
-                            ➕ Agregar Actividad
-                        </button>
-                    </div>
-                </div>
-
-                <div class="space-y-5">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border space-y-3">
-                        <button @click="procesarFactura('cobrar')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider">
-                            Registrar como PAID (Cobrado)
-                        </button>
-                        <button @click="procesarFactura('pendiente')" class="w-full bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold py-3 rounded-xl text-xs uppercase tracking-wider">
-                            Guardar como PENDING
-                        </button>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border space-y-2.5">
-                        <button @click="imprimirSistemaNativo" class="w-full border bg-white text-slate-700 font-bold py-2.5 rounded-xl text-[11px] uppercase tracking-wider">
-                            🖨️ Imprimir Ticket
-                        </button>
-                        <button @click="descargarPDFDirecto" class="w-full bg-slate-950 text-white font-bold py-2.5 rounded-xl text-[11px] uppercase tracking-wider">
-                            📥 Guardar PDF
-                        </button>
-                    </div>
-
-                    <div class="bg-slate-950 text-white p-6 rounded-2xl shadow-xl space-y-3">
-                        <div class="flex justify-between items-baseline pt-1">
-                            <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Total Final:</span>
-                            <span class="text-3xl font-black text-white tracking-tight">${{ totalCalculado.total }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section v-if="currentView === 'clientes'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border h-fit space-y-4">
                 <div>
-                    <h2 class="text-lg font-black text-slate-900 tracking-tight">{{ editMode ? 'Modificar Ficha' : 'Alta de Cliente' }}</h2>
+                    <p class="font-black text-sm">Cliente: {{ getCustomerName(selectedCustomerId) }}</p>
+                    <p class="font-bold">Ubicación: {{ invoice.address || 'Dirección Principal' }}</p>
                 </div>
-                
-                <div class="space-y-3.5">
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nombre Completo</label>
-                        <input v-model="customerForm.name" type="text" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-medium">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Teléfono</label>
-                        <input v-model="customerForm.phone" type="text" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-medium">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Correo Electrónico</label>
-                        <input v-model="customerForm.email" type="email" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-medium">
-                    </div>
-
-                    <div class="flex space-x-2 pt-3">
-                        <button @click="saveCustomer" class="flex-1 bg-emerald-600 text-white py-2.5 rounded-xl font-bold text-xs uppercase">
-                            {{ editMode ? 'Guardar Ficha' : 'Registrar' }}
-                        </button>
-                        <button v-if="editMode" @click="resetCustomerForm" class="bg-slate-100 text-slate-700 py-2.5 px-4 rounded-xl text-xs font-bold">
-                            Cancelar
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border space-y-4">
-                <div>
-                    <h2 class="text-lg font-black text-slate-900 tracking-tight">Directorio del Sistema</h2>
-                </div>
-                
-                <div class="space-y-3.5 max-h-[550px] overflow-y-auto">
-                    <div v-for="c in customers" :key="c.id" class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        <div class="flex-1">
-                            <h3 class="font-extrabold text-slate-900 text-base leading-none">{{ c.name }}</h3>
-                            <div class="flex items-center space-x-4 mt-2 text-xs text-slate-500">
-                                <span>📞 {{ c.phone || 'N/A' }}</span>
-                                <span>✉️ {{ c.email || 'N/A' }}</span>
-                            </div>
-                            <div class="mt-3 pt-2.5 border-t border-slate-200">
-                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Locaciones Autorizadas:</span>
-                                <ul class="list-disc list-inside text-xs text-slate-600 font-medium space-y-1">
-                                    <li v-for="address in c.addresses" :key="address">{{ address }}</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="flex sm:flex-col justify-end gap-1.5 shrink-0">
-                            <button @click="editCustomer(c)" class="bg-amber-100 text-amber-800 px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase">Editar</button>
-                            <button @click="deleteCustomer(c.id)" class="bg-red-50 text-red-600 px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase">Borrar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section v-if="currentView === 'historial'" class="bg-white p-6 rounded-2xl shadow-sm border space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <h2 class="text-lg font-black text-slate-900 tracking-tight">Libro Mayor e Historial</h2>
             </div>
             
-            <div class="overflow-x-auto rounded-xl border border-slate-200">
-                <table class="w-full text-left text-xs border-collapse">
-                    <thead>
-                        <tr class="bg-slate-50 text-[10px] text-slate-400 font-bold uppercase border-b">
-                            <th class="p-4">Folio / Fecha</th>
-                            <th class="p-4">Cliente Asignado</th>
-                            <th class="p-4 text-right">Monto Total</th>
-                            <th class="p-4 text-center">Estado</th>
-                            <th class="p-4 text-right">Controles</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="inv in invoices" :key="inv.id" class="border-b">
-                            <td class="p-4">
-                                <div class="font-black text-slate-900">#{{ inv.folio || 'S/N' }}</div>
-                                <div class="text-[10px] text-slate-400 font-semibold mt-0.5">{{ inv.date }}</div>
-                            </td>
-                            <td class="p-4 font-extrabold text-slate-800">{{ inv.customerName }}</td>
-                            <td class="p-4 text-right font-black text-slate-900">${{ inv.total }}</td>
-                            <td class="p-4 text-center">
-                                <span :class="inv.paid ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'" class="px-2.5 py-1 rounded-lg text-[10px] font-black">
-                                    {{ inv.paid ? 'PAID' : 'PENDING' }}
-                                </span>
-                            </td>
-                            <td class="p-4 text-right space-x-1.5">
-                                <button @click="togglePaidStatus(inv)" class="border px-3 py-1.5 rounded-lg font-bold bg-white text-slate-700 text-[11px]">
-                                    Cambiar Estado
-                                </button>
-                                <button @click="deleteInvoice(inv.id)" class="text-red-500 font-bold">✕</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-    </main>
-
-    <div id="ticket" class="hidden print:block bg-white p-10 max-w-2xl mx-auto text-black text-xs font-mono print-clean">
-        <center class="mb-6">
-            <h1 class="text-2xl font-black tracking-widest text-slate-950">JOSE LANDSCAPING CARE</h1>
-            <div class="border-b border-slate-300 my-4"></div>
-        </center>
-        
-        <div class="grid grid-cols-2 gap-6 mb-6">
-            <div>
-                <p class="font-black text-sm text-slate-900">INVOICE: #{{ invoice.folio || 'S/N' }}</p>
-                <p class="font-bold">Fecha: {{ new Date().toISOString().split('T')[0] }}</p>
-            </div>
-            <div>
-                <p class="font-black text-sm text-slate-900">Cliente: {{ getCustomerName(selectedCustomerId) }}</p>
-                <p class="font-bold">Ubicación: {{ invoice.address || 'Dirección Principal' }}</p>
+            <table class="w-full text-left mt-4">
+                <thead>
+                    <tr class="font-bold text-slate-500 uppercase text-[9px] border-b">
+                        <th class="pb-2">Descripción</th>
+                        <th class="pb-2 w-16 text-center">Cant</th>
+                        <th class="pb-2 w-28 text-right">Precio</th>
+                        <th class="pb-2 w-28 text-right">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in invoice.items" class="border-b">
+                        <td class="py-3 font-semibold">{{ item.description || 'Servicios Profesionales' }}</td>
+                        <td class="py-3 text-center">x{{ item.qty }}</td>
+                        <td class="py-3 text-right">${{ Number(item.price).toFixed(2) }}</td>
+                        <td class="py-3 text-right font-black">${{ (item.qty * item.price).toFixed(2) }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="flex justify-between items-center bg-slate-50 p-4 rounded-xl border mt-6">
+                <span class="font-black text-xs">TOTAL DUE AMOUNT:</span>
+                <span class="text-xl font-black">${{ totalCalculado.total }}</span>
             </div>
         </div>
-        
-        <table class="w-full text-left mt-4">
-            <thead>
-                <tr class="font-bold text-slate-500 uppercase text-[9px] border-b">
-                    <th class="pb-2">Descripción</th>
-                    <th class="pb-2 w-16 text-center">Cant</th>
-                    <th class="pb-2 w-28 text-right">Precio</th>
-                    <th class="pb-2 w-28 text-right">Subtotal</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="item in invoice.items" class="border-b">
-                    <td class="py-3 font-semibold text-slate-900">{{ item.description || 'Servicios Profesionales' }}</td>
-                    <td class="py-3 text-center">x{{ item.qty }}</td>
-                    <td class="py-3 text-right">${{ Number(item.price).toFixed(2) }}</td>
-                    <td class="py-3 text-right font-black">${{ (item.qty * item.price).toFixed(2) }}</td>
-                </tr>
-            </tbody>
-        </table>
-        
-        <div class="flex justify-between items-center bg-slate-50 p-4 rounded-xl border mt-6">
-            <span class="font-black text-xs">TOTAL DUE AMOUNT:</span>
-            <span class="text-xl font-black">${{ totalCalculado.total }}</span>
-        </div>
+
     </div>
-
-</div>
 
 <script>
     const firebaseConfig = {
@@ -429,42 +419,49 @@
                 };
             },
             totalCalculado() {
-                let subtotal = this.invoice.items.reduce((sum, item) => {
-                    return sum + (Number(item.qty || 0) * Number(item.price || 0));
-                }, 0);
-                return { subtotal: subtotal.toFixed(2), total: subtotal.toFixed(2) };
+                let subtotal = 0;
+                if (this.invoice && this.invoice.items) {
+                    subtotal = this.invoice.items.reduce((sum, item) => {
+                        return sum + (Number(item.qty || 0) * Number(item.price || 0));
+                    }, 0);
+                }
+                return { total: subtotal.toFixed(2) };
             }
         },
         created() {
-            // ESCÁNER AVANZADO E INTELIGENTE DE ESTRUCTURAS FIREBASE
+            // Sincronización robusta y tolerante a esquemas vacíos
             db.ref('clientes').on('value', snap => {
                 const val = snap.val();
                 if (val) {
                     this.customers = Object.keys(val).map(key => {
-                        // 1. Detección segura de campos de texto
-                        let detectedName = val[key].name || val[key].nombre || val[key].clientName || 'Sin Nombre';
-                        let detectedPhone = val[key].phone || val[key].telefono || 'N/A';
-                        let detectedEmail = val[key].email || val[key].correo || 'N/A';
+                        const rawData = val[key] || {};
+
+                        const findField = (obj, keysToFind) => {
+                            if (!obj || typeof obj !== 'object') return null;
+                            for (let k in obj) {
+                                if (keysToFind.includes(k.toLowerCase()) && typeof obj[k] === 'string') {
+                                    return obj[k];
+                                }
+                            }
+                            return null;
+                        };
+
+                        let detectedName = rawData.name || rawData.nombre || rawData.clientName || findField(rawData, ['name', 'nombre', 'cliente']) || 'Sin Nombre';
+                        let detectedPhone = rawData.phone || rawData.telefono || findField(rawData, ['phone', 'telefono', 'tel']) || 'N/A';
+                        let detectedEmail = rawData.email || rawData.correo || findField(rawData, ['email', 'correo', 'mail']) || 'N/A';
                         
-                        // 2. MAPEADOR DE DIRECCIONES (Extrae texto plano o lee el formato {"tipo": "...", "valor": "..."})
-                        let rawAddresses = val[key].addresses || val[key].direcciones || [];
+                        let rawAddresses = rawData.addresses || rawData.direcciones || [];
                         let parsedAddresses = [];
                         
                         if (Array.isArray(rawAddresses)) {
                             rawAddresses.forEach(item => {
-                                if (item && typeof item === 'object' && item.valor) {
-                                    parsedAddresses.push(item.valor);
-                                } else if (item && typeof item === 'string') {
-                                    parsedAddresses.push(item);
-                                }
+                                if (item && typeof item === 'object' && item.valor) parsedAddresses.push(item.valor);
+                                else if (item && typeof item === 'string') parsedAddresses.push(item);
                             });
                         } else if (typeof rawAddresses === 'object') {
                             Object.values(rawAddresses).forEach(item => {
-                                if (item && typeof item === 'object' && item.valor) {
-                                    parsedAddresses.push(item.valor);
-                                } else if (item && typeof item === 'string') {
-                                    parsedAddresses.push(item);
-                                }
+                                if (item && typeof item === 'object' && item.valor) parsedAddresses.push(item.valor);
+                                else if (item && typeof item === 'string') parsedAddresses.push(item);
                             });
                         }
 
