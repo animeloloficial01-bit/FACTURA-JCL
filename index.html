@@ -9,7 +9,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.14/vue.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
@@ -19,12 +18,23 @@
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         
-        /* Contenedor especial para render de PDF e Impresión sin romper html2pdf */
+        /* Área de impresión oculta en pantalla */
         #print-area { display: none; }
+        
+        /* CONFIGURACIÓN EXCLUSIVA PARA TAMAÑO CARTA ESTÁNDAR */
         @media print {
+            @page {
+                size: letter; /* 8.5in x 11in */
+                margin: 0.5in;
+            }
             .no-print { display: none !important; }
             body { background: white; color: black; }
-            #print-area { display: block !important; }
+            #print-area { 
+                display: block !important; 
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
         }
     </style>
 </head>
@@ -40,7 +50,7 @@
                     </div>
                     <div>
                         <h1 class="text-sm font-black text-white uppercase tracking-wider leading-none">Jose Landscaping</h1>
-                        <span class="text-[10px] text-emerald-400 font-bold uppercase block mt-1 tracking-widest">Business Suite v3.2</span>
+                        <span class="text-[10px] text-emerald-400 font-bold uppercase block mt-1 tracking-widest">Business Suite v3.5</span>
                     </div>
                 </div>
 
@@ -151,7 +161,7 @@
                                     <td class="p-3 font-bold text-slate-900">#{{ inv.folio || 'SN' }}</td>
                                     <td class="p-3 text-slate-500">{{ inv.date }}</td>
                                     <td class="p-3 font-semibold text-slate-700">{{ inv.customerName }}</td>
-                                    <td class="p-3 text-center font-medium text-slate-600">{{ inv.paymentMethod || 'Efectivo' }}</td>
+                                    <td class="p-3 text-center font-medium text-slate-600">{{ translatePaymentMethod(inv.paymentMethod) }}</td>
                                     <td class="p-3 text-right font-bold text-slate-900">${{ inv.total }}</td>
                                     <td class="p-3 text-center">
                                         <span :class="inv.paid ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'" class="px-2 py-0.5 rounded-md font-extrabold text-[10px]">
@@ -255,11 +265,8 @@
                         </div>
 
                         <div class="bg-white p-6 rounded-2xl shadow-sm border space-y-2">
-                            <button @click="imprimirSistemaNativo" class="w-full border bg-white text-slate-700 font-bold py-2 rounded-xl text-[11px] uppercase tracking-wider">
-                                🖨️ Imprimir Ticket
-                            </button>
-                            <button @click="descargarPDFDirecto" class="w-full bg-slate-950 text-white font-bold py-2 rounded-xl text-[11px] uppercase tracking-wider">
-                                📥 Guardar PDF
+                            <button @click="imprimirSistemaNativo" class="w-full bg-slate-950 text-white font-bold py-3 rounded-xl text-[11px] uppercase tracking-wider shadow-sm hover:bg-slate-900">
+                                🖨️ Imprimir Ticket (Carta Standard)
                             </button>
                             <button @click="openDispatchModal" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-[11px] uppercase tracking-wider mt-2">
                                 💬 Preparar Mensaje / Envío
@@ -402,7 +409,7 @@
                                     <td class="p-3 font-bold text-slate-900">#{{ inv.folio }}</td>
                                     <td class="p-3 text-slate-500">{{ inv.date }}</td>
                                     <td class="p-3 font-medium text-slate-600">{{ inv.address }}</td>
-                                    <td class="p-3 text-center font-bold text-slate-600">{{ inv.paymentMethod || 'Efectivo' }}</td>
+                                    <td class="p-3 text-center font-bold text-slate-600">{{ translatePaymentMethod(inv.paymentMethod) }}</td>
                                     <td class="p-3 text-right font-black text-slate-900">${{ inv.total }}</td>
                                     <td class="p-3 text-center">
                                         <span :class="inv.paid ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'" class="px-2 py-0.5 rounded text-[10px] font-black">
@@ -442,7 +449,7 @@
                                     <div class="text-[10px] text-slate-400 font-semibold mt-0.5">{{ inv.date }}</div>
                                 </td>
                                 <td class="p-4 font-extrabold text-slate-800">{{ inv.customerName }}</td>
-                                <td class="p-4 text-center font-semibold text-slate-600">{{ inv.paymentMethod || 'Efectivo' }}</td>
+                                <td class="p-4 text-center font-semibold text-slate-600">{{ translatePaymentMethod(inv.paymentMethod) }}</td>
                                 <td class="p-4 text-right font-black text-slate-900">${{ inv.total }}</td>
                                 <td class="p-4 text-center">
                                     <span :class="inv.paid ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'" class="px-2.5 py-1 rounded-lg text-[10px] font-black">
@@ -516,49 +523,53 @@
             </div>
         </div>
 
-        <div id="print-area" class="bg-white p-10 font-mono text-xs text-black">
-            <center class="mb-6">
-                <h1 class="text-xl font-bold tracking-widest">JOSE LANDSCAPING CARE</h1>
-                <p>Servicios Profesionales de Landscaping</p>
-                <div class="border-b border-black my-4"></div>
+        <div id="print-area" class="bg-white font-mono text-sm text-black">
+            <center class="mb-8">
+                <h1 class="text-2xl font-black tracking-widest">JOSE LANDSCAPING CARE</h1>
+                <p class="text-xs uppercase tracking-wider font-bold mt-1">Professional Landscaping Services</p>
+                <div class="border-b-2 border-black my-4"></div>
             </center>
             
-            <table class="w-full mb-6">
+            <table class="w-full mb-8 text-xs">
                 <tr>
-                    <td>
-                        <p class="font-bold">INVOICE: #{{ invoice.folio || 'S/N' }}</p>
-                        <p>Fecha Emisión: {{ new Date().toISOString().split('T')[0] }}</p>
+                    <td class="align-top space-y-1">
+                        <p class="text-sm font-bold">INVOICE: #{{ invoice.folio || 'N/A' }}</p>
+                        <p><span class="font-bold">Date:</span> {{ new Date().toISOString().split('T')[0] }}</p>
                     </td>
-                    <td class="text-right">
-                        <p class="font-bold">Cliente: {{ getCustomerName(selectedCustomerId) }}</p>
-                        <p>Locación: {{ invoice.address || 'Dirección Principal' }}</p>
-                        <p>Método Pago: {{ invoice.paymentMethod || 'Efectivo' }}</p>
+                    <td class="text-right align-top space-y-1">
+                        <p><span class="font-bold">Customer:</span> {{ getCustomerName(selectedCustomerId) }}</p>
+                        <p><span class="font-bold">Service Location:</span> {{ invoice.address || 'Primary Address' }}</p>
+                        <p><span class="font-bold">Payment Method:</span> {{ translatePaymentMethod(invoice.paymentMethod) }}</p>
                     </td>
                 </tr>
             </table>
             
-            <table class="w-full text-left border-collapse mt-4">
+            <table class="w-full text-left border-collapse mt-4 text-xs">
                 <thead>
-                    <tr class="border-b border-black font-bold text-[10px]">
-                        <th class="pb-2">Descripción</th>
-                        <th class="pb-2 text-center w-12">Cant</th>
-                        <th class="pb-2 text-right w-24">Precio</th>
-                        <th class="pb-2 text-right w-24">Subtotal</th>
+                    <tr class="border-b-2 border-black font-bold uppercase text-[11px]">
+                        <th class="pb-3">Job Description</th>
+                        <th class="pb-3 text-center w-16">Qty</th>
+                        <th class="pb-3 text-right w-32">Unit Price</th>
+                        <th class="pb-3 text-right w-32">Amount</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="item in invoice.items" class="border-b border-gray-300">
-                        <td class="py-2">{{ item.description || 'Servicio General' }}</td>
-                        <td class="py-2 text-center">x{{ item.qty }}</td>
-                        <td class="py-2 text-right">${{ Number(item.price).toFixed(2) }}</td>
-                        <td class="py-2 text-right font-bold">${{ (item.qty * item.price).toFixed(2) }}</td>
+                    <tr v-for="item in invoice.items" class="border-b border-gray-400">
+                        <td class="py-4 font-medium">{{ item.description || 'General Landscaping Service' }}</td>
+                        <td class="py-4 text-center">x{{ item.qty }}</td>
+                        <td class="py-4 text-right">${| Number(item.price).toFixed(2) }</td>
+                        <td class="py-4 text-right font-bold">${{ (item.qty * item.price).toFixed(2) }}</td>
                     </tr>
                 </tbody>
             </table>
             
-            <div class="border-t border-black mt-6 pt-4 flex justify-between items-center bg-slate-50 p-3">
-                <span class="font-bold">TOTAL DUE AMOUNT:</span>
-                <span class="text-lg font-bold">${{ totalCalculado.total }}</span>
+            <div class="border-t-2 border-black mt-8 pt-6 flex justify-between items-center bg-gray-50 p-4 rounded">
+                <span class="font-black text-sm tracking-wider">TOTAL DUE AMOUNT (USD):</span>
+                <span class="text-2xl font-black">${{ totalCalculado.total }}</span>
+            </div>
+
+            <div class="mt-16 text-center text-[11px] text-gray-500 font-bold border-t border-dashed pt-6">
+                Thank you for choosing Jose Landscaping Care!
             </div>
         </div>
 
@@ -587,17 +598,14 @@
             customers: [],
             invoices: [],
             generalNotes: [],
-            
-            // BUSCADOR DE HISTORIAL POR CLIENTE
             historyCustomerId: '',
-
             selectedCustomerId: '',
             selectedCustomerNotes: '',
             availableAddresses: [],
             invoice: { 
                 folio: '', 
                 address: '', 
-                paymentMethod: 'Efectivo', // Default
+                paymentMethod: 'Efectivo',
                 items: [{ description: 'Lawn Mowing Service', qty: 1, price: 0 }] 
             },
             editMode: false,
@@ -623,7 +631,6 @@
                     return true;
                 });
             },
-            // FILTRO DE FACTURAS EXCLUSIVAS DEL CLIENTE EN BUSQUEDA
             clientInvoices() {
                 if (!this.historyCustomerId) return [];
                 return this.invoices.filter(inv => inv.customerId === this.historyCustomerId);
@@ -663,16 +670,6 @@
 
                         if (Array.isArray(rawAddresses)) {
                             rawAddresses.forEach(item => {
-                                if (item && typeof item === 'object') {
-                                    parsedAddresses.push(item.valor || 'Dirección');
-                                    backendAddressesFormat.push({ tipo: item.tipo || 'Home', valor: item.valor || '' });
-                                } else if (typeof item === 'string') {
-                                    parsedAddresses.push(item);
-                                    backendAddressesFormat.push({ tipo: 'Home', valor: item });
-                                }
-                            });
-                        } else if (typeof rawAddresses === 'object') {
-                            Object.values(rawAddresses).forEach(item => {
                                 if (item && typeof item === 'object') {
                                     parsedAddresses.push(item.valor || 'Dirección');
                                     backendAddressesFormat.push({ tipo: item.tipo || 'Home', valor: item.valor || '' });
@@ -728,30 +725,28 @@
             addInvoiceItem() { this.invoice.items.push({ description: 'Extra Service', qty: 1, price: 0 }); },
             addFormAddress() { this.customerForm.addresses.push({ tipo: 'Home', valor: '' }); },
             
-            // NUEVO SISTEMA DE IMPRESIÓN Y PDF SIN HIDE / BLANCOS
+            // LOCALIZACIÓN: TRADUCTOR DE MÉTODO DE PAGO PARA MANTENER TICKET EN INGLÉS
+            translatePaymentMethod(method) {
+                if (!method) return 'Cash';
+                switch(method.trim()) {
+                    case 'Efectivo': return 'Cash';
+                    case 'Tarjeta': return 'Card / Electronic';
+                    case 'Cheque': return 'Check';
+                    default: return method;
+                }
+            },
+            
+            // SISTEMA NATIVO DE IMPRESIÓN FORZADO A TAMAÑO CARTA
             imprimirSistemaNativo() {
                 const printArea = document.getElementById('print-area');
                 printArea.style.display = 'block';
                 window.print();
                 printArea.style.display = 'none';
             },
-            descargarPDFDirecto() {
-                const element = document.getElementById('print-area');
-                element.style.display = 'block'; // Forzar visibilidad temporal para html2pdf
-                const opciones = {
-                    margin: 0.4,
-                    filename: `Invoice_${this.invoice.folio || 'SN'}.pdf`,
-                    html2canvas: { scale: 2.5, useCORS: true },
-                    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-                };
-                html2pdf().from(element).set(opciones).save().then(() => {
-                    element.style.display = 'none'; // Ocultar de nuevo
-                });
-            },
             openDispatchModal() {
                 if (!this.selectedCustomerId) return alert("Por favor asigna un cliente antes de armar el mensaje.");
                 const clientName = this.getCustomerName(this.selectedCustomerId);
-                this.editableMessageText = `Hello ${clientName}, this is Jose Landscaping Care. Your invoice #${this.invoice.folio || 'S/N'} for the service at ${this.invoice.address || 'Ubicación'} is ready. Total due amount is $${this.totalCalculado.total}. Payment method registered: ${this.invoice.paymentMethod}. Thank you!`;
+                this.editableMessageText = `Hello ${clientName}, this is Jose Landscaping Care. Your invoice #${this.invoice.folio || 'S/N'} for the service at ${this.invoice.address || 'Location'} is ready. Total due amount is $${this.totalCalculado.total}. Payment method: ${this.translatePaymentMethod(this.invoice.paymentMethod)}. Thank you!`;
                 this.showDispatchModal = true;
             },
             sendViaWhatsApp() {
@@ -773,7 +768,7 @@
                     date: new Date().toISOString().split('T')[0],
                     total: this.totalCalculado.total,
                     paid: estado === 'cobrar',
-                    paymentMethod: this.invoice.paymentMethod, // Guardar tipo de pago
+                    paymentMethod: this.invoice.paymentMethod,
                     items: this.invoice.items
                 };
                 db.ref('facturas').push(data).then(() => { alert("¡Factura procesada con éxito!"); this.resetInvoiceForm(); });
