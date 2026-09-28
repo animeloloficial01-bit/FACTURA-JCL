@@ -74,17 +74,9 @@
                     <button @click="currentView = 'clientes'" :class="currentView === 'clientes' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-900'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all">
                         <span>👥</span> <span>Directorio de Clientes</span>
                     </button>
-
-                    <button @click="currentView = 'historial_cliente'" :class="currentView === 'historial_cliente' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-900'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all">
-                        <span>🔍</span> <span>Historial por Cliente</span>
-                    </button>
                     
                     <button @click="currentView = 'historial'" :class="currentView === 'historial' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-900'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all">
                         <span>🗄️</span> <span>Historial & Libro Mayor</span>
-                    </button>
-
-                    <button @click="currentView = 'apuntes'" :class="currentView === 'apuntes' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-900'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all">
-                        <span>📝</span> <span>Cuaderno de Apuntes</span>
                     </button>
                 </div>
             </div>
@@ -203,43 +195,37 @@
                             </div>
                         </div>
 
-                        <div v-if="selectedCustomerNotes" class="bg-amber-50 border border-amber-200 text-amber-900 p-4 rounded-xl text-xs font-medium">
-                            📌 <span class="font-bold uppercase tracking-wider text-[10px] text-amber-700">Notas de este cliente:</span> {{ selectedCustomerNotes }}
-                        </div>
-
                         <div class="pt-2">
                             <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Conceptos de Trabajo</label>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-left border-collapse min-w-[500px]">
-                                    <thead>
-                                        <tr class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase border-b">
-                                            <th class="p-3">Descripción Actividad</th>
-                                            <th class="p-3 w-20 text-center">Cant</th>
-                                            <th class="p-3 w-36 text-right">Precio Unitario</th>
-                                            <th class="p-3 w-16 text-center"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(item, index) in invoice.items" :key="index" class="border-b">
-                                            <td class="p-2">
-                                                <input v-model="item.description" type="text" placeholder="Ej. Lawn Mowing Service" class="w-full p-2.5 border rounded-xl text-xs font-medium outline-none">
-                                            </td>
-                                            <td class="p-2">
-                                                <input v-model.number="item.qty" type="number" min="1" class="w-full p-2.5 text-center border rounded-xl text-xs font-bold outline-none">
-                                            </td>
-                                            <td class="p-2">
-                                                <div class="relative flex items-center">
-                                                    <span class="absolute left-3 text-slate-400 text-xs font-bold">$</span>
-                                                    <input v-model.number="item.price" type="number" step="0.01" class="w-full text-right pl-6 p-2.5 border rounded-xl text-xs font-bold outline-none">
-                                                </div>
-                                            </td>
-                                            <td class="p-2 text-center">
-                                                <button v-if="invoice.items.length > 1" @click="invoice.items.splice(index, 1)" class="text-red-500 font-bold">✕</button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase border-b">
+                                        <th class="p-3">Descripción Actividad</th>
+                                        <th class="p-3 w-20 text-center">Cant</th>
+                                        <th class="p-3 w-36 text-right">Precio Unitario</th>
+                                        <th class="p-3 w-16 text-center"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(item, index) in invoice.items" :key="index" class="border-b">
+                                        <td class="p-2">
+                                            <input v-model="item.description" type="text" placeholder="Ej. Lawn Mowing Service" class="w-full p-2.5 border rounded-xl text-xs font-medium outline-none">
+                                        </td>
+                                        <td class="p-2">
+                                            <input v-model.number="item.qty" type="number" min="1" class="w-full p-2.5 text-center border rounded-xl text-xs font-bold outline-none">
+                                        </td>
+                                        <td class="p-2">
+                                            <div class="relative flex items-center">
+                                                <span class="absolute left-3 text-slate-400 text-xs font-bold">$</span>
+                                                <input v-model.number="item.price" type="number" step="0.01" class="w-full text-right pl-6 p-2.5 border rounded-xl text-xs font-bold outline-none">
+                                            </div>
+                                        </td>
+                                        <td class="p-2 text-center">
+                                            <button v-if="invoice.items.length > 1" @click="invoice.items.splice(index, 1)" class="text-red-500 font-bold">✕</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                             <button @click="addInvoiceItem" class="mt-4 text-xs text-emerald-600 font-extrabold uppercase tracking-wider">
                                 ➕ Agregar Actividad
                             </button>
@@ -248,20 +234,8 @@
 
                     <div class="space-y-5">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border space-y-3">
-                            <button @click="procesarFactura('cobrar')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider">
-                                Registrar como PAID (Cobrado)
-                            </button>
-                            <button @click="procesarFactura('pendiente')" class="w-full bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold py-3 rounded-xl text-xs uppercase tracking-wider">
-                                Guardar como PENDING
-                            </button>
-                        </div>
-
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border space-y-2">
-                            <button @click="descargarPDFDirecto" class="w-full bg-slate-950 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider shadow-md">
+                            <button @click="descargarPDFDirecto" class="w-full bg-slate-950 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider shadow-md">
                                 📥 Descargar/Guardar PDF
-                            </button>
-                            <button @click="openDispatchModal" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-[11px] uppercase tracking-wider mt-2">
-                                💬 Preparar Mensaje / Envío
                             </button>
                         </div>
                     </div>
@@ -272,31 +246,15 @@
             <section v-if="currentView === 'clientes'" class="space-y-6">
                 <h2 class="text-2xl font-black text-slate-900 tracking-tight">Directorio de Clientes</h2>
                 <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                    <p class="text-xs text-slate-500">Módulo activo de administración de clientes para Jose's Lawn Care.</p>
+                    <p class="text-xs text-slate-500">Módulo sincronizado con Firebase para Jose's Lawn Care.</p>
                 </div>
             </section>
 
-            <!-- VISTA: HISTORIAL POR CLIENTE -->
-            <section v-if="currentView === 'historial_cliente'" class="space-y-6">
-                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Historial por Cliente</h2>
-                <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                    <p class="text-xs text-slate-500">Consulta de servicios específicos por cliente.</p>
-                </div>
-            </section>
-
-            <!-- VISTA: HISTORIAL & LIBRO MAYOR -->
+            <!-- VISTA: HISTORIAL -->
             <section v-if="currentView === 'historial'" class="space-y-6">
                 <h2 class="text-2xl font-black text-slate-900 tracking-tight">Historial & Libro Mayor</h2>
                 <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                    <p class="text-xs text-slate-500">Registro completo de operaciones financieras.</p>
-                </div>
-            </section>
-
-            <!-- VISTA: APUNTES -->
-            <section v-if="currentView === 'apuntes'" class="space-y-6">
-                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Cuaderno de Apuntes</h2>
-                <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                    <p class="text-xs text-slate-500">Notas rápidas de campo y pendientes.</p>
+                    <p class="text-xs text-slate-500">Registro histórico de operaciones.</p>
                 </div>
             </section>
 
@@ -304,6 +262,22 @@
     </div>
 
 <script>
+    // Configuración de Firebase recuperada de tu proyecto
+    const firebaseConfig = {
+        apiKey: "AIzaSyBKPqlndtjyYJduNZBagPIex15jv3AIdt4",
+        authDomain: "jose-landscaping-care-default-rtdb.firebaseapp.com",
+        databaseURL: "https://jose-landscaping-care-default-rtdb.firebaseio.com",
+        projectId: "jose-landscaping-care-default-rtdb",
+        storageBucket: "jose-landscaping-care.appspot.com",
+        messagingSenderId: "338573920485",
+        appId: "1:338573920485:web:8c903cbef2849e75c6bf23"
+    };
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
     new Vue({
         el: '#app',
         data: {
@@ -322,9 +296,32 @@
             },
             availableAddresses: []
         },
+        created() {
+            // Sincronización automática con Firebase para recuperar toda tu información
+            db.ref('customers').on('value', snapshot => {
+                const data = snapshot.val();
+                this.customers = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+            });
+
+            db.ref('invoices').on('value', snapshot => {
+                const data = snapshot.val();
+                this.invoices = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+            });
+        },
         computed: {
             stats() {
-                return { montoTotal: '0.00', montoCobrado: '0.00', montoPendiente: '0.00' };
+                let total = 0, cobrado = 0, pendiente = 0;
+                this.filteredInvoices.forEach(inv => {
+                    let m = parseFloat(inv.total) || 0;
+                    total += m;
+                    if (inv.paid) cobrado += m;
+                    else pendiente += m;
+                });
+                return {
+                    montoTotal: total.toFixed(2),
+                    montoCobrado: cobrado.toFixed(2),
+                    montoPendiente: pendiente.toFixed(2)
+                };
             },
             filteredInvoices() {
                 return this.invoices;
@@ -355,12 +352,6 @@
             clearDateFilters() {
                 this.filterStartDate = '';
                 this.filterEndDate = '';
-            },
-            procesarFactura(tipo) {
-                alert('Función de procesamiento lista.');
-            },
-            openDispatchModal() {
-                alert('Abriendo panel de envío...');
             },
             descargarPDFDirecto() {
                 const folio = this.invoice.folio || 'S/N';
