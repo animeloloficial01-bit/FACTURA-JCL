@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jose Land Care - Enterprise Management System</title>
+    <title>Jose's Lawn Care - Enterprise Management System</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.14/vue.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -39,7 +39,7 @@
                         JL
                     </div>
                     <div>
-                        <h1 class="text-sm font-black text-white uppercase tracking-wider leading-none">Jose Land Care</h1>
+                        <h1 class="text-sm font-black text-white uppercase tracking-wider leading-none">Jose's Lawn Care</h1>
                         <span class="text-[10px] text-emerald-400 font-bold uppercase block mt-1 tracking-widest">Business Suite v3.6</span>
                     </div>
                 </div>
@@ -105,7 +105,7 @@
             <section v-if="currentView === 'dashboard'" class="space-y-6">
                 <div class="flex justify-between items-center">
                     <div>
-                        <h2 class="text-2xl font-black text-slate-900 tracking-tight">Panel General - Jose Land Care</h2>
+                        <h2 class="text-2xl font-black text-slate-900 tracking-tight">Panel General - Jose's Lawn Care</h2>
                         <p class="text-xs text-slate-500 mt-0.5">Estado financiero estructurado en tiempo real.</p>
                     </div>
                 </div>
@@ -270,14 +270,12 @@
                     </div>
                 </div>
             </section>
-            
-            <!-- AQUÍ PUEDES MANTENER LAS DEMÁS SECCIONES (clientes, historial, apuntes, etc.) DE TU CÓDIGO ORIGINAL -->
 
         </main>
 
-        <!-- ZONA DE IMPRESIÓN PARA EL PDF (Con el nombre actualizado: Jose Land Care) -->
+        <!-- ZONA DE IMPRESIÓN PARA EL PDF (Nombre oficial: Jose's Lawn Care) -->
         <div id="print-area">
-            <h1 style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 5px;">JOSE LAND CARE</h1>
+            <h1 style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 5px;">JOSE'S LAWN CARE</h1>
             <p style="text-align: center; font-size: 14px; margin-bottom: 20px;">Professional Landscaping Services</p>
             
             <div style="border: 1px solid #333; padding: 12px; margin-bottom: 20px; border-radius: 4px;">
@@ -310,7 +308,6 @@
     </div>
 
 <script>
-    // Inicialización de tu lógica y Firebase
     new Vue({
         el: '#app',
         data: {
@@ -331,7 +328,6 @@
         },
         computed: {
             stats() {
-                // Tus cálculos de estadísticas del ledger
                 return { montoTotal: '0.00', montoCobrado: '0.00', montoPendiente: '0.00' };
             },
             filteredInvoices() {
@@ -346,21 +342,14 @@
             addInvoiceItem() {
                 this.invoice.items.push({ description: '', qty: 1, price: 0 });
             },
-            onCustomerChange() {
-                // Lógica original de cambio de cliente
-            },
+            onCustomerChange() {},
             clearDateFilters() {
                 this.filterStartDate = '';
                 this.filterEndDate = '';
             },
-            procesarFactura(tipo) {
-                // Lógica original de guardado
-            },
-            openDispatchModal() {
-                // Lógica de WhatsApp
-            },
+            procesarFactura(tipo) {},
+            openDispatchModal() {},
             
-            // FUNCIÓN SEGURA DE DESCARGA DE PDF MEDIANTE VENTANA AISLADA
             descargarPDFDirecto() {
                 const contenidoHTML = document.getElementById('print-area').innerHTML;
                 const ventana = window.open('', '_blank', 'width=800,height=600');
@@ -385,10 +374,8 @@
                 
                 ventana.document.close();
                 
-                // Dispara el diálogo nativo de impresión / guardar como PDF
                 setTimeout(() => {
                     ventana.print();
-                    // ventana.close(); // Opcional si deseas cerrarla automáticamente tras imprimir
                 }, 500);
             }
         }
