@@ -17,9 +17,6 @@
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        
-        /* Contenedor oculto para la generación limpia en ventana aislada */
-        #print-area { display: none; }
 
         @media print {
             .no-print { display: none !important; }
@@ -271,40 +268,39 @@
                 </div>
             </section>
 
+            <!-- VISTA: CLIENTES -->
+            <section v-if="currentView === 'clientes'" class="space-y-6">
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Directorio de Clientes</h2>
+                <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                    <p class="text-xs text-slate-500">Módulo activo de administración de clientes para Jose's Lawn Care.</p>
+                </div>
+            </section>
+
+            <!-- VISTA: HISTORIAL POR CLIENTE -->
+            <section v-if="currentView === 'historial_cliente'" class="space-y-6">
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Historial por Cliente</h2>
+                <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                    <p class="text-xs text-slate-500">Consulta de servicios específicos por cliente.</p>
+                </div>
+            </section>
+
+            <!-- VISTA: HISTORIAL & LIBRO MAYOR -->
+            <section v-if="currentView === 'historial'" class="space-y-6">
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Historial & Libro Mayor</h2>
+                <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                    <p class="text-xs text-slate-500">Registro completo de operaciones financieras.</p>
+                </div>
+            </section>
+
+            <!-- VISTA: APUNTES -->
+            <section v-if="currentView === 'apuntes'" class="space-y-6">
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Cuaderno de Apuntes</h2>
+                <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                    <p class="text-xs text-slate-500">Notas rápidas de campo y pendientes.</p>
+                </div>
+            </section>
+
         </main>
-
-        <!-- ZONA DE IMPRESIÓN PARA EL PDF (Nombre oficial: Jose's Lawn Care) -->
-        <div id="print-area">
-            <h1 style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 5px;">JOSE'S LAWN CARE</h1>
-            <p style="text-align: center; font-size: 14px; margin-bottom: 20px;">Professional Landscaping Services</p>
-            
-            <div style="border: 1px solid #333; padding: 12px; margin-bottom: 20px; border-radius: 4px;">
-                <p style="margin: 4px 0;"><strong>Folio:</strong> #{{ invoice.folio || 'S/N' }}</p>
-                <p style="margin: 4px 0;"><strong>Fecha:</strong> {{ new Date().toLocaleDateString() }}</p>
-                <p style="margin: 4px 0;"><strong>Cliente:</strong> {{ getCustomerName ? getCustomerName(selectedCustomerId) : 'Cliente General' }}</p>
-            </div>
-
-            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-                <thead>
-                    <tr style="background: #f0f0f0;">
-                        <th style="border: 1px solid #333; padding: 8px; text-align: left;">Descripción</th>
-                        <th style="border: 1px solid #333; padding: 8px; text-align: center; width: 60px;">Cant</th>
-                        <th style="border: 1px solid #333; padding: 8px; text-align: right; width: 100px;">Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="item in invoice.items" :key="item.description">
-                        <td style="border: 1px solid #333; padding: 8px;">{{ item.description }}</td>
-                        <td style="border: 1px solid #333; padding: 8px; text-align: center;">{{ item.qty }}</td>
-                        <td style="border: 1px solid #333; padding: 8px; text-align: right;">${{ (item.qty * item.price).toFixed(2) }}</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <div style="text-align: right; margin-top: 25px; font-size: 20px; font-weight: bold;">
-                TOTAL: ${{ totalCalculado ? totalCalculado.total : '0.00' }}
-            </div>
-        </div>
     </div>
 
 <script>
@@ -342,22 +338,60 @@
             addInvoiceItem() {
                 this.invoice.items.push({ description: '', qty: 1, price: 0 });
             },
-            onCustomerChange() {},
+            getCustomerName(id) {
+                const cliente = this.customers.find(c => c.id === id);
+                return cliente ? cliente.name : 'Cliente General';
+            },
+            onCustomerChange() {
+                const cliente = this.customers.find(c => c.id === this.selectedCustomerId);
+                if (cliente) {
+                    this.availableAddresses = cliente.addresses || [];
+                    this.selectedCustomerNotes = cliente.notes || '';
+                } else {
+                    this.availableAddresses = [];
+                    this.selectedCustomerNotes = '';
+                }
+            },
             clearDateFilters() {
                 this.filterStartDate = '';
                 this.filterEndDate = '';
             },
-            procesarFactura(tipo) {},
-            openDispatchModal() {},
-            
+            procesarFactura(tipo) {
+                alert('Función de procesamiento lista.');
+            },
+            openDispatchModal() {
+                alert('Abriendo panel de envío...');
+            },
             descargarPDFDirecto() {
-                const contenidoHTML = document.getElementById('print-area').innerHTML;
+                const folio = this.invoice.folio || 'S/N';
+                const fecha = new Date().toLocaleDateString();
+                const cliente = this.selectedCustomerId ? this.getCustomerName(this.selectedCustomerId) : 'Cliente General';
+                const total = this.totalCalculado ? this.totalCalculado.total : '0.00';
+
+                let filasHTML = '';
+                if (this.invoice.items && this.invoice.items.length > 0) {
+                    this.invoice.items.forEach(item => {
+                        const subtotal = (item.qty * item.price).toFixed(2);
+                        filasHTML += `
+                            <tr>
+                                <td style="border: 1px solid #333; padding: 8px;">${item.description || 'Servicio de Jardinería'}</td>
+                                <td style="border: 1px solid #333; padding: 8px; text-align: center;">${item.qty || 1}</td>
+                                <td style="border: 1px solid #333; padding: 8px; text-align: right;">$${subtotal}</td>
+                            </tr>
+                        `;
+                    });
+                }
+
                 const ventana = window.open('', '_blank', 'width=800,height=600');
-                
+                if (!ventana) {
+                    alert('Por favor, permite las ventanas emergentes (pop-ups) para descargar el PDF.');
+                    return;
+                }
+
                 ventana.document.write(`
                     <html>
                         <head>
-                            <title>Factura ${this.invoice.folio || 'PDF'}</title>
+                            <title>Factura ${folio}</title>
                             <style>
                                 body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px; color: #111; }
                                 h1, p { margin: 0; }
@@ -367,7 +401,31 @@
                             </style>
                         </head>
                         <body>
-                            ${contenidoHTML}
+                            <h1 style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 5px;">JOSE'S LAWN CARE</h1>
+                            <p style="text-align: center; font-size: 14px; margin-bottom: 20px;">Professional Landscaping Services</p>
+                            
+                            <div style="border: 1px solid #333; padding: 12px; margin-bottom: 20px; border-radius: 4px;">
+                                <p style="margin: 4px 0;"><strong>Folio:</strong> #${folio}</p>
+                                <p style="margin: 4px 0;"><strong>Fecha:</strong> ${fecha}</p>
+                                <p style="margin: 4px 0;"><strong>Cliente:</strong> ${cliente}</p>
+                            </div>
+
+                            <table>
+                               <thead>
+                                    <tr>
+                                        <th style="text-align: left;">Descripción</th>
+                                        <th style="text-align: center; width: 60px;">Cant</th>
+                                        <th style="text-align: right; width: 100px;">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${filasHTML}
+                                </tbody>
+                            </table>
+                            
+                            <div style="text-align: right; margin-top: 25px; font-size: 20px; font-weight: bold;">
+                                TOTAL: $${total}
+                            </div>
                         </body>
                     </html>
                 `);
