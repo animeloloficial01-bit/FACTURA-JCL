@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +23,7 @@
 
     <div id="app" class="min-h-screen flex flex-col md:flex-row" v-cloak>
         
-        <!-- BARRA LATERAL -->
+        <!-- SIDEBAR -->
         <aside class="w-full md:w-76 bg-slate-950 text-slate-200 p-6 no-print flex flex-col justify-between shadow-2xl shrink-0 border-r border-slate-800">
             <div class="space-y-8">
                 <div class="flex items-center space-x-3 pb-6 border-b border-slate-800/60">
@@ -37,24 +37,24 @@
                 </div>
 
                 <div class="space-y-1">
-                    <span class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Operaciones</span>
+                    <span class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Operations</span>
                     
                     <button @click="currentView = 'dashboard'" :class="currentView === 'dashboard' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-900'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all">
-                        <span>📊</span> <span>Panel de Control</span>
+                        <span>📊</span> <span>Dashboard</span>
                     </button>
 
                     <button @click="currentView = 'pos'" :class="currentView === 'pos' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-900'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all">
-                        <span>🧾</span> <span>Terminal de Facturación</span>
+                        <span>🧾</span> <span>Billing Terminal</span>
                     </button>
                     
-                    <span class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest block pt-4 mb-2">Administración</span>
+                    <span class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest block pt-4 mb-2">Management</span>
 
                     <button @click="currentView = 'clientes'" :class="currentView === 'clientes' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-900'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all">
-                        <span>👥</span> <span>Directorio de Clientes</span>
+                        <span>👥</span> <span>Customer Directory</span>
                     </button>
                     
                     <button @click="currentView = 'historial'" :class="currentView === 'historial' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-900'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all">
-                        <span>🗄️</span> <span>Historial & Libro Mayor</span>
+                        <span>🗄️</span> <span>History & Ledger</span>
                     </button>
                 </div>
             </div>
@@ -65,36 +65,36 @@
             </div>
         </aside>
 
-        <!-- CONTENIDO PRINCIPAL -->
+        <!-- MAIN CONTENT -->
         <main class="flex-1 p-4 md:p-8 overflow-y-auto max-w-full">
             
-            <!-- VISTA: DASHBOARD -->
+            <!-- VIEW: DASHBOARD -->
             <section v-if="currentView === 'dashboard'" class="space-y-6">
                 <div class="flex justify-between items-center">
                     <div>
-                        <h2 class="text-2xl font-black text-slate-900 tracking-tight">Panel General - Jose's Lawn Care</h2>
-                        <p class="text-xs text-slate-500 mt-0.5">Estado financiero en tiempo real.</p>
+                        <h2 class="text-2xl font-black text-slate-900 tracking-tight">General Panel - Jose's Lawn Care</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Real-time financial status.</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
                     <div class="bg-white p-6 rounded-2xl border shadow-sm flex items-center justify-between">
                         <div>
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Ventas</span>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Sales</span>
                             <span class="text-2xl font-black text-slate-900 block mt-1">${{ stats.montoTotal }}</span>
                         </div>
                         <div class="bg-blue-50 text-blue-600 p-3 rounded-xl text-xl">💰</div>
                     </div>
                     <div class="bg-white p-6 rounded-2xl border shadow-sm flex items-center justify-between">
                         <div>
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Cobrado (PAID)</span>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Collected (PAID)</span>
                             <span class="text-2xl font-black text-emerald-600 block mt-1">${{ stats.montoCobrado }}</span>
                         </div>
                         <div class="bg-emerald-50 text-emerald-600 p-3 rounded-xl text-xl">✅</div>
                     </div>
                     <div class="bg-white p-6 rounded-2xl border shadow-sm flex items-center justify-between">
                         <div>
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Por Cobrar</span>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Pending</span>
                             <span class="text-2xl font-black text-amber-600 block mt-1">${{ stats.montoPendiente }}</span>
                         </div>
                         <div class="bg-amber-50 text-amber-600 p-3 rounded-xl text-xl">⏳</div>
@@ -102,23 +102,23 @@
                 </div>
 
                 <div class="bg-white rounded-2xl border p-6 space-y-4">
-                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider border-b pb-2">Últimos Trabajos ({{ invoices.length }})</h3>
+                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider border-b pb-2">Recent Jobs ({{ invoices.length }})</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs">
                             <thead>
                                 <tr class="bg-slate-50 text-slate-400 font-bold uppercase border-b">
-                                    <th class="p-3">Folio</th>
-                                    <th class="p-3">Fecha</th>
-                                    <th class="p-3">Cliente</th>
-                                    <th class="p-3 text-right">Monto</th>
-                                    <th class="p-3 text-center">Estado</th>
+                                    <th class="p-3">Invoice #</th>
+                                    <th class="p-3">Date</th>
+                                    <th class="p-3">Customer</th>
+                                    <th class="p-3 text-right">Amount</th>
+                                    <th class="p-3 text-center">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="inv in invoices" :key="inv.id" class="border-b hover:bg-slate-50/50">
                                     <td class="p-3 font-bold text-slate-900">#{{ inv.folio || 'SN' }}</td>
                                     <td class="p-3 text-slate-500">{{ inv.date || inv.fecha || 'N/A' }}</td>
-                                    <td class="p-3 font-semibold text-slate-700">{{ inv.customerName || inv.cliente || 'Cliente' }}</td>
+                                    <td class="p-3 font-semibold text-slate-700">{{ inv.customerName || inv.cliente || 'Customer' }}</td>
                                     <td class="p-3 text-right font-bold text-slate-900">${{ inv.total || '0.00' }}</td>
                                     <td class="p-3 text-center">
                                         <span :class="(inv.paid || inv.pagada) ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'" class="px-2 py-0.5 rounded-md font-extrabold text-[10px]">
@@ -132,12 +132,12 @@
                 </div>
             </section>
             
-            <!-- VISTA: POS / FACTURACIÓN -->
+            <!-- VIEW: POS / BILLING -->
             <section v-if="currentView === 'pos'" class="space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b">
-                    <h2 class="text-2xl font-black text-slate-900 tracking-tight">Terminal de Facturación</h2>
+                    <h2 class="text-2xl font-black text-slate-900 tracking-tight">Billing Terminal</h2>
                     <div class="bg-white px-4 py-2 rounded-xl shadow-sm border flex items-center space-x-3">
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Folio:</span>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Invoice #:</span>
                         <input v-model="invoice.folio" type="text" placeholder="#0001" class="w-28 text-center font-black text-sm border bg-slate-50 rounded-xl py-1.5 outline-none">
                     </div>
                 </div>
@@ -146,46 +146,46 @@
                     <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border space-y-6">
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Asignar Cliente</label>
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Select Customer</label>
                                 <select v-model="selectedCustomerId" @change="onCustomerChange" class="w-full p-3 bg-slate-50 border rounded-xl text-xs font-bold text-slate-700 outline-none">
-                                    <option value="">-- Seleccionar Cliente --</option>
+                                    <option value="">-- Select Customer --</option>
                                     <option v-for="c in customers" :key="c.id" :value="c.id">{{ c.name || c.nombre }}</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Locación del Servicio</label>
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Service Location</label>
                                 <select v-model="selectedAddressIndex" @change="onAddressChange" class="w-full p-3 bg-slate-50 border rounded-xl text-xs font-bold text-slate-700 outline-none">
-                                    <option value="">-- Seleccionar Dirección --</option>
+                                    <option value="">-- Select Address --</option>
                                     <option v-for="(dir, idx) in availableAddresses" :key="idx" :value="idx">
                                         {{ formatearDireccion(dir) }}
                                     </option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Método de Pago</label>
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Payment Method</label>
                                 <select v-model="invoice.paymentMethod" class="w-full p-3 bg-slate-50 border rounded-xl text-xs font-bold text-slate-700 outline-none">
-                                    <option value="Efectivo">💵 Efectivo</option>
-                                    <option value="Tarjeta">💳 Tarjeta</option>
-                                    <option value="Cheque">✍️ Cheque</option>
+                                    <option value="Cash">💵 Cash</option>
+                                    <option value="Card">💳 Card</option>
+                                    <option value="Check">✍️ Check</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="pt-2">
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Conceptos de Trabajo</label>
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Service Items</label>
                             <table class="w-full text-left border-collapse">
                                 <thead>
                                     <tr class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase border-b">
-                                        <th class="p-3">Descripción Actividad</th>
-                                        <th class="p-3 w-20 text-center">Cant</th>
-                                        <th class="p-3 w-36 text-right">Precio Unitario</th>
+                                        <th class="p-3">Description</th>
+                                        <th class="p-3 w-20 text-center">Qty</th>
+                                        <th class="p-3 w-36 text-right">Unit Price</th>
                                         <th class="p-3 w-16 text-center"></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="(item, index) in invoice.items" :key="index" class="border-b">
                                         <td class="p-2">
-                                            <input v-model="item.description" type="text" placeholder="Ej. Lawn Mowing Service" class="w-full p-2.5 border rounded-xl text-xs font-medium outline-none">
+                                            <input v-model="item.description" type="text" placeholder="e.g. Lawn Mowing Service" class="w-full p-2.5 border rounded-xl text-xs font-medium outline-none">
                                         </td>
                                         <td class="p-2">
                                             <input v-model.number="item.qty" type="number" min="1" class="w-full p-2.5 text-center border rounded-xl text-xs font-bold outline-none">
@@ -203,7 +203,7 @@
                                 </tbody>
                             </table>
                             <button @click="addInvoiceItem" class="mt-4 text-xs text-emerald-600 font-extrabold uppercase tracking-wider">
-                                ➕ Agregar Actividad
+                                ➕ Add Item
                             </button>
                         </div>
                     </div>
@@ -211,29 +211,29 @@
                     <div class="space-y-5">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border space-y-3">
                             <div class="text-right border-b pb-3">
-                                <span class="text-xs text-slate-400 uppercase font-bold block">Total a Cobrar</span>
+                                <span class="text-xs text-slate-400 uppercase font-bold block">Total Amount</span>
                                 <span class="text-2xl font-black text-slate-900">${{ totalCalculado.total }}</span>
                             </div>
                             <button @click="guardarEnFirebase(true)" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider">
-                                Guardar como PAID
+                                Save as PAID
                             </button>
                             <button @click="guardarEnFirebase(false)" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider">
-                                Guardar como PENDING
+                                Save as PENDING
                             </button>
                             <button @click="imprimirTicket" class="w-full bg-slate-950 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider shadow-md mt-2">
-                                🧾 Imprimir Ticket
+                                🖨️ Print Full Page Invoice
                             </button>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- VISTA: CLIENTES -->
+            <!-- VIEW: CUSTOMERS -->
             <section v-if="currentView === 'clientes'" class="space-y-6">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-2xl font-black text-slate-900 tracking-tight">Directorio de Clientes</h2>
+                    <h2 class="text-2xl font-black text-slate-900 tracking-tight">Customer Directory</h2>
                     <button @click="abrirModalCliente()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold uppercase">
-                        ➕ Nuevo Cliente
+                        ➕ New Customer
                     </button>
                 </div>
 
@@ -242,20 +242,20 @@
                         <table class="w-full text-left text-xs">
                             <thead>
                                 <tr class="bg-slate-50 text-slate-400 font-bold uppercase border-b">
-                                    <th class="p-3">Nombre</th>
-                                    <th class="p-3">Teléfono</th>
-                                    <th class="p-3">Precio Base</th>
-                                    <th class="p-3 text-center">Acciones</th>
+                                    <th class="p-3">Name</th>
+                                    <th class="p-3">Phone</th>
+                                    <th class="p-3">Base Price</th>
+                                    <th class="p-3 text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="c in customers" :key="c.id" class="border-b hover:bg-slate-50/50">
                                     <td class="p-3 font-bold text-slate-900">{{ c.name || c.nombre }}</td>
-                                    <td class="p-3 text-slate-600">{{ c.phone || c.telefono || 'Sin teléfono' }}</td>
+                                    <td class="p-3 text-slate-600">{{ c.phone || c.telefono || 'No phone' }}</td>
                                     <td class="p-3 font-bold text-emerald-600">${{ c.price || c.precio || '0.00' }}</td>
                                     <td class="p-3 text-center space-x-2">
-                                        <button @click="abrirModalCliente(c)" class="bg-blue-50 text-blue-600 font-bold px-2.5 py-1 rounded-lg text-[11px]">✏️ Editar</button>
-                                        <button @click="eliminarCliente(c.id)" class="bg-red-50 text-red-600 font-bold px-2.5 py-1 rounded-lg text-[11px]">🗑️ Eliminar</button>
+                                        <button @click="abrirModalCliente(c)" class="bg-blue-50 text-blue-600 font-bold px-2.5 py-1 rounded-lg text-[11px]">✏️ Edit</button>
+                                        <button @click="eliminarCliente(c.id)" class="bg-red-50 text-red-600 font-bold px-2.5 py-1 rounded-lg text-[11px]">🗑️ Delete</button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -264,39 +264,39 @@
                 </div>
             </section>
 
-            <!-- VISTA: HISTORIAL -->
+            <!-- VIEW: HISTORY -->
             <section v-if="currentView === 'historial'" class="space-y-6">
-                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Historial & Libro Mayor</h2>
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight">History & General Ledger</h2>
                 <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                    <p class="text-xs text-slate-500">Total de registros en Firebase: {{ invoices.length }}</p>
+                    <p class="text-xs text-slate-500">Total records in Firebase: {{ invoices.length }}</p>
                 </div>
             </section>
 
         </main>
 
-        <!-- MODAL EDICIÓN DE CLIENTE -->
+        <!-- CUSTOMER MODAL -->
         <div v-if="modalCliente.mostrar" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white p-6 rounded-2xl shadow-xl max-w-md w-full space-y-4">
                 <h3 class="font-black text-slate-900 text-base border-b pb-2">
-                    {{ modalCliente.esEdicion ? 'Editar Cliente' : 'Nuevo Cliente' }}
+                    {{ modalCliente.esEdicion ? 'Edit Customer' : 'New Customer' }}
                 </h3>
                 <div class="space-y-3">
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase">Nombre</label>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase">Name</label>
                         <input v-model="modalCliente.datos.name" type="text" class="w-full p-2.5 border rounded-xl text-xs font-medium outline-none">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase">Teléfono</label>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase">Phone</label>
                         <input v-model="modalCliente.datos.phone" type="text" class="w-full p-2.5 border rounded-xl text-xs font-medium outline-none">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase">Precio Predeterminado ($)</label>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase">Default Price ($)</label>
                         <input v-model.number="modalCliente.datos.price" type="number" step="0.01" class="w-full p-2.5 border rounded-xl text-xs font-medium outline-none">
                     </div>
                 </div>
                 <div class="flex space-x-2 pt-2">
-                    <button @click="modalCliente.mostrar = false" class="w-1/2 bg-slate-100 text-slate-600 font-bold py-2.5 rounded-xl text-xs uppercase">Cancelar</button>
-                    <button @click="guardarCliente" class="w-1/2 bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs uppercase">Guardar</button>
+                    <button @click="modalCliente.mostrar = false" class="w-1/2 bg-slate-100 text-slate-600 font-bold py-2.5 rounded-xl text-xs uppercase">Cancel</button>
+                    <button @click="guardarCliente" class="w-1/2 bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs uppercase">Save</button>
                 </div>
             </div>
         </div>
@@ -323,7 +323,7 @@
         el: '#app',
         data: {
             currentView: 'pos',
-            syncStatus: 'Conectando...',
+            syncStatus: 'Connecting...',
             selectedCustomerId: '',
             selectedAddressIndex: '',
             customers: [],
@@ -331,7 +331,7 @@
             invoice: {
                 folio: '',
                 address: '',
-                paymentMethod: 'Efectivo',
+                paymentMethod: 'Cash',
                 items: [{ description: 'Lawn Mowing Service', qty: 1, price: 0 }]
             },
             availableAddresses: [],
@@ -346,11 +346,11 @@
             db.ref('/').on('value', snapshot => {
                 const rootData = snapshot.val();
                 if (!rootData) {
-                    this.syncStatus = 'Base vacía';
+                    this.syncStatus = 'Empty DB';
                     return;
                 }
                 
-                this.syncStatus = 'Sincronizado';
+                this.syncStatus = 'Synced';
 
                 const custRaw = rootData.customers || rootData.clientes || {};
                 this.customers = Object.keys(custRaw).map(key => ({ id: key, ...custRaw[key] }));
@@ -358,7 +358,7 @@
                 const invRaw = rootData.invoices || rootData.facturas || rootData.trabajos || {};
                 this.invoices = Object.keys(invRaw).map(key => ({ id: key, ...invRaw[key] }));
             }, err => {
-                this.syncStatus = 'Error Permisos';
+                this.syncStatus = 'Permission Error';
             });
         },
         computed: {
@@ -395,14 +395,13 @@
             },
             getCustomerName(id) {
                 const cliente = this.customers.find(c => c.id === id);
-                return cliente ? (cliente.name || cliente.nombre) : 'Cliente General';
+                return cliente ? (cliente.name || cliente.nombre) : 'General Customer';
             },
             onCustomerChange() {
                 const cliente = this.customers.find(c => c.id === this.selectedCustomerId);
                 if (cliente) {
                     this.availableAddresses = cliente.addresses || cliente.direcciones || [];
                     
-                    // Asignar precio predeterminado si existe en el cliente
                     const precioCliente = parseFloat(cliente.price || cliente.precio || 0);
                     if (precioCliente > 0 && this.invoice.items.length > 0) {
                         this.invoice.items[0].price = precioCliente;
@@ -418,7 +417,6 @@
                     const dirObj = this.availableAddresses[this.selectedAddressIndex];
                     this.invoice.address = this.formatearDireccion(dirObj);
                     
-                    // Si el objeto de dirección tiene un precio específico
                     if (typeof dirObj === 'object' && dirObj.precio) {
                         this.invoice.items[0].price = parseFloat(dirObj.precio);
                     }
@@ -443,26 +441,26 @@
                 this.modalCliente.mostrar = true;
             },
             guardarCliente() {
-                if (!this.modalCliente.datos.name) return alert('Ingresa el nombre del cliente');
+                if (!this.modalCliente.datos.name) return alert('Please enter customer name');
                 
                 if (this.modalCliente.esEdicion) {
                     db.ref('customers/' + this.modalCliente.id).update(this.modalCliente.datos, (err) => {
                         if (!err) {
-                            alert('Cliente actualizado con éxito');
+                            alert('Customer updated successfully');
                             this.modalCliente.mostrar = false;
                         }
                     });
                 } else {
                     db.ref('customers').push(this.modalCliente.datos, (err) => {
                         if (!err) {
-                            alert('Cliente agregado con éxito');
+                            alert('Customer added successfully');
                             this.modalCliente.mostrar = false;
                         }
                     });
                 }
             },
             eliminarCliente(id) {
-                if (confirm('¿Estás seguro de eliminar este cliente?')) {
+                if (confirm('Are you sure you want to delete this customer?')) {
                     db.ref('customers/' + id).remove();
                 }
             },
@@ -470,7 +468,7 @@
                 const payload = {
                     folio: this.invoice.folio || 'S/N',
                     date: new Date().toLocaleDateString(),
-                    customerName: this.selectedCustomerId ? this.getCustomerName(this.selectedCustomerId) : 'Cliente General',
+                    customerName: this.selectedCustomerId ? this.getCustomerName(this.selectedCustomerId) : 'General Customer',
                     address: this.invoice.address || '',
                     paymentMethod: this.invoice.paymentMethod,
                     total: this.totalCalculado.total,
@@ -480,9 +478,9 @@
 
                 db.ref('invoices').push(payload, (error) => {
                     if (error) {
-                        alert('Error al guardar: ' + error.message);
+                        alert('Error saving: ' + error.message);
                     } else {
-                        alert('¡Trabajo guardado exitosamente!');
+                        alert('Job saved successfully!');
                         this.currentView = 'dashboard';
                     }
                 });
@@ -490,8 +488,9 @@
             imprimirTicket() {
                 const folio = this.invoice.folio || 'S/N';
                 const fecha = new Date().toLocaleDateString();
-                const cliente = this.selectedCustomerId ? this.getCustomerName(this.selectedCustomerId) : 'Cliente General';
+                const cliente = this.selectedCustomerId ? this.getCustomerName(this.selectedCustomerId) : 'General Customer';
                 const direccion = this.invoice.address || 'N/A';
+                const metodoPago = this.invoice.paymentMethod;
                 const total = this.totalCalculado.total;
 
                 let filasHTML = '';
@@ -499,52 +498,60 @@
                     const subtotal = ((item.qty || 1) * (item.price || 0)).toFixed(2);
                     filasHTML += `
                         <tr>
-                            <td style="padding: 4px 0;">${item.description || 'Servicio'}</td>
-                            <td style="text-align: center; padding: 4px 0;">${item.qty || 1}</td>
-                            <td style="text-align: right; padding: 4px 0;">$${subtotal}</td>
+                            <td style="border: 1px solid #cbd5e1; padding: 10px;">${item.description || 'Lawn Service'}</td>
+                            <td style="border: 1px solid #cbd5e1; padding: 10px; text-align: center;">${item.qty || 1}</td>
+                            <td style="border: 1px solid #cbd5e1; padding: 10px; text-align: right;">$${(item.price || 0).toFixed(2)}</td>
+                            <td style="border: 1px solid #cbd5e1; padding: 10px; text-align: right;">$${subtotal}</td>
                         </tr>
                     `;
                 });
 
-                const ventana = window.open('', '_blank', 'width=380,height=600');
-                if (!ventana) return alert('Permite las ventanas emergentes para imprimir.');
+                const ventana = window.open('', '_blank', 'width=800,height=900');
+                if (!ventana) return alert('Please allow pop-ups to print the invoice.');
 
                 ventana.document.write(`
                     <html>
                         <head>
-                            <title>Ticket #${folio}</title>
+                            <title>Invoice #${folio}</title>
                             <style>
-                                body { font-family: 'Courier New', Courier, monospace; width: 280px; margin: 0 auto; padding: 10px; font-size: 12px; color: #000; }
-                                .text-center { text-align: center; }
-                                .text-right { text-align: right; }
-                                .line { border-top: 1px dashed #000; margin: 8px 0; }
-                                table { width: 100%; border-collapse: collapse; font-size: 11px; }
-                                th { text-align: left; border-bottom: 1px solid #000; padding-bottom: 2px; }
+                                body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 50px; color: #1e293b; }
+                                .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0f172a; padding-bottom: 20px; margin-bottom: 30px; }
+                                h1 { margin: 0; font-size: 26px; font-weight: 800; color: #0f172a; text-transform: uppercase; }
+                                p { margin: 2px 0; font-size: 13px; color: #64748b; }
+                                .invoice-info { text-align: right; }
+                                .box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 30px; font-size: 13px; }
+                                table { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 13px; }
+                                th { background: #0f172a; color: white; text-align: left; padding: 10px; font-weight: 600; text-transform: uppercase; font-size: 11px; }
+                                .total-section { text-align: right; font-size: 18px; font-weight: bold; margin-top: 20px; color: #0f172a; }
+                                .footer { margin-top: 60px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; pt-4; }
                             </style>
                         </head>
                         <body>
-                            <div class="text-center">
-                                <h2 style="margin:0; font-size: 16px; font-weight: bold;">JOSE'S LAWN CARE</h2>
-                                <p style="margin:2px 0;">Lawn & Landscaping Services</p>
+                            <div class="header">
+                                <div>
+                                    <h1>JOSE'S LAWN CARE</h1>
+                                    <p>Professional Landscaping & Lawn Services</p>
+                                </div>
+                                <div class="invoice-info">
+                                    <h3 style="margin:0; font-size: 18px; color: #0f172a;">INVOICE</h3>
+                                    <p><strong>Invoice #:</strong> #${folio}</p>
+                                    <p><strong>Date:</strong> ${fecha}</p>
+                                </div>
                             </div>
-                            
-                            <div class="line"></div>
-                            
-                            <div>
-                                <div><strong>Folio:</strong> #${folio}</div>
-                                <div><strong>Fecha:</strong> ${fecha}</div>
-                                <div><strong>Cliente:</strong> ${cliente}</div>
-                                <div><strong>Dirección:</strong> ${direccion}</div>
+
+                            <div class="box">
+                                <p><strong>Customer:</strong> ${cliente}</p>
+                                <p><strong>Service Address:</strong> ${direccion}</p>
+                                <p><strong>Payment Method:</strong> ${metodoPago}</p>
                             </div>
-                            
-                            <div class="line"></div>
 
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>DESCRIPCION</th>
-                                        <th style="text-align: center;">CANT</th>
-                                        <th style="text-align: right;">TOTAL</th>
+                                        <th>Description</th>
+                                        <th style="text-align: center; width: 80px;">Qty</th>
+                                        <th style="text-align: right; width: 120px;">Unit Price</th>
+                                        <th style="text-align: right; width: 120px;">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -552,23 +559,19 @@
                                 </tbody>
                             </table>
                             
-                            <div class="line"></div>
-                            
-                            <div class="text-right" style="font-size: 14px; font-weight: bold;">
+                            <div class="total-section">
                                 TOTAL: $${total}
                             </div>
-                            
-                            <div class="line"></div>
-                            
-                            <div class="text-center" style="margin-top: 15px;">
-                                ¡Gracias por su preferencia!
+
+                            <div class="footer">
+                                <p>Thank you for your business! | Jose's Lawn Care</p>
                             </div>
                         </body>
                     </html>
                 `);
                 
                 ventana.document.close();
-                setTimeout(() => { ventana.print(); }, 400);
+                setTimeout(() => { ventana.print(); }, 500);
             }
         }
     });
