@@ -507,9 +507,9 @@
                 });
 
                 const ventana = window.open('', '_blank', 'width=800,height=900');
-                if (!ventana) return alert('Please allow pop-ups to print the invoice.');
+                if (!ventana) return alert('Please allow pop-ups in your browser to print the invoice.');
 
-                ventana.document.write(`
+                const contenidoHTML = `
                     <html>
                         <head>
                             <title>Invoice #${folio}</title>
@@ -523,7 +523,7 @@
                                 table { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 13px; }
                                 th { background: #0f172a; color: white; text-align: left; padding: 10px; font-weight: 600; text-transform: uppercase; font-size: 11px; }
                                 .total-section { text-align: right; font-size: 18px; font-weight: bold; margin-top: 20px; color: #0f172a; }
-                                .footer { margin-top: 60px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; pt-4; }
+                                .footer { margin-top: 60px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 15px; }
                             </style>
                         </head>
                         <body>
@@ -568,10 +568,16 @@
                             </div>
                         </body>
                     </html>
-                `);
-                
+                `;
+
+                ventana.document.open();
+                ventana.document.write(contenidoHTML);
                 ventana.document.close();
-                setTimeout(() => { ventana.print(); }, 500);
+
+                ventana.onload = function() {
+                    ventana.focus();
+                    ventana.print();
+                };
             }
         }
     });
