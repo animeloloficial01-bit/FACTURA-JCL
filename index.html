@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jose's Lawn Care - Diagnóstico Firebase</title>
+    <title>Jose Landscaping Care - Enterprise Management System</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.14/vue.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,42 +14,243 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         [v-cloak] { display: none !important; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; color: black; }
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen p-8">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
 
-    <div id="app" class="max-w-4xl mx-auto space-y-6" v-cloak>
-        <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-xl flex justify-between items-center">
-            <div>
-                <h1 class="text-xl font-black">Jose's Lawn Care - Diagnóstico de Base de Datos</h1>
-                <p class="text-xs text-emerald-400 mt-1">Estado de Firebase: {{ statusConnection }}</p>
-            </div>
-            <button @click="probarPDF" class="bg-emerald-600 text-white font-bold px-4 py-2 rounded-xl text-xs">
-                Probar PDF
-            </button>
-        </div>
+    <div id="app" class="min-h-screen flex flex-col md:flex-row" v-cloak>
+        
+        <!-- BARRA LATERAL -->
+        <aside class="w-full md:w-76 bg-slate-950 text-slate-200 p-6 no-print flex flex-col justify-between shadow-2xl shrink-0 border-r border-slate-800">
+            <div class="space-y-8">
+                <div class="flex items-center space-x-3 pb-6 border-b border-slate-800/60">
+                    <div class="bg-gradient-to-tr from-emerald-600 to-green-400 text-slate-950 w-11 h-11 rounded-2xl font-extrabold text-xl flex items-center justify-center shadow-lg shadow-green-500/20 tracking-tighter">
+                        JL
+                    </div>
+                    <div>
+                        <h1 class="text-sm font-black text-white uppercase tracking-wider leading-none">Jose Landscaping Care</h1>
+                        <span class="text-[10px] text-emerald-400 font-bold uppercase block mt-1 tracking-widest">Business Suite v3.6</span>
+                    </div>
+                </div>
 
-        <!-- Panel de diagnóstico visual para ver qué hay en la base de datos -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-3">
-                <h2 class="font-black text-sm text-slate-900 uppercase">Datos crudos en la raíz de Firebase:</h2>
-                <pre class="bg-slate-950 text-emerald-400 p-4 rounded-xl text-[11px] overflow-auto h-64">{{ rawDatabaseData }}</pre>
+                <div class="space-y-1">
+                    <span class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Operaciones</span>
+                    
+                    <button @click="currentView = 'dashboard'" :class="currentView === 'dashboard' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-900'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all">
+                        <span>📊</span> <span>Panel de Control</span>
+                    </button>
+
+                    <button @click="currentView = 'pos'" :class="currentView === 'pos' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-900'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all">
+                        <span>🧾</span> <span>Terminal de Facturación</span>
+                    </button>
+                    
+                    <span class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest block pt-4 mb-2">Administración</span>
+
+                    <button @click="currentView = 'clientes'" :class="currentView === 'clientes' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-900'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all">
+                        <span>👥</span> <span>Directorio de Clientes</span>
+                    </button>
+                    
+                    <button @click="currentView = 'historial'" :class="currentView === 'historial' ? 'bg-emerald-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-900'" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-medium transition-all">
+                        <span>🗄️</span> <span>Historial & Libro Mayor</span>
+                    </button>
+                </div>
             </div>
 
-            <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-3">
-                <h2 class="font-black text-sm text-slate-900 uppercase">Facturas / Trabajos detectados ({{ invoices.length }}):</h2>
-                <ul class="space-y-2 h-64 overflow-auto text-xs">
-                    <li v-for="inv in invoices" :key="inv.id" class="p-3 bg-slate-50 border rounded-xl">
-                        <span class="font-bold">Folio: #{{ inv.folio || 'S/N' }}</span> - 
-                        <span>${{ inv.total || '0.00' }}</span> - 
-                        <span class="text-slate-500">{{ inv.customerName || inv.cliente || 'Sin cliente' }}</span>
-                    </li>
-                    <li v-if="invoices.length === 0" class="text-slate-400 text-center py-10">
-                        No hay registros en la ruta 'invoices'.
-                    </li>
-                </ul>
+            <div class="pt-4 border-t border-slate-800/60 text-[11px] text-slate-500 font-medium flex items-center justify-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+                <span>Firebase Database Conectado</span>
             </div>
-        </div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto max-w-full no-print">
+            
+            <!-- VISTA: DASHBOARD -->
+            <section v-if="currentView === 'dashboard'" class="space-y-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-900 tracking-tight">Panel General - Jose Landscaping Care</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Estado financiero y trabajos registrados.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Libro Mayor</span>
+                            <span class="text-2xl font-black text-slate-900 block mt-1">${{ stats.montoTotal }}</span>
+                        </div>
+                        <div class="bg-blue-50 text-blue-600 p-3 rounded-xl text-xl">💰</div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Cobrado (PAID)</span>
+                            <span class="text-2xl font-black text-emerald-600 block mt-1">${{ stats.montoCobrado }}</span>
+                        </div>
+                        <div class="bg-emerald-50 text-emerald-600 p-3 rounded-xl text-xl">✅</div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Por Cobrar</span>
+                            <span class="text-2xl font-black text-amber-600 block mt-1">${{ stats.montoPendiente }}</span>
+                        </div>
+                        <div class="bg-amber-50 text-amber-600 p-3 rounded-xl text-xl">⏳</div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border p-6 space-y-4">
+                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider border-b pb-2">Historial de Trabajos y Facturas ({{ invoices.length }})</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-400 font-bold uppercase border-b">
+                                    <th class="p-3">Folio</th>
+                                    <th class="p-3">Fecha</th>
+                                    <th class="p-3">Cliente</th>
+                                    <th class="p-3 text-center">Método</th>
+                                    <th class="p-3 text-right">Monto</th>
+                                    <th class="p-3 text-center">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="inv in invoices" :key="inv.id" class="border-b hover:bg-slate-50/50">
+                                    <td class="p-3 font-bold text-slate-900">#{{ inv.folio || 'SN' }}</td>
+                                    <td class="p-3 text-slate-500">{{ inv.date }}</td>
+                                    <td class="p-3 font-semibold text-slate-700">{{ inv.customerName }}</td>
+                                    <td class="p-3 text-center font-medium text-slate-600">
+                                        <span class="px-2 py-0.5 bg-slate-100 rounded text-[11px] font-bold">{{ inv.paymentMethod || 'Efectivo' }}</span>
+                                    </td>
+                                    <td class="p-3 text-right font-bold text-slate-900">${{ inv.total }}</td>
+                                    <td class="p-3 text-center">
+                                        <span :class="inv.paid ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'" class="px-2 py-0.5 rounded-md font-extrabold text-[10px]">
+                                            {{ inv.paid ? 'PAID' : 'PENDING' }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr v-if="invoices.length === 0">
+                                    <td colspan="6" class="p-6 text-center text-slate-400">Cargando registros desde Firebase...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- VISTA: POS / FACTURACIÓN -->
+            <section v-if="currentView === 'pos'" class="space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b">
+                    <h2 class="text-2xl font-black text-slate-900 tracking-tight">Terminal de Facturación</h2>
+                    <div class="bg-white px-4 py-2 rounded-xl shadow-sm border flex items-center space-x-3">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Folio:</span>
+                        <input v-model="invoice.folio" type="text" placeholder="#0001" class="w-28 text-center font-black text-sm border bg-slate-50 rounded-xl py-1.5 outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border space-y-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Asignar Cliente</label>
+                                <select v-model="selectedCustomerId" @change="onCustomerChange" class="w-full p-3 bg-slate-50 border rounded-xl text-xs font-bold text-slate-700 outline-none">
+                                    <option value="">-- Seleccionar Cliente --</option>
+                                    <option v-for="c in customers" :key="c.id" :value="c.id">{{ c.name }}</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Locación del Servicio</label>
+                                <select v-model="invoice.address" class="w-full p-3 bg-slate-50 border rounded-xl text-xs font-bold text-slate-700 outline-none">
+                                    <option value="">-- Seleccionar Dirección --</option>
+                                    <option v-for="dir in availableAddresses" :key="dir" :value="dir">{{ dir }}</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Método de Pago</label>
+                                <select v-model="invoice.paymentMethod" class="w-full p-3 bg-slate-50 border rounded-xl text-xs font-bold text-slate-700 outline-none">
+                                    <option value="Efectivo">💵 Efectivo</option>
+                                    <option value="Tarjeta">💳 Tarjeta</option>
+                                    <option value="Cheque">✍️ Cheque</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="pt-2">
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Conceptos de Trabajo</label>
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase border-b">
+                                        <th class="p-3">Descripción Actividad</th>
+                                        <th class="p-3 w-20 text-center">Cant</th>
+                                        <th class="p-3 w-36 text-right">Precio Unitario</th>
+                                        <th class="p-3 w-16 text-center"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(item, index) in invoice.items" :key="index" class="border-b">
+                                        <td class="p-2">
+                                            <input v-model="item.description" type="text" placeholder="Ej. Lawn Mowing Service" class="w-full p-2.5 border rounded-xl text-xs font-medium outline-none">
+                                        </td>
+                                        <td class="p-2">
+                                            <input v-model.number="item.qty" type="number" min="1" class="w-full p-2.5 text-center border rounded-xl text-xs font-bold outline-none">
+                                        </td>
+                                        <td class="p-2">
+                                            <div class="relative flex items-center">
+                                                <span class="absolute left-3 text-slate-400 text-xs font-bold">$</span>
+                                                <input v-model.number="item.price" type="number" step="0.01" class="w-full text-right pl-6 p-2.5 border rounded-xl text-xs font-bold outline-none">
+                                            </div>
+                                        </td>
+                                        <td class="p-2 text-center">
+                                            <button v-if="invoice.items.length > 1" @click="invoice.items.splice(index, 1)" class="text-red-500 font-bold">✕</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <button @click="addInvoiceItem" class="mt-4 text-xs text-emerald-600 font-extrabold uppercase tracking-wider">
+                                ➕ Agregar Actividad
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-5">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border space-y-3">
+                            <button @click="descargarPDFDirecto" class="w-full bg-slate-950 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider shadow-md">
+                                📥 Descargar/Guardar PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VISTA: CLIENTES -->
+            <section v-if="currentView === 'clientes'" class="space-y-6">
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Directorio de Clientes</h2>
+                <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                    <ul class="divide-y">
+                        <li v-for="c in customers" :key="c.id" class="py-3 font-semibold text-xs flex justify-between items-center">
+                            <span>👤 {{ c.name }}</span>
+                            <span class="text-slate-400 text-[11px]">{{ c.phone || 'Sin teléfono' }}</span>
+                        </li>
+                        <li v-if="customers.length === 0" class="text-slate-400 text-xs py-2">Sincronizando clientes...</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- VISTA: HISTORIAL -->
+            <section v-if="currentView === 'historial'" class="space-y-6">
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Historial & Libro Mayor</h2>
+                <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                    <p class="text-xs text-slate-500">Total de transacciones sincronizadas: {{ invoices.length }}</p>
+                </div>
+            </section>
+
+        </main>
     </div>
 
 <script>
@@ -71,42 +272,138 @@
     new Vue({
         el: '#app',
         data: {
-            statusConnection: 'Conectando a Firebase...',
-            rawDatabaseData: 'Leyendo estructura...',
+            currentView: 'dashboard',
+            selectedCustomerId: '',
+            customers: [],
             invoices: [],
-            customers: []
+            invoice: {
+                folio: '',
+                address: '',
+                paymentMethod: 'Efectivo',
+                items: [{ description: '', qty: 1, price: 0 }]
+            },
+            availableAddresses: []
         },
         created() {
-            // 1. Escuchamos toda la raíz de la base de datos para ver qué tablas/nodos existen realmente
-            db.ref('/').on('value', snapshot => {
-                const val = snapshot.val();
-                this.rawDatabaseData = val ? JSON.stringify(val, null, 2) : 'La base de datos está completamente vacía (null).';
-                this.statusConnection = val ? 'Conectado - Datos encontrados' : 'Conectado - Base vacía';
-                
-                if (val) {
-                    // Si encontramos nodos, los mapeamos automáticamente sin importar cómo se llamen
-                    if (val.invoices) {
-                        this.invoices = Object.keys(val.invoices).map(k => ({ id: k, ...val.invoices[k] }));
-                    } else {
-                        // Buscamos si hay algún otro nodo que guarde las facturas/trabajos
-                        const primerKey = Object.keys(val)[0];
-                        if (primerKey && typeof val[primerKey] === 'object') {
-                            // Intento automático de lectura si el nodo tiene otro nombre
-                            console.contrl?.('Nodo alternativo detectado:', primerKey);
-                        }
-                    }
-                }
-            }, error => {
-                this.statusConnection = 'Error: ' + error.message;
-                this.rawDatabaseData = error.code;
+            db.ref('customers').on('value', snapshot => {
+                const data = snapshot.val();
+                this.customers = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+            });
+
+            db.ref('invoices').on('value', snapshot => {
+                const data = snapshot.val();
+                this.invoices = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
             });
         },
+        computed: {
+            stats() {
+                let total = 0, cobrado = 0, pendiente = 0;
+                this.invoices.forEach(inv => {
+                    let m = parseFloat(inv.total) || 0;
+                    total += m;
+                    if (inv.paid) cobrado += m;
+                    else pendiente += m;
+                });
+                return {
+                    montoTotal: total.toFixed(2),
+                    montoCobrado: cobrado.toFixed(2),
+                    montoPendiente: pendiente.toFixed(2)
+                };
+            },
+            totalCalculado() {
+                let total = this.invoice.items.reduce((sum, item) => sum + (item.qty * item.price), 0);
+                return { total: total.toFixed(2) };
+            }
+        },
         methods: {
-            probarPDF() {
+            addInvoiceItem() {
+                this.invoice.items.push({ description: '', qty: 1, price: 0 });
+            },
+            getCustomerName(id) {
+                const cliente = this.customers.find(c => c.id === id);
+                return cliente ? cliente.name : 'Cliente General';
+            },
+            onCustomerChange() {
+                const cliente = this.customers.find(c => c.id === this.selectedCustomerId);
+                if (cliente) {
+                    this.availableAddresses = cliente.addresses || [];
+                } else {
+                    this.availableAddresses = [];
+                }
+            },
+            descargarPDFDirecto() {
+                const folio = this.invoice.folio || 'S/N';
+                const fecha = new Date().toLocaleDateString();
+                const cliente = this.selectedCustomerId ? this.getCustomerName(this.selectedCustomerId) : 'Cliente General';
+                const total = this.totalCalculado ? this.totalCalculado.total : '0.00';
+
+                let filasHTML = '';
+                if (this.invoice.items && this.invoice.items.length > 0) {
+                    this.invoice.items.forEach(item => {
+                        const subtotal = (item.qty * item.price).toFixed(2);
+                        filasHTML += `
+                            <tr>
+                                <td style="border: 1px solid #333; padding: 8px;">${item.description || 'Servicio de Jardinería'}</td>
+                                <td style="border: 1px solid #333; padding: 8px; text-align: center;">${item.qty || 1}</td>
+                                <td style="border: 1px solid #333; padding: 8px; text-align: right;">$${subtotal}</td>
+                            </tr>
+                        `;
+                    });
+                }
+
                 const ventana = window.open('', '_blank', 'width=800,height=600');
-                ventana.document.write('<html><body><h1>JOSE\'S LAWN CARE - Prueba PDF OK</h1></body></html>');
+                if (!ventana) {
+                    alert('Por favor, permite las ventanas emergentes (pop-ups) para descargar el PDF.');
+                    return;
+                }
+
+                ventana.document.write(`
+                    <html>
+                        <head>
+                            <title>Factura ${folio}</title>
+                            <style>
+                                body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px; color: #111; }
+                                h1, p { margin: 0; }
+                                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                                th, td { border: 1px solid #222; padding: 10px; font-size: 14px; }
+                                th { background-color: #f4f4f4; }
+                            </style>
+                        </head>
+                        <body>
+                            <h1 style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 5px;">JOSE LANDSCAPING CARE</h1>
+                            <p style="text-align: center; font-size: 14px; margin-bottom: 20px;">Servicio Profesional de Jardinería</p>
+                            
+                            <div style="border: 1px solid #333; padding: 12px; margin-bottom: 20px; border-radius: 4px;">
+                                <p style="margin: 4px 0;"><strong>Folio:</strong> #${folio}</p>
+                                <p style="margin: 4px 0;"><strong>Fecha:</strong> ${fecha}</p>
+                                <p style="margin: 4px 0;"><strong>Cliente:</strong> ${cliente}</p>
+                            </div>
+
+                            <table>
+                               <thead>
+                                    <tr>
+                                        <th style="text-align: left;">Descripción</th>
+                                        <th style="text-align: center; width: 60px;">Cant</th>
+                                        <th style="text-align: right; width: 100px;">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${filasHTML}
+                                </tbody>
+                            </table>
+                            
+                            <div style="text-align: right; margin-top: 25px; font-size: 20px; font-weight: bold;">
+                                TOTAL: $${total}
+                            </div>
+                        </body>
+                    </html>
+                `);
+                
                 ventana.document.close();
-                ventana.print();
+                
+                setTimeout(() => {
+                    ventana.print();
+                }, 500);
             }
         }
     });
