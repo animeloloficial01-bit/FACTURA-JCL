@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jose Landscaping Care - Enterprise Management System</title>
+    <title>Jose's Lawn Care - Enterprise Management System</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.14/vue.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -36,7 +36,7 @@
                         JL
                     </div>
                     <div>
-                        <h1 class="text-sm font-black text-white uppercase tracking-wider leading-none">Jose Landscaping Care</h1>
+                        <h1 class="text-sm font-black text-white uppercase tracking-wider leading-none">Jose's Lawn Care</h1>
                         <span class="text-[10px] text-emerald-400 font-bold uppercase block mt-1 tracking-widest">Business Suite v3.6</span>
                     </div>
                 </div>
@@ -66,7 +66,7 @@
 
             <div class="pt-4 border-t border-slate-800/60 text-[11px] text-slate-500 font-medium flex items-center justify-center space-x-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-                <span>Firebase Database Conectado</span>
+                <span>Firebase Conectado: {{ syncStatus }}</span>
             </div>
         </aside>
 
@@ -77,8 +77,8 @@
             <section v-if="currentView === 'dashboard'" class="space-y-6">
                 <div class="flex justify-between items-center">
                     <div>
-                        <h2 class="text-2xl font-black text-slate-900 tracking-tight">Panel General - Jose Landscaping Care</h2>
-                        <p class="text-xs text-slate-500 mt-0.5">Estado financiero y trabajos registrados.</p>
+                        <h2 class="text-2xl font-black text-slate-900 tracking-tight">Panel General - Jose's Lawn Care</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Estado financiero y trabajos en tiempo real.</p>
                     </div>
                 </div>
 
@@ -122,21 +122,21 @@
                             </thead>
                             <tbody>
                                 <tr v-for="inv in invoices" :key="inv.id" class="border-b hover:bg-slate-50/50">
-                                    <td class="p-3 font-bold text-slate-900">#{{ inv.folio || 'SN' }}</td>
-                                    <td class="p-3 text-slate-500">{{ inv.date }}</td>
-                                    <td class="p-3 font-semibold text-slate-700">{{ inv.customerName }}</td>
+                                    <td class="p-3 font-bold text-slate-900">#{{ inv.folio || inv.number || 'SN' }}</td>
+                                    <td class="p-3 text-slate-500">{{ inv.date || inv.fecha || 'N/A' }}</td>
+                                    <td class="p-3 font-semibold text-slate-700">{{ inv.customerName || inv.cliente || inv.name || 'Cliente' }}</td>
                                     <td class="p-3 text-center font-medium text-slate-600">
-                                        <span class="px-2 py-0.5 bg-slate-100 rounded text-[11px] font-bold">{{ inv.paymentMethod || 'Efectivo' }}</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 rounded text-[11px] font-bold">{{ inv.paymentMethod || inv.metodo || 'Efectivo' }}</span>
                                     </td>
-                                    <td class="p-3 text-right font-bold text-slate-900">${{ inv.total }}</td>
+                                    <td class="p-3 text-right font-bold text-slate-900">${{ inv.total || inv.amount || '0.00' }}</td>
                                     <td class="p-3 text-center">
-                                        <span :class="inv.paid ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'" class="px-2 py-0.5 rounded-md font-extrabold text-[10px]">
-                                            {{ inv.paid ? 'PAID' : 'PENDING' }}
+                                        <span :class="(inv.paid || inv.pagada) ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'" class="px-2 py-0.5 rounded-md font-extrabold text-[10px]">
+                                            {{ (inv.paid || inv.pagada) ? 'PAID' : 'PENDING' }}
                                         </span>
                                     </td>
                                 </tr>
                                 <tr v-if="invoices.length === 0">
-                                    <td colspan="6" class="p-6 text-center text-slate-400">Cargando registros desde Firebase...</td>
+                                    <td colspan="6" class="p-6 text-center text-slate-400">Sin registros sincronizados en este momento.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -160,8 +160,8 @@
                             <div>
                                 <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Asignar Cliente</label>
                                 <select v-model="selectedCustomerId" @change="onCustomerChange" class="w-full p-3 bg-slate-50 border rounded-xl text-xs font-bold text-slate-700 outline-none">
-                                    <option value="">-- Seleccionar Cliente --</option>
-                                    <option v-for="c in customers" :key="c.id" :value="c.id">{{ c.name }}</option>
+                                    <option value="">-- Seleccionar Cliente ({{ customers.length }}) --</option>
+                                    <option v-for="c in customers" :key="c.id" :value="c.id">{{ c.name || c.nombre }}</option>
                                 </select>
                             </div>
                             <div>
@@ -220,7 +220,13 @@
 
                     <div class="space-y-5">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border space-y-3">
-                            <button @click="descargarPDFDirecto" class="w-full bg-slate-950 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider shadow-md">
+                            <button @click="guardarEnFirebase(true)" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider">
+                                Guardar como PAID (Cobrado)
+                            </button>
+                            <button @click="guardarEnFirebase(false)" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider">
+                                Guardar como PENDING
+                            </button>
+                            <button @click="descargarPDFDirecto" class="w-full bg-slate-950 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider shadow-md mt-2">
                                 📥 Descargar/Guardar PDF
                             </button>
                         </div>
@@ -234,10 +240,10 @@
                 <div class="bg-white p-6 rounded-2xl border shadow-sm">
                     <ul class="divide-y">
                         <li v-for="c in customers" :key="c.id" class="py-3 font-semibold text-xs flex justify-between items-center">
-                            <span>👤 {{ c.name }}</span>
-                            <span class="text-slate-400 text-[11px]">{{ c.phone || 'Sin teléfono' }}</span>
+                            <span>👤 {{ c.name || c.nombre }}</span>
+                            <span class="text-slate-400 text-[11px]">{{ c.phone || c.telefono || 'Sin teléfono' }}</span>
                         </li>
-                        <li v-if="customers.length === 0" class="text-slate-400 text-xs py-2">Sincronizando clientes...</li>
+                        <li v-if="customers.length === 0" class="text-slate-400 text-xs py-2">Sincronizando clientes de Firebase...</li>
                     </ul>
                 </div>
             </section>
@@ -246,7 +252,7 @@
             <section v-if="currentView === 'historial'" class="space-y-6">
                 <h2 class="text-2xl font-black text-slate-900 tracking-tight">Historial & Libro Mayor</h2>
                 <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                    <p class="text-xs text-slate-500">Total de transacciones sincronizadas: {{ invoices.length }}</p>
+                    <p class="text-xs text-slate-500">Total de registros conectados: {{ invoices.length }}</p>
                 </div>
             </section>
 
@@ -254,6 +260,7 @@
     </div>
 
 <script>
+    // Configuración exacta apuntando a tu Realtime Database
     const firebaseConfig = {
         apiKey: "AIzaSyBKPqlndtjyYJduNZBagPIex15jv3AIdt4",
         authDomain: "jose-landscaping-care-default-rtdb.firebaseapp.com",
@@ -273,6 +280,7 @@
         el: '#app',
         data: {
             currentView: 'dashboard',
+            syncStatus: 'Conectando...',
             selectedCustomerId: '',
             customers: [],
             invoices: [],
@@ -285,23 +293,34 @@
             availableAddresses: []
         },
         created() {
-            db.ref('customers').on('value', snapshot => {
-                const data = snapshot.val();
-                this.customers = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-            });
+            // Sincronización multi-nodo automática para detectar tus datos en cualquier estructura
+            db.ref('/').on('value', snapshot => {
+                const rootData = snapshot.val();
+                if (!rootData) {
+                    this.syncStatus = 'Base vacía';
+                    return;
+                }
+                
+                this.syncStatus = 'Sincronizado';
 
-            db.ref('invoices').on('value', snapshot => {
-                const data = snapshot.val();
-                this.invoices = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+                // Búsqueda flexible de clientes
+                const custRaw = rootData.customers || rootData.clientes || {};
+                this.customers = Object.keys(custRaw).map(key => ({ id: key, ...custRaw[key] }));
+
+                // Búsqueda flexible de facturas / trabajos
+                const invRaw = rootData.invoices || rootData.facturas || rootData.trabajos || {};
+                this.invoices = Object.keys(invRaw).map(key => ({ id: key, ...invRaw[key] }));
+            }, err => {
+                this.syncStatus = 'Error de Permisos';
             });
         },
         computed: {
             stats() {
                 let total = 0, cobrado = 0, pendiente = 0;
                 this.invoices.forEach(inv => {
-                    let m = parseFloat(inv.total) || 0;
+                    let m = parseFloat(inv.total || inv.amount || 0) || 0;
                     total += m;
-                    if (inv.paid) cobrado += m;
+                    if (inv.paid || inv.pagada) cobrado += m;
                     else pendiente += m;
                 });
                 return {
@@ -311,7 +330,7 @@
                 };
             },
             totalCalculado() {
-                let total = this.invoice.items.reduce((sum, item) => sum + (item.qty * item.price), 0);
+                let total = this.invoice.items.reduce((sum, item) => sum + ((item.qty || 1) * (item.price || 0)), 0);
                 return { total: total.toFixed(2) };
             }
         },
@@ -321,15 +340,36 @@
             },
             getCustomerName(id) {
                 const cliente = this.customers.find(c => c.id === id);
-                return cliente ? cliente.name : 'Cliente General';
+                return cliente ? (cliente.name || cliente.nombre) : 'Cliente General';
             },
             onCustomerChange() {
                 const cliente = this.customers.find(c => c.id === this.selectedCustomerId);
                 if (cliente) {
-                    this.availableAddresses = cliente.addresses || [];
+                    this.availableAddresses = cliente.addresses || cliente.direcciones || [];
                 } else {
                     this.availableAddresses = [];
                 }
+            },
+            guardarEnFirebase(pagado) {
+                const payload = {
+                    folio: this.invoice.folio || 'S/N',
+                    date: new Date().toLocaleDateString(),
+                    customerName: this.selectedCustomerId ? this.getCustomerName(this.selectedCustomerId) : 'Cliente General',
+                    paymentMethod: this.invoice.paymentMethod,
+                    total: this.totalCalculado.total,
+                    paid: pagado,
+                    items: this.invoice.items
+                };
+
+                db.ref('invoices').push(payload, (error) => {
+                    if (error) {
+                        alert('Error al guardar: ' + error.message);
+                    } else {
+                        alert('¡Trabajo guardado exitosamente en Firebase!');
+                        this.invoice.items = [{ description: '', qty: 1, price: 0 }];
+                        this.currentView = 'dashboard';
+                    }
+                });
             },
             descargarPDFDirecto() {
                 const folio = this.invoice.folio || 'S/N';
@@ -340,7 +380,7 @@
                 let filasHTML = '';
                 if (this.invoice.items && this.invoice.items.length > 0) {
                     this.invoice.items.forEach(item => {
-                        const subtotal = (item.qty * item.price).toFixed(2);
+                        const subtotal = ((item.qty || 1) * (item.price || 0)).toFixed(2);
                         filasHTML += `
                             <tr>
                                 <td style="border: 1px solid #333; padding: 8px;">${item.description || 'Servicio de Jardinería'}</td>
@@ -353,7 +393,7 @@
 
                 const ventana = window.open('', '_blank', 'width=800,height=600');
                 if (!ventana) {
-                    alert('Por favor, permite las ventanas emergentes (pop-ups) para descargar el PDF.');
+                    alert('Por favor, permite las ventanas emergentes para imprimir/descargar el PDF.');
                     return;
                 }
 
@@ -370,8 +410,8 @@
                             </style>
                         </head>
                         <body>
-                            <h1 style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 5px;">JOSE LANDSCAPING CARE</h1>
-                            <p style="text-align: center; font-size: 14px; margin-bottom: 20px;">Servicio Profesional de Jardinería</p>
+                            <h1 style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 5px;">JOSE'S LAWN CARE</h1>
+                            <p style="text-align: center; font-size: 14px; margin-bottom: 20px;">Professional Landscaping Services</p>
                             
                             <div style="border: 1px solid #333; padding: 12px; margin-bottom: 20px; border-radius: 4px;">
                                 <p style="margin: 4px 0;"><strong>Folio:</strong> #${folio}</p>
