@@ -37,7 +37,7 @@
                     </div>
                     <div>
                         <h1 class="text-sm font-black text-white uppercase tracking-wider leading-none">Jose's Lawn Care</h1>
-                        <span class="text-[10px] text-emerald-400 font-bold uppercase block mt-1 tracking-widest">Business Suite v3.7</span>
+                        <span class="text-[10px] text-emerald-400 font-bold uppercase block mt-1 tracking-widest">Business Suite v3.8</span>
                     </div>
                 </div>
 
@@ -357,11 +357,20 @@
                 
                 this.syncStatus = 'Synced';
 
+                // LECTURA ROBUSTA: Protegida para clientes y facturas (soporta objetos y arreglos)
                 const custRaw = rootData.customers || rootData.clientes || {};
-                this.customers = Object.keys(custRaw).map(key => ({ id: key, ...custRaw[key] }));
+                if (Array.isArray(custRaw)) {
+                    this.customers = custRaw.map((item, idx) => item ? ({ id: idx, ...item }) : null).filter(Boolean);
+                } else {
+                    this.customers = Object.keys(custRaw).map(key => ({ id: key, ...custRaw[key] }));
+                }
 
                 const invRaw = rootData.invoices || rootData.facturas || rootData.trabajos || {};
-                this.invoices = Object.keys(invRaw).map(key => ({ id: key, ...invRaw[key] }));
+                if (Array.isArray(invRaw)) {
+                    this.invoices = invRaw.map((item, idx) => item ? ({ id: idx, ...item }) : null).filter(Boolean);
+                } else {
+                    this.invoices = Object.keys(invRaw).map(key => ({ id: key, ...invRaw[key] }));
+                }
             }, err => {
                 this.syncStatus = 'Permission Error';
             });
@@ -403,7 +412,6 @@
                 return cliente ? (cliente.name || cliente.nombre) : 'General Customer';
             },
             onCustomerChange() {
-                // LIMPIEZA TOTAL DE DATOS RESIDUALES AL CAMBIAR DE CLIENTE
                 this.selectedAddressIndex = '';
                 this.invoice.address = '';
                 
@@ -454,10 +462,13 @@
                 if (!this.modalCliente.datos.name) return alert('Please enter customer name');
                 
                 if (this.modalCliente.esEdicion) {
+                    // Solo actualizamos los campos editados usando .update() para no borrar direcciones ni otros campos
                     db.ref('customers/' + this.modalCliente.id).update(this.modalCliente.datos, (err) => {
                         if (!err) {
                             alert('Customer updated successfully');
                             this.modalCliente.mostrar = false;
+                        } else {
+                            alert('Error updating: ' + err.message);
                         }
                     });
                 } else {
@@ -465,6 +476,8 @@
                         if (!err) {
                             alert('Customer added successfully');
                             this.modalCliente.mostrar = false;
+                        } else {
+                            alert('Error adding: ' + err.message);
                         }
                     });
                 }
@@ -491,7 +504,6 @@
                         alert('Error saving: ' + error.message);
                     } else {
                         alert('Job saved successfully!');
-                        // Reset form after saving
                         this.invoice.folio = '';
                         this.selectedCustomerId = '';
                         this.selectedAddressIndex = '';
