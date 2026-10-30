@@ -37,7 +37,7 @@
                     </div>
                     <div>
                         <h1 class="text-sm font-black text-white uppercase tracking-wider leading-none">Jose's Lawn Care</h1>
-                        <span class="text-[10px] text-emerald-400 font-bold uppercase block mt-1 tracking-widest">Business Suite v3.8</span>
+                        <span class="text-[10px] text-emerald-400 font-bold uppercase block mt-1 tracking-widest">Business Suite v3.10</span>
                     </div>
                 </div>
 
@@ -260,7 +260,7 @@
                                     <td class="p-3 font-bold text-emerald-600">${{ c.price || c.precio || '0.00' }}</td>
                                     <td class="p-3 text-center space-x-2">
                                         <button @click="abrirModalCliente(c)" class="bg-blue-50 text-blue-600 font-bold px-2.5 py-1 rounded-lg text-[11px]">✏️ Edit</button>
-                                        <button @click="eliminarCliente(c.id)" class="bg-red-50 text-red-600 font-bold px-2.5 py-1 rounded-lg text-[11px]">🗑️ Delete</button>
+                                        <button @click="eliminarCliente(c.id, c.nodeSource)" class="bg-red-50 text-red-600 font-bold px-2.5 py-1 rounded-lg text-[11px]">🗑️ Delete</button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -344,6 +344,7 @@
                 mostrar: false,
                 esEdicion: false,
                 id: null,
+                nodeSource: 'clientes', // Rama principal donde están todos tus clientes antiguos
                 datos: { name: '', phone: '', price: 0 }
             }
         },
@@ -357,13 +358,15 @@
                 
                 this.syncStatus = 'Synced';
 
-                // LECTURA ROBUSTA: Protegida para clientes y facturas (soporta objetos y arreglos)
-                const custRaw = rootData.customers || rootData.clientes || {};
-                if (Array.isArray(custRaw)) {
-                    this.customers = custRaw.map((item, idx) => item ? ({ id: idx, ...item }) : null).filter(Boolean);
-                } else {
-                    this.customers = Object.keys(custRaw).map(key => ({ id: key, ...custRaw[key] }));
-                }
+                // FUSIÓN DE AMBAS RAMAS (clientes + customers) para recuperar todos los registros sin perder nada
+                const custClientes = rootData.clientes || {};
+                const custCustomers = rootData.customers || {};
+
+                const listClientes = Object.keys(custClientes).map(key => ({ id: key, nodeSource: 'clientes', ...custClientes[key] }));
+                const listCustomers = Object.keys(custCustomers).map(key => ({ id: key, nodeSource: 'customers', ...custCustomers[key] }));
+
+                // Combinamos ambas listas en una sola
+                this.customers = [...listClientes, ...listCustomers];
 
                 const invRaw = rootData.invoices || rootData.facturas || rootData.trabajos || {};
                 if (Array.isArray(invRaw)) {
@@ -446,6 +449,7 @@
                 if (cliente) {
                     this.modalCliente.esEdicion = true;
                     this.modalCliente.id = cliente.id;
+                    this.modalCliente.nodeSource = cliente.nodeSource || 'clientes';
                     this.modalCliente.datos = {
                         name: cliente.name || cliente.nombre || '',
                         phone: cliente.phone || cliente.telefono || '',
@@ -454,6 +458,7 @@
                 } else {
                     this.modalCliente.esEdicion = false;
                     this.modalCliente.id = null;
+                    this.modalCliente.nodeSource = 'clientes'; // Nuevos clientes van directo a la rama 'clientes'
                     this.modalCliente.datos = { name: '', phone: '', price: 0 };
                 }
                 this.modalCliente.mostrar = true;
@@ -462,8 +467,8 @@
                 if (!this.modalCliente.datos.name) return alert('Please enter customer name');
                 
                 if (this.modalCliente.esEdicion) {
-                    // Solo actualizamos los campos editados usando .update() para no borrar direcciones ni otros campos
-                    db.ref('customers/' + this.modalCliente.id).update(this.modalCliente.datos, (err) => {
+                    // Actualiza respetando exactamente la rama de donde vino el cliente (clientes o customers)
+                    db.ref(this.modalCliente.nodeSource + '/' + this.modalCliente.id).update(this.modalCliente.datos, (err) => {
                         if (!err) {
                             alert('Customer updated successfully');
                             this.modalCliente.mostrar = false;
@@ -472,7 +477,8 @@
                         }
                     });
                 } else {
-                    db.ref('customers').push(this.modalCliente.datos, (err) => {
+                    // Guarda el nuevo cliente en la rama principal 'clientes'
+                    db.ref('clientes').push(this.modalCliente.datos, (err) => {
                         if (!err) {
                             alert('Customer added successfully');
                             this.modalCliente.mostrar = false;
@@ -482,9 +488,9 @@
                     });
                 }
             },
-            eliminarCliente(id) {
+            eliminarCliente(id, nodeSource = 'clientes') {
                 if (confirm('Are you sure you want to delete this customer?')) {
-                    db.ref('customers/' + id).remove();
+                    db.ref(nodeSource + '/' + id).remove();
                 }
             },
             guardarEnFirebase(pagado) {
