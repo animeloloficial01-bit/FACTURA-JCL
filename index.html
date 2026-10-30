@@ -17,6 +17,11 @@
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; color: black; }
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
@@ -32,7 +37,7 @@
                     </div>
                     <div>
                         <h1 class="text-sm font-black text-white uppercase tracking-wider leading-none">Jose's Lawn Care</h1>
-                        <span class="text-[10px] text-emerald-400 font-bold uppercase block mt-1 tracking-widest">Business Suite v3.6</span>
+                        <span class="text-[10px] text-emerald-400 font-bold uppercase block mt-1 tracking-widest">Business Suite v3.7</span>
                     </div>
                 </div>
 
@@ -66,7 +71,7 @@
         </aside>
 
         <!-- MAIN CONTENT -->
-        <main class="flex-1 p-4 md:p-8 overflow-y-auto max-w-full">
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto max-w-full no-print">
             
             <!-- VIEW: DASHBOARD -->
             <section v-if="currentView === 'dashboard'" class="space-y-6">
@@ -220,7 +225,7 @@
                             <button @click="guardarEnFirebase(false)" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider">
                                 Save as PENDING
                             </button>
-                            <button @click="imprimirTicket" class="w-full bg-slate-950 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider shadow-md mt-2">
+                            <button @click="imprimirInvoice" class="w-full bg-slate-950 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider shadow-md mt-2">
                                 🖨️ Print Full Page Invoice
                             </button>
                         </div>
@@ -398,18 +403,23 @@
                 return cliente ? (cliente.name || cliente.nombre) : 'General Customer';
             },
             onCustomerChange() {
+                // LIMPIEZA TOTAL DE DATOS RESIDUALES AL CAMBIAR DE CLIENTE
+                this.selectedAddressIndex = '';
+                this.invoice.address = '';
+                
                 const cliente = this.customers.find(c => c.id === this.selectedCustomerId);
                 if (cliente) {
                     this.availableAddresses = cliente.addresses || cliente.direcciones || [];
                     
                     const precioCliente = parseFloat(cliente.price || cliente.precio || 0);
-                    if (precioCliente > 0 && this.invoice.items.length > 0) {
+                    if (this.invoice.items.length > 0) {
                         this.invoice.items[0].price = precioCliente;
                     }
                 } else {
                     this.availableAddresses = [];
-                    this.selectedAddressIndex = '';
-                    this.invoice.address = '';
+                    if (this.invoice.items.length > 0) {
+                        this.invoice.items[0].price = 0;
+                    }
                 }
             },
             onAddressChange() {
@@ -481,11 +491,18 @@
                         alert('Error saving: ' + error.message);
                     } else {
                         alert('Job saved successfully!');
+                        // Reset form after saving
+                        this.invoice.folio = '';
+                        this.selectedCustomerId = '';
+                        this.selectedAddressIndex = '';
+                        this.availableAddresses = [];
+                        this.invoice.address = '';
+                        this.invoice.items = [{ description: 'Lawn Mowing Service', qty: 1, price: 0 }];
                         this.currentView = 'dashboard';
                     }
                 });
             },
-            imprimirTicket() {
+            imprimirInvoice() {
                 const folio = this.invoice.folio || 'S/N';
                 const fecha = new Date().toLocaleDateString();
                 const cliente = this.selectedCustomerId ? this.getCustomerName(this.selectedCustomerId) : 'General Customer';
@@ -507,14 +524,17 @@
                 });
 
                 const ventana = window.open('', '_blank', 'width=800,height=900');
-                if (!ventana) return alert('Please allow pop-ups in your browser to print the invoice.');
+                if (!ventana) {
+                    alert('Please allow pop-ups in your browser to print the invoice.');
+                    return;
+                }
 
                 const contenidoHTML = `
                     <html>
                         <head>
                             <title>Invoice #${folio}</title>
                             <style>
-                                body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 50px; color: #1e293b; }
+                                body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px; color: #1e293b; }
                                 .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0f172a; padding-bottom: 20px; margin-bottom: 30px; }
                                 h1 { margin: 0; font-size: 26px; font-weight: 800; color: #0f172a; text-transform: uppercase; }
                                 p { margin: 2px 0; font-size: 13px; color: #64748b; }
